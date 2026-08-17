@@ -77,6 +77,8 @@ USAGE:
 """
 
 import argparse
+import json
+import subprocess
 import time
 import traceback
 from pathlib import Path
@@ -127,6 +129,83 @@ LORA_VARIANTS = ["qlora", "adalora", "dora", "vera"]
 
 OUTPUT_DIR = Path("./experiment_results")
 OUTPUT_DIR.mkdir(exist_ok=True)
+
+
+# ─── CHECKPOINTING (resume after a crash / kill / disconnect) ────────────────
+# Every run's result is appended to this file the moment it finishes — not
+# batched until the end. If the script dies partway through the 20-condition
+# matrix (killed process, RunPod disconnect, OOM, etc.), re-running the same
+# command skips every run that already PASSED and continues from where it
+# stopped, instead of re-running (and re-paying for) everything from scratch.
+def _run_key(config_name: str, lora_variant: str, language: str) -> str:
+    return f"{config_name}|{lora_variant}|{language}"
+
+
+def load_completed_runs(checkpoint_file: Path) -> set:
+    """Set of run keys that already PASSED in a previous session."""
+    completed = set()
+    if checkpoint_file.exists():
+        with open(checkpoint_file, "r") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    entry = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                if entry.get("status") == "PASS":
+                    completed.add(_run_key(entry["config"], entry["lora_variant"],
+                                            entry["language"]))
+    return completed
+
+
+def append_checkpoint(checkpoint_file: Path, result: dict) -> None:
+    """Append one run's result immediately after it finishes (crash-safe)."""
+    with open(checkpoint_file, "a") as f:
+        f.write(json.dumps(result) + "\n")
+
+
+def load_all_checkpoint_results(checkpoint_file: Path) -> list:
+    """Every recorded result (PASS and FAIL) across all sessions so far."""
+    results = []
+    if checkpoint_file.exists():
+        with open(checkpoint_file, "r") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    results.append(json.loads(line))
+                except json.JSONDecodeError:
+                    continue
+    return results
+
+
+# ─── AUTO-PUSH RESULTS TO GITHUB AFTER EVERY RUN ─────────────────────────────
+# Requires git credentials already configured non-interactively on this
+# machine (e.g. `git config credential.helper store` + one manual push to
+# cache the token, or an SSH deploy key). If push fails for any reason
+# (no network, no cached credentials, etc.) this NEVER crashes the
+# experiment — the checkpoint file is still safely saved and committed
+# locally; you can push it manually later with `git push`.
+def git_commit_and_push(repo_file: Path, message: str) -> None:
+    try:
+        subprocess.run(["git", "add", str(repo_file)],
+                        check=True, capture_output=True, text=True)
+        commit = subprocess.run(["git", "commit", "-m", message],
+                                 capture_output=True, text=True)
+        if commit.returncode != 0 and "nothing to commit" not in commit.stdout:
+            print(f"  [GIT] commit warning: {commit.stdout.strip()} {commit.stderr.strip()}")
+            return
+        push = subprocess.run(["git", "push"], capture_output=True, text=True)
+        if push.returncode != 0:
+            print(f"  [GIT] push FAILED (checkpoint is committed locally, "
+                  f"push manually later): {push.stderr.strip()}")
+        else:
+            print("  [GIT] checkpoint pushed to GitHub")
+    except Exception as e:
+        print(f"  [GIT] auto-push error (non-fatal, experiment continues): {e}")
 
 
 # ─── DATA LOADING (FIXED: correct fields per dataset) ────────────────────────
@@ -454,16 +533,34 @@ def main():
               "lab server, not locally.")
         return
 
+    checkpoint_file = OUTPUT_DIR / (
+        "checkpoint_smoke.jsonl" if args.smoke_test else "checkpoint_full.jsonl"
+    )
+
     runs = build_run_matrix()
+    completed = load_completed_runs(checkpoint_file)
+    if completed:
+        skip_count = sum(1 for r in runs if _run_key(*r) in completed)
+        runs = [r for r in runs if _run_key(*r) not in completed]
+        print(f"Resuming from checkpoint ({checkpoint_file.name}): "
+              f"{skip_count} runs already PASSED in a previous session, skipping them.")
+
     print(f"Total runs queued: {len(runs)} | mode: "
           f"{'SMOKE TEST (CPU, pipeline validation only)' if args.smoke_test else 'FULL (GPU)'}")
 
-    all_results = []
     for config_name, lora_variant, language in runs:
         result = run_single_experiment(config_name, lora_variant, language,
                                        smoke_test=args.smoke_test)
-        all_results.append(result)
+        append_checkpoint(checkpoint_file, result)
+        if not args.smoke_test:
+            git_commit_and_push(
+                checkpoint_file,
+                f"Checkpoint: {config_name}/{lora_variant}/{language} = {result['status']}",
+            )
 
+    # Final report always reflects EVERY recorded result — runs skipped this
+    # session because they already passed, plus runs completed just now.
+    all_results = load_all_checkpoint_results(checkpoint_file)
     df = pd.DataFrame(all_results)
     print("\n\n" + "=" * 70)
     print("FINAL REPORT")
