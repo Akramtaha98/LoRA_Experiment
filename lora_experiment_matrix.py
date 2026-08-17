@@ -61,6 +61,17 @@ BUGS FIXED IN THIS VERSION (found during code review, before any server run):
      every LoRA variant produced identical scores as a result. This is now
      implemented with a real Seq2SeqTrainer, including the Config C
      composite-loss override.
+  7. Malay (Belebele) task formulation was unfair to the model: it was
+     trained/evaluated to freely generate the exact text of the correct
+     multiple-choice option WITHOUT ever being shown what the 4 options
+     were. This collapsed Malay F_faith scores (~0.08-0.10, flat across
+     every config) relative to Arabic (~0.31-0.37), because the model had
+     no way to know the phrasing/scope of a valid answer -- not because
+     training failed. Fixed via build_prompt(): the 4 options are now
+     included in the prompt for Malay, matching Belebele's actual
+     multiple-choice design. A one-line sample (gold vs. generated) is now
+     also printed for the first eval example of every run, for a quick
+     qualitative sanity check in the terminal log.
 
 REQUIREMENTS:
   Smoke test (Mac, CPU):
@@ -248,25 +259,66 @@ def load_qa_data(language: str, smoke_test: bool = False):
 
 def extract_context_question_answer(example: dict, language: str):
     """
-    Returns (context, question, gold_answer) normalized across the two
-    different dataset schemas. Belebele is multiple-choice, so gold_answer
-    is the text of the correct option, not a free-text span.
+    Returns (context, question, gold_answer, options) normalized across the
+    two different dataset schemas.
+
+    Arabic (XQuAD): free-text extractive QA. options=None -- gold_answer is
+    a short verbatim span lifted directly from the context.
+
+    Malay (Belebele): multiple-choice. gold_answer is the text of the
+    correct option, and options is the list of all 4 option texts.
+
+    FIX (see build_prompt() below): Belebele's actual task is "pick the
+    correct option given these 4 choices", not "freely recall a sentence
+    you were never shown." Earlier versions of this script trained/evaluated
+    the model on question+context ONLY, never showing it the options --
+    the model had no way to know the length/phrasing/scope of a valid
+    answer and had to blindly guess wording it had never seen. That made
+    the Malay F_faith scores collapse (~0.08-0.10, flat across every config
+    including full fine-tuning) versus Arabic (~0.31-0.37), because the
+    task itself was unfair, not because training failed. Now options are
+    included in the prompt so the model can actually ground its answer in
+    the choices it's meant to select from -- matching Belebele's real task
+    design and giving F_faith a fair basis for comparison across languages.
     """
     if language == "arabic":
         context = example.get("context", "")
         question = example.get("question", "")
         answers = example.get("answers", {})
         gold = answers.get("text", [""])[0] if isinstance(answers, dict) else ""
-        return context, question, gold
+        return context, question, gold, None
 
     elif language == "malay":
         context = example.get("flores_passage", "")
         question = example.get("question", "")
         correct_num = example.get("correct_answer_num", "1")
         gold = example.get(f"mc_answer{correct_num}", "")
-        return context, question, gold
+        options = [
+            example.get("mc_answer1", ""),
+            example.get("mc_answer2", ""),
+            example.get("mc_answer3", ""),
+            example.get("mc_answer4", ""),
+        ]
+        return context, question, gold, options
 
     raise ValueError(f"Unknown language: {language}")
+
+
+def build_prompt(question: str, context: str, options=None) -> str:
+    """
+    Builds the model input prompt. Context comes right after the question
+    (before options) so that if max_length truncation kicks in, the options
+    block is what gets cut, never the passage the answer depends on.
+
+    For Malay (options is a list of 4 strings), the options are appended so
+    the model can see what it's choosing among -- this is the fix described
+    in extract_context_question_answer() above.
+    """
+    base = f"question: {question}  context: {context}"
+    if options:
+        options_block = " ".join(f"({i + 1}) {opt}" for i, opt in enumerate(options))
+        return f"{base}  options: {options_block}"
+    return base
 
 
 # ─── LoRA VARIANT CONFIG BUILDERS (FIXED: AdaLoRA scheduling params) ─────────
@@ -458,8 +510,8 @@ def run_single_experiment(config_name: str, lora_variant: str, language: str,
 
         if config_name != "A_frozen" and not smoke_test:
             def _tokenize_fn(ex):
-                ctx, q, gold = extract_context_question_answer(ex, language)
-                prompt = f"question: {q}  context: {ctx}"
+                ctx, q, gold, options = extract_context_question_answer(ex, language)
+                prompt = build_prompt(q, ctx, options)
                 model_inputs = tokenizer(prompt, truncation=True, max_length=512)
                 labels = tokenizer(text_target=(gold or ""), truncation=True,
                                     max_length=64)
@@ -508,17 +560,23 @@ def run_single_experiment(config_name: str, lora_variant: str, language: str,
         # above (guaranteed disjoint from train_ds when training occurred).
         eval_slice = dataset.select(eval_indices)
         scores = []
-        for ex in eval_slice:
-            context, question, gold = extract_context_question_answer(ex, language)
+        for i, ex in enumerate(eval_slice):
+            context, question, gold, options = extract_context_question_answer(ex, language)
             if not context or not question:
                 continue
-            prompt = f"question: {question}  context: {context}"
+            prompt = build_prompt(question, context, options)
             inputs = tokenizer(prompt, return_tensors="pt", truncation=True,
                               max_length=512).to(DEVICE)
             with torch.no_grad():
                 out = model.generate(**inputs, max_new_tokens=40)
             answer = tokenizer.decode(out[0], skip_special_tokens=True)
             scores.append(f_faith(answer, context))
+            # Print the first eval example per run so generated vs. gold text
+            # is visible in the terminal log -- useful for a qualitative
+            # sanity check / paper appendix example, and for catching any
+            # future task-formulation regressions immediately.
+            if i == 0:
+                print(f"  [SAMPLE] gold=\"{gold[:80]}\" | generated=\"{answer[:80]}\"")
 
         mean_score = sum(scores) / len(scores) if scores else 0.0
         elapsed = time.time() - t0
