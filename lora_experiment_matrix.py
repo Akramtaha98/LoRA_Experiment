@@ -127,6 +127,18 @@ NLI_MODEL     = "cross-encoder/nli-deberta-v3-base"
 LANGUAGES     = ["arabic", "malay"]
 LORA_VARIANTS = ["qlora", "adalora", "dora", "vera"]
 
+# Data scale for --full runs. 500 is safely under both XQuAD's ~1190 Arabic
+# validation examples and Belebele's ~900 Malay test examples per language.
+# Raised from an earlier 50-example cap that made --full finish in minutes
+# instead of doing meaningful training -- that cap was fine for smoke-test
+# pipeline validation but was accidentally also governing the real run.
+FULL_DATA_CAP   = 500
+SMOKE_DATA_CAP  = 3     # unchanged -- pipeline validation only, keep tiny
+FULL_EVAL_SIZE  = 30    # more eval examples -> less noisy F_faith comparison
+SMOKE_EVAL_SIZE = 3
+TRAIN_BATCH_SIZE = 4
+TRAIN_EPOCHS     = 3
+
 OUTPUT_DIR = Path("./experiment_results")
 OUTPUT_DIR.mkdir(exist_ok=True)
 
@@ -228,9 +240,9 @@ def load_qa_data(language: str, smoke_test: bool = False):
         raise ValueError(f"Unknown language: {language}")
 
     if smoke_test:
-        ds = ds.select(range(min(3, len(ds))))   # tiny slice for dry run
+        ds = ds.select(range(min(SMOKE_DATA_CAP, len(ds))))  # tiny slice, dry run
     else:
-        ds = ds.select(range(min(50, len(ds))))  # cap per-run eval set
+        ds = ds.select(range(min(FULL_DATA_CAP, len(ds))))   # real training scale
     return ds
 
 
@@ -417,7 +429,31 @@ def run_single_experiment(config_name: str, lora_variant: str, language: str,
     try:
         dataset = load_qa_data(language, smoke_test=smoke_test)
         tokenizer = AutoTokenizer.from_pretrained(BASE_MODEL)
-        total_steps = max(2, len(dataset) // 4) if not smoke_test else 5
+
+        # Carve out the eval slice FIRST and exclude it from training data.
+        # Without this split, train_ds and eval_slice previously overlapped
+        # (eval_slice was the first N examples of the SAME dataset used for
+        # training), meaning the model was evaluated on data it had just
+        # trained on -- train/test leakage that would invalidate the
+        # F_faith comparison across LoRA variants for the paper.
+        n_eval = min(SMOKE_EVAL_SIZE if smoke_test else FULL_EVAL_SIZE, len(dataset))
+        eval_indices = list(range(n_eval))
+        train_indices = list(range(n_eval, len(dataset)))
+        n_train = len(train_indices) if train_indices else len(eval_indices)
+
+        # total_steps drives AdaLoRA's rank-decay schedule (tinit/tfinal/
+        # deltaT). It must match the ACTUAL number of optimizer steps the
+        # Trainer will run below, or AdaLoRA prunes ranks on a schedule that
+        # doesn't match training length. Previously this was computed from
+        # len(dataset)//4 before the train/eval split existed, so it never
+        # matched the real step count even at the old small scale --
+        # computed correctly here from the real batch size/epoch count.
+        if smoke_test:
+            total_steps = 5
+        else:
+            steps_per_epoch = max(1, -(-n_train // TRAIN_BATCH_SIZE))  # ceil div
+            total_steps = max(2, steps_per_epoch * TRAIN_EPOCHS)
+
         model = load_model_for_config(config_name, lora_variant, total_steps)
 
         if config_name != "A_frozen" and not smoke_test:
@@ -430,13 +466,16 @@ def run_single_experiment(config_name: str, lora_variant: str, language: str,
                 model_inputs["labels"] = labels["input_ids"]
                 return model_inputs
 
-            train_ds = dataset.map(_tokenize_fn, remove_columns=dataset.column_names)
+            train_ds_raw = (dataset.select(train_indices) if train_indices
+                             else dataset.select(eval_indices))
+            train_ds = train_ds_raw.map(_tokenize_fn,
+                                         remove_columns=train_ds_raw.column_names)
             data_collator = DataCollatorForSeq2Seq(tokenizer, model=model)
 
             training_args = Seq2SeqTrainingArguments(
                 output_dir=str(OUTPUT_DIR / f"ckpt_{config_name}_{lora_variant}_{language}"),
-                per_device_train_batch_size=4,
-                num_train_epochs=3,
+                per_device_train_batch_size=TRAIN_BATCH_SIZE,
+                num_train_epochs=TRAIN_EPOCHS,
                 learning_rate=2e-4 if lora_variant else 5e-5,
                 logging_steps=5,
                 save_strategy="no",
@@ -465,8 +504,9 @@ def run_single_experiment(config_name: str, lora_variant: str, language: str,
             print("  [SMOKE TEST] Skipping actual training — validating "
                   "model/adapter construction only.")
 
-        # Evaluation: generate + score F_faith on a held-out slice
-        eval_slice = dataset.select(range(min(3 if smoke_test else 10, len(dataset))))
+        # Evaluation: generate + score F_faith on the held-out slice reserved
+        # above (guaranteed disjoint from train_ds when training occurred).
+        eval_slice = dataset.select(eval_indices)
         scores = []
         for ex in eval_slice:
             context, question, gold = extract_context_question_answer(ex, language)
