@@ -11,3 +11,4 @@
 {"config": "A_frozen", "lora_variant": "none", "language": "malay", "status": "PASS", "mean_f_faith": 0.079, "n_eval": 30, "runtime_sec": 24.1, "error": ""}
 {"config": "D_full_ft", "lora_variant": "none", "language": "malay", "status": "PASS", "mean_f_faith": 0.0828, "n_eval": 30, "runtime_sec": 42.6, "error": ""}
 {"config": "B_ce_lora", "lora_variant": "qlora", "language": "malay", "status": "PASS", "mean_f_faith": 0.0871, "n_eval": 30, "runtime_sec": 53.5, "error": ""}
+{"config": "C_composite_lora", "lora_variant": "qlora", "language": "malay", "status": "PASS", "mean_f_faith": 0.0905, "n_eval": 30, "runtime_sec": 310.3, "error": ""}
