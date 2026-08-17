@@ -5,3 +5,4 @@
 {"config": "B_ce_lora", "lora_variant": "adalora", "language": "arabic", "status": "PASS", "mean_f_faith": 0.732, "n_eval": 10, "runtime_sec": 23.5, "error": ""}
 {"config": "C_composite_lora", "lora_variant": "adalora", "language": "arabic", "status": "PASS", "mean_f_faith": 0.6045, "n_eval": 10, "runtime_sec": 57.9, "error": ""}
 {"config": "B_ce_lora", "lora_variant": "dora", "language": "arabic", "status": "PASS", "mean_f_faith": 0.7444, "n_eval": 10, "runtime_sec": 25.3, "error": ""}
+{"config": "C_composite_lora", "lora_variant": "dora", "language": "arabic", "status": "PASS", "mean_f_faith": 0.6684, "n_eval": 10, "runtime_sec": 71.2, "error": ""}
