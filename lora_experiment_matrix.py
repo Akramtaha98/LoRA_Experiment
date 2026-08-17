@@ -442,7 +442,12 @@ def run_single_experiment(config_name: str, lora_variant: str, language: str,
                 save_strategy="no",
                 report_to=[],
                 remove_unused_columns=False,
-                fp16=(DEVICE == "cuda"),
+                # NOTE: T5-family models (including mT5) are numerically
+                # unstable under fp16 mixed precision and frequently produce
+                # NaN gradients / zeroed-out loss, silently corrupting
+                # training without raising an exception. bf16 does not have
+                # this issue and is natively supported on the RTX 4090.
+                bf16=(DEVICE == "cuda"),
             )
 
             trainer = CompositeLossTrainer(
