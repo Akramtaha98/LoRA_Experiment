@@ -9,3 +9,4 @@
 {"config": "B_ce_lora", "lora_variant": "vera", "language": "arabic", "status": "PASS", "mean_f_faith": 0.3181, "n_eval": 30, "runtime_sec": 67.8, "error": ""}
 {"config": "C_composite_lora", "lora_variant": "vera", "language": "arabic", "status": "PASS", "mean_f_faith": 0.3693, "n_eval": 30, "runtime_sec": 382.2, "error": ""}
 {"config": "A_frozen", "lora_variant": "none", "language": "malay", "status": "PASS", "mean_f_faith": 0.079, "n_eval": 30, "runtime_sec": 24.1, "error": ""}
+{"config": "D_full_ft", "lora_variant": "none", "language": "malay", "status": "PASS", "mean_f_faith": 0.0828, "n_eval": 30, "runtime_sec": 42.6, "error": ""}
