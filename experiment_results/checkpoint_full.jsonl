@@ -1,1 +1,2 @@
 {"config": "A_frozen", "lora_variant": "none", "language": "arabic", "status": "PASS", "mean_f_faith": 0.3069, "n_eval": 30, "runtime_sec": 39.5, "error": ""}
+{"config": "D_full_ft", "lora_variant": "none", "language": "arabic", "status": "PASS", "mean_f_faith": 0.3503, "n_eval": 30, "runtime_sec": 57.7, "error": ""}
