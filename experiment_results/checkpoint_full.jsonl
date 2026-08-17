@@ -8,13 +8,4 @@
 {"config": "C_composite_lora", "lora_variant": "dora", "language": "arabic", "status": "PASS", "mean_f_faith": 0.3499, "n_eval": 30, "runtime_sec": 454.9, "error": ""}
 {"config": "B_ce_lora", "lora_variant": "vera", "language": "arabic", "status": "PASS", "mean_f_faith": 0.3181, "n_eval": 30, "runtime_sec": 67.8, "error": ""}
 {"config": "C_composite_lora", "lora_variant": "vera", "language": "arabic", "status": "PASS", "mean_f_faith": 0.3693, "n_eval": 30, "runtime_sec": 382.2, "error": ""}
-{"config": "A_frozen", "lora_variant": "none", "language": "malay", "status": "PASS", "mean_f_faith": 0.079, "n_eval": 30, "runtime_sec": 24.1, "error": ""}
-{"config": "D_full_ft", "lora_variant": "none", "language": "malay", "status": "PASS", "mean_f_faith": 0.0828, "n_eval": 30, "runtime_sec": 42.6, "error": ""}
-{"config": "B_ce_lora", "lora_variant": "qlora", "language": "malay", "status": "PASS", "mean_f_faith": 0.0871, "n_eval": 30, "runtime_sec": 53.5, "error": ""}
-{"config": "C_composite_lora", "lora_variant": "qlora", "language": "malay", "status": "PASS", "mean_f_faith": 0.0905, "n_eval": 30, "runtime_sec": 310.3, "error": ""}
-{"config": "B_ce_lora", "lora_variant": "adalora", "language": "malay", "status": "PASS", "mean_f_faith": 0.0826, "n_eval": 30, "runtime_sec": 76.6, "error": ""}
-{"config": "C_composite_lora", "lora_variant": "adalora", "language": "malay", "status": "PASS", "mean_f_faith": 0.0957, "n_eval": 30, "runtime_sec": 308.5, "error": ""}
-{"config": "B_ce_lora", "lora_variant": "dora", "language": "malay", "status": "PASS", "mean_f_faith": 0.0904, "n_eval": 30, "runtime_sec": 68.8, "error": ""}
-{"config": "C_composite_lora", "lora_variant": "dora", "language": "malay", "status": "PASS", "mean_f_faith": 0.0801, "n_eval": 30, "runtime_sec": 366.8, "error": ""}
-{"config": "B_ce_lora", "lora_variant": "vera", "language": "malay", "status": "PASS", "mean_f_faith": 0.0864, "n_eval": 30, "runtime_sec": 58.2, "error": ""}
-{"config": "C_composite_lora", "lora_variant": "vera", "language": "malay", "status": "PASS", "mean_f_faith": 0.0827, "n_eval": 30, "runtime_sec": 268.8, "error": ""}
+{"config": "A_frozen", "lora_variant": "none", "language": "malay", "status": "PASS", "mean_f_faith": 0.1158, "n_eval": 30, "runtime_sec": 32.3, "error": ""}
