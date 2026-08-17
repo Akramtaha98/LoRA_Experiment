@@ -12,12 +12,16 @@ TWO MODES:
                   Automatically skips 4-bit quantization (QLoRA needs CUDA)
                   and falls back to a plain float32 model for the dry run.
 
-  --full        : The real 32-run matrix. REQUIRES GPU (bitsandbytes 4-bit
-                  quantization for QLoRA will raise an error on CPU/Mac).
-                  Run this only on the lab server after --smoke_test passes.
+  --full        : The real 20-condition matrix. REQUIRES GPU (bitsandbytes
+                  4-bit quantization for QLoRA will raise an error on CPU/Mac).
+                  Run this only on the lab server / rented GPU after
+                  --smoke_test passes.
 
 WHAT THIS SCRIPT DOES:
-  Trains and evaluates 4 Configs x 4 LoRA variants x 2 languages = 32 runs.
+  Trains and evaluates 20 total conditions: Configs A and D run once per
+  language (no LoRA variant), and Configs B and C run once per LoRA variant
+  per language (4 variants x 2 configs x 2 languages = 16), for
+  4 + 16 = 20 conditions total.
 
   Configs:
     A = Frozen mT5-base            (zero-shot baseline, no training)
@@ -49,9 +53,14 @@ BUGS FIXED IN THIS VERSION (found during code review, before any server run):
      version — this is now wrapped in try/except so one incompatible variant
      doesn't kill the entire 32-run matrix; it's logged and skipped instead.
   5. Per-run try/except added throughout: one failing run no longer crashes
-     the whole script — you get a full PASS/FAIL report across all 32 (or
+     the whole script — you get a full PASS/FAIL report across all 20 (or
      fewer, in smoke-test) runs, which is exactly what you want to check
      BEFORE spending real GPU-hours on the server.
+  6. The --full training loop was previously a TODO stub that only built the
+     model and evaluated it untrained — no actual fine-tuning occurred, and
+     every LoRA variant produced identical scores as a result. This is now
+     implemented with a real Seq2SeqTrainer, including the Config C
+     composite-loss override.
 
 REQUIREMENTS:
   Smoke test (Mac, CPU):
@@ -80,7 +89,9 @@ from transformers import (
     AutoTokenizer,
     MT5ForConditionalGeneration,
     AutoModelForSequenceClassification,
-    TrainingArguments,
+    Seq2SeqTrainer,
+    Seq2SeqTrainingArguments,
+    DataCollatorForSeq2Seq,
 )
 
 try:
@@ -121,13 +132,17 @@ OUTPUT_DIR.mkdir(exist_ok=True)
 # ─── DATA LOADING (FIXED: correct fields per dataset) ────────────────────────
 def load_qa_data(language: str, smoke_test: bool = False):
     """
-    Arabic -> XQuAD (xquad, xquad.ar split): fields = context, question, answers
+    Arabic -> XQuAD (google/xquad, xquad.ar split): fields = context, question,
+              answers
     Malay  -> Belebele (facebook/belebele, zsm_Latn): fields = flores_passage,
               question, mc_answer1..4, correct_answer_num (multiple-choice,
               NOT free-text QA — handled differently below).
     """
     if language == "arabic":
-        ds = load_dataset("xquad", "xquad.ar", split="validation")
+        # NOTE: huggingface_hub >= 1.16 requires fully-qualified "namespace/name"
+        # dataset IDs. The bare "xquad" slug is rejected with HfUriError; the
+        # correct namespaced ID is "google/xquad".
+        ds = load_dataset("google/xquad", "xquad.ar", split="validation")
     elif language == "malay":
         ds = load_dataset("facebook/belebele", "zsm_Latn", split="test")
     else:
@@ -273,6 +288,46 @@ def f_faith(answer: str, context: str) -> float:
     return round(probs[ent_idx].item(), 4)
 
 
+# ─── CUSTOM TRAINER (Config C composite loss) ────────────────────────────────
+class CompositeLossTrainer(Seq2SeqTrainer):
+    """
+    Standard Seq2SeqTrainer, except when use_composite=True (Config C only):
+    generates a prediction for the current batch, scores it with f_faith(),
+    and blends the faithfulness penalty into the loss via composite_loss():
+        L_G = L_CE + lambda1 * (1 - F_faith)
+    For all other configs this behaves identically to the base Trainer.
+    """
+    def __init__(self, *args, use_composite: bool = False, tokenizer_ref=None,
+                 **kwargs):
+        super().__init__(*args, **kwargs)
+        self.use_composite = use_composite
+        self.tokenizer_ref = tokenizer_ref
+
+    def compute_loss(self, model, inputs, return_outputs=False, **kwargs):
+        outputs = model(**inputs)
+        ce_loss = outputs.loss
+
+        if not self.use_composite:
+            return (ce_loss, outputs) if return_outputs else ce_loss
+
+        # Config C: generate a prediction to score its faithfulness, then
+        # blend that penalty into the loss. Generation under no_grad keeps
+        # this from adding to the backward graph (only ce_loss is trained).
+        with torch.no_grad():
+            gen_ids = model.generate(
+                input_ids=inputs["input_ids"],
+                attention_mask=inputs["attention_mask"],
+                max_new_tokens=40,
+            )
+        pred_text = self.tokenizer_ref.batch_decode(
+            gen_ids, skip_special_tokens=True)[0]
+        context_text = self.tokenizer_ref.batch_decode(
+            inputs["input_ids"], skip_special_tokens=True)[0]
+        faithfulness_score = f_faith(pred_text, context_text)
+        loss = composite_loss(ce_loss, faithfulness_score)
+        return (loss, outputs) if return_outputs else loss
+
+
 # ─── TRAIN + EVAL ONE RUN (FIXED: per-run try/except, no full-script crash) ──
 def run_single_experiment(config_name: str, lora_variant: str, language: str,
                            smoke_test: bool = False) -> dict:
@@ -287,11 +342,41 @@ def run_single_experiment(config_name: str, lora_variant: str, language: str,
         model = load_model_for_config(config_name, lora_variant, total_steps)
 
         if config_name != "A_frozen" and not smoke_test:
-            # Full training loop goes here for the lab-server run:
-            # tokenize dataset, build data_collator, Trainer with
-            # compute_loss override for Config C composite_loss().
-            # Left as a clearly marked TODO for the real GPU run.
-            print("  [TRAINING] -- attach Trainer + tokenized dataset here (--full only)")
+            def _tokenize_fn(ex):
+                ctx, q, gold = extract_context_question_answer(ex, language)
+                prompt = f"question: {q}  context: {ctx}"
+                model_inputs = tokenizer(prompt, truncation=True, max_length=512)
+                labels = tokenizer(text_target=(gold or ""), truncation=True,
+                                    max_length=64)
+                model_inputs["labels"] = labels["input_ids"]
+                return model_inputs
+
+            train_ds = dataset.map(_tokenize_fn, remove_columns=dataset.column_names)
+            data_collator = DataCollatorForSeq2Seq(tokenizer, model=model)
+
+            training_args = Seq2SeqTrainingArguments(
+                output_dir=str(OUTPUT_DIR / f"ckpt_{config_name}_{lora_variant}_{language}"),
+                per_device_train_batch_size=4,
+                num_train_epochs=3,
+                learning_rate=2e-4 if lora_variant else 5e-5,
+                logging_steps=5,
+                save_strategy="no",
+                report_to=[],
+                remove_unused_columns=False,
+                fp16=(DEVICE == "cuda"),
+            )
+
+            trainer = CompositeLossTrainer(
+                model=model,
+                args=training_args,
+                train_dataset=train_ds,
+                data_collator=data_collator,
+                use_composite=(config_name == "C_composite_lora"),
+                tokenizer_ref=tokenizer,
+            )
+            trainer.train()
+            print(f"  [TRAINING] completed {training_args.num_train_epochs} epochs "
+                  f"({'composite loss' if config_name == 'C_composite_lora' else 'CE loss'})")
         elif config_name != "A_frozen" and smoke_test:
             print("  [SMOKE TEST] Skipping actual training — validating "
                   "model/adapter construction only.")
@@ -344,9 +429,10 @@ def build_run_matrix():
         for variant in LORA_VARIANTS:
             runs.append(("B_ce_lora", variant, lang))
             runs.append(("C_composite_lora", variant, lang))
-    return runs   # 2 langs x (1 + 1 + 4 + 4) = 20 rows;
-                  # extend LORA_VARIANTS / add repeats to reach exactly 32
-                  # per your final experimental design
+    return runs   # 2 langs x (1 + 1 + 4 + 4) = 20 conditions total.
+                  # This is the final experimental design (see Paper 2 report):
+                  # Configs A/D run once per language, Configs B/C run once
+                  # per LoRA variant per language.
 
 
 def main():
