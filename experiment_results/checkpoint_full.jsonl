@@ -1,20 +1,2 @@
-{"config": "A_frozen", "lora_variant": "none", "language": "arabic", "status": "PASS", "mean_f_faith": 0.3069, "n_eval": 30, "runtime_sec": 39.5, "error": ""}
-{"config": "D_full_ft", "lora_variant": "none", "language": "arabic", "status": "PASS", "mean_f_faith": 0.3503, "n_eval": 30, "runtime_sec": 57.7, "error": ""}
-{"config": "B_ce_lora", "lora_variant": "qlora", "language": "arabic", "status": "PASS", "mean_f_faith": 0.3383, "n_eval": 30, "runtime_sec": 63.8, "error": ""}
-{"config": "C_composite_lora", "lora_variant": "qlora", "language": "arabic", "status": "PASS", "mean_f_faith": 0.3519, "n_eval": 30, "runtime_sec": 429.1, "error": ""}
-{"config": "B_ce_lora", "lora_variant": "adalora", "language": "arabic", "status": "PASS", "mean_f_faith": 0.3113, "n_eval": 30, "runtime_sec": 87.2, "error": ""}
-{"config": "C_composite_lora", "lora_variant": "adalora", "language": "arabic", "status": "PASS", "mean_f_faith": 0.3245, "n_eval": 30, "runtime_sec": 440.5, "error": ""}
-{"config": "B_ce_lora", "lora_variant": "dora", "language": "arabic", "status": "PASS", "mean_f_faith": 0.3274, "n_eval": 30, "runtime_sec": 81.7, "error": ""}
-{"config": "C_composite_lora", "lora_variant": "dora", "language": "arabic", "status": "PASS", "mean_f_faith": 0.3499, "n_eval": 30, "runtime_sec": 454.9, "error": ""}
-{"config": "B_ce_lora", "lora_variant": "vera", "language": "arabic", "status": "PASS", "mean_f_faith": 0.3181, "n_eval": 30, "runtime_sec": 67.8, "error": ""}
-{"config": "C_composite_lora", "lora_variant": "vera", "language": "arabic", "status": "PASS", "mean_f_faith": 0.3693, "n_eval": 30, "runtime_sec": 382.2, "error": ""}
-{"config": "A_frozen", "lora_variant": "none", "language": "malay", "status": "PASS", "mean_f_faith": 0.1158, "n_eval": 30, "runtime_sec": 32.3, "error": ""}
-{"config": "D_full_ft", "lora_variant": "none", "language": "malay", "status": "PASS", "mean_f_faith": 0.0762, "n_eval": 30, "runtime_sec": 44.1, "error": ""}
-{"config": "B_ce_lora", "lora_variant": "qlora", "language": "malay", "status": "PASS", "mean_f_faith": 0.1057, "n_eval": 30, "runtime_sec": 56.6, "error": ""}
-{"config": "C_composite_lora", "lora_variant": "qlora", "language": "malay", "status": "PASS", "mean_f_faith": 0.0906, "n_eval": 30, "runtime_sec": 346.7, "error": ""}
-{"config": "B_ce_lora", "lora_variant": "adalora", "language": "malay", "status": "PASS", "mean_f_faith": 0.0879, "n_eval": 30, "runtime_sec": 76.6, "error": ""}
-{"config": "C_composite_lora", "lora_variant": "adalora", "language": "malay", "status": "PASS", "mean_f_faith": 0.093, "n_eval": 30, "runtime_sec": 339.1, "error": ""}
-{"config": "B_ce_lora", "lora_variant": "dora", "language": "malay", "status": "PASS", "mean_f_faith": 0.0956, "n_eval": 30, "runtime_sec": 69.8, "error": ""}
-{"config": "C_composite_lora", "lora_variant": "dora", "language": "malay", "status": "PASS", "mean_f_faith": 0.0955, "n_eval": 30, "runtime_sec": 396.1, "error": ""}
-{"config": "B_ce_lora", "lora_variant": "vera", "language": "malay", "status": "PASS", "mean_f_faith": 0.0995, "n_eval": 30, "runtime_sec": 59.9, "error": ""}
-{"config": "C_composite_lora", "lora_variant": "vera", "language": "malay", "status": "PASS", "mean_f_faith": 0.1073, "n_eval": 30, "runtime_sec": 299.3, "error": ""}
+{"config": "A_frozen", "lora_variant": "none", "language": "arabic", "status": "PASS", "mean_f_faith": 0.4532, "n_eval": 30, "runtime_sec": 53.1, "error": ""}
+{"config": "D_full_ft", "lora_variant": "none", "language": "arabic", "status": "FAIL", "mean_f_faith": null, "n_eval": 0, "runtime_sec": 17.7, "error": "OutOfMemoryError: CUDA out of memory. Tried to allocate 734.00 MiB. GPU 0 has a total capacity of 23.52 GiB of which 312.38 MiB is free. Process 548 has 10.44 GiB memory in use. Including non-PyTorch memory, this process has 12.76 GiB memory in use. Of the allocated memory 8.78 GiB is allocated by PyTorch, and 3.52 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)"}
