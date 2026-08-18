@@ -162,7 +162,18 @@ SMOKE_DATA_CAP  = 3     # unchanged -- pipeline validation only, keep tiny
 FULL_EVAL_SIZE  = 30    # more eval examples -> less noisy F_faith comparison
 SMOKE_EVAL_SIZE = 3
 TRAIN_BATCH_SIZE = 4
-TRAIN_EPOCHS     = 3
+# FIX: 3 epochs on ~470 train examples (~350 steps total) was nowhere near
+# enough exposure for mT5-base -- a checkpoint that has NEVER been fine-tuned
+# for QA, only pretrained on span-corruption denoising -- to learn a brand
+# new input/output format from scratch. Evidence: every one of the 10
+# completed Arabic runs scored 0% exact match, and generated text was full
+# of literal "<extra_id_N>" sentinel tokens (T5's pretraining mask markers)
+# leaking straight into the output -- a clear sign of an undertrained model
+# still defaulting to its pretraining behavior rather than answering
+# questions. Raised from 3 to 12 epochs (~1,400 steps) to give the model a
+# real chance to converge on the task before drawing conclusions from the
+# comparison.
+TRAIN_EPOCHS     = 12
 
 OUTPUT_DIR = Path("./experiment_results")
 OUTPUT_DIR.mkdir(exist_ok=True)
@@ -595,7 +606,16 @@ def run_single_experiment(config_name: str, lora_variant: str, language: str,
                 output_dir=str(OUTPUT_DIR / f"ckpt_{config_name}_{lora_variant}_{language}"),
                 per_device_train_batch_size=TRAIN_BATCH_SIZE,
                 num_train_epochs=TRAIN_EPOCHS,
-                learning_rate=2e-4 if lora_variant else 5e-5,
+                # FIX: lora_variant is the STRING "none" for D_full_ft (see
+                # build_run_matrix()), which is truthy in Python -- so this
+                # condition was silently giving full fine-tuning the same
+                # 2e-4 learning rate meant for tiny LoRA adapters, instead of
+                # the intended lower 5e-5 for updating all 580M parameters
+                # at once. This produced exactly the optimizer-divergence
+                # signature seen in the D_full_ft/arabic training log
+                # (grad_norm spiking to 7e4+, loss oscillating instead of
+                # decreasing). Now keyed off config_name, which is unambiguous.
+                learning_rate=2e-4 if config_name in ("B_ce_lora", "C_composite_lora") else 5e-5,
                 logging_steps=5,
                 save_strategy="no",
                 report_to=[],
