@@ -89,6 +89,7 @@ USAGE:
 
 import argparse
 import json
+import re
 import subprocess
 import time
 import traceback
@@ -432,6 +433,50 @@ def _load_nli():
     return _nli_tokenizer, _nli_model
 
 
+# ─── CORRECTNESS METRICS (separate from F_faith) ─────────────────────────────
+# F_faith measures whether an answer is entailed by the context -- it does
+# NOT measure whether the answer is actually correct. A model can generate
+# fluent, contextually-plausible text that scores well on entailment while
+# being factually wrong, or a model that trivially copies chunks of the
+# context (as an untrained frozen model tends to do) can score artificially
+# high on entailment without ever attempting the actual task. Added after
+# observing a case where D_full_ft/arabic generated "ي دور قاف عشر عشرين"
+# against a gold answer of "308" -- clearly wrong -- yet still scored
+# mean_f_faith=0.4164, in line with every other Arabic run. EM/F1 below
+# are the standard SQuAD-style correctness metrics, run alongside F_faith
+# so faithfulness and correctness can be told apart in the results.
+def _normalize_text(s: str) -> str:
+    s = (s or "").strip().lower()
+    s = re.sub(r"[^\w\s]", "", s, flags=re.UNICODE)
+    s = re.sub(r"\s+", " ", s)
+    return s.strip()
+
+
+def exact_match(pred: str, gold: str) -> int:
+    return int(_normalize_text(pred) == _normalize_text(gold))
+
+
+def token_f1(pred: str, gold: str) -> float:
+    pred_tokens = _normalize_text(pred).split()
+    gold_tokens = _normalize_text(gold).split()
+    if not pred_tokens or not gold_tokens:
+        return float(pred_tokens == gold_tokens)
+    gold_counts = {}
+    for t in gold_tokens:
+        gold_counts[t] = gold_counts.get(t, 0) + 1
+    overlap = 0
+    pred_counts = {}
+    for t in pred_tokens:
+        pred_counts[t] = pred_counts.get(t, 0) + 1
+    for t, c in pred_counts.items():
+        overlap += min(c, gold_counts.get(t, 0))
+    if overlap == 0:
+        return 0.0
+    precision = overlap / len(pred_tokens)
+    recall = overlap / len(gold_tokens)
+    return 2 * precision * recall / (precision + recall)
+
+
 def f_faith(answer: str, context: str) -> float:
     if not answer.strip() or not context.strip():
         return 0.0
@@ -582,6 +627,9 @@ def run_single_experiment(config_name: str, lora_variant: str, language: str,
         # above (guaranteed disjoint from train_ds when training occurred).
         eval_slice = dataset.select(eval_indices)
         scores = []
+        em_scores = []
+        f1_scores = []
+        sample_log = []  # first 5 (gold, generated) pairs per run, for the paper
         for i, ex in enumerate(eval_slice):
             context, question, gold, options = extract_context_question_answer(ex, language)
             if not context or not question:
@@ -593,22 +641,36 @@ def run_single_experiment(config_name: str, lora_variant: str, language: str,
                 out = model.generate(**inputs, max_new_tokens=40)
             answer = tokenizer.decode(out[0], skip_special_tokens=True)
             scores.append(f_faith(answer, context))
-            # Print the first eval example per run so generated vs. gold text
-            # is visible in the terminal log -- useful for a qualitative
-            # sanity check / paper appendix example, and for catching any
+            # EM/F1 measure whether the answer is actually CORRECT (matches
+            # gold), independent of F_faith's "is it entailed by context"
+            # judgment -- see note above exact_match()/token_f1() for why
+            # both are needed.
+            em_scores.append(exact_match(answer, gold))
+            f1_scores.append(token_f1(answer, gold))
+            # Print the first 5 eval examples per run so generated vs. gold
+            # text is visible in the terminal log -- useful for a qualitative
+            # sanity check / paper appendix examples, and for catching any
             # future task-formulation regressions immediately.
-            if i == 0:
-                print(f"  [SAMPLE] gold=\"{gold[:80]}\" | generated=\"{answer[:80]}\"")
+            if i < 5:
+                print(f"  [SAMPLE {i}] gold=\"{gold[:80]}\" | generated=\"{answer[:80]}\" "
+                      f"| em={em_scores[-1]} f1={round(f1_scores[-1], 2)}")
+                sample_log.append({"gold": gold, "generated": answer,
+                                    "em": em_scores[-1], "f1": round(f1_scores[-1], 4)})
 
         mean_score = sum(scores) / len(scores) if scores else 0.0
+        mean_em = sum(em_scores) / len(em_scores) if em_scores else 0.0
+        mean_f1 = sum(f1_scores) / len(f1_scores) if f1_scores else 0.0
         elapsed = time.time() - t0
 
         result = {
             "config": config_name, "lora_variant": lora_variant, "language": language,
             "status": "PASS", "mean_f_faith": round(mean_score, 4),
+            "mean_em": round(mean_em, 4), "mean_f1": round(mean_f1, 4),
             "n_eval": len(scores), "runtime_sec": round(elapsed, 1), "error": "",
+            "samples": json.dumps(sample_log, ensure_ascii=False),
         }
         print(f"  RESULT: PASS | mean_f_faith={result['mean_f_faith']} "
+              f"| mean_em={result['mean_em']} | mean_f1={result['mean_f1']} "
               f"| n_eval={result['n_eval']} | {elapsed:.1f}s")
         return result
 
@@ -618,8 +680,9 @@ def run_single_experiment(config_name: str, lora_variant: str, language: str,
         traceback.print_exc()
         return {
             "config": config_name, "lora_variant": lora_variant, "language": language,
-            "status": "FAIL", "mean_f_faith": None, "n_eval": 0,
-            "runtime_sec": round(elapsed, 1), "error": f"{type(e).__name__}: {e}",
+            "status": "FAIL", "mean_f_faith": None, "mean_em": None, "mean_f1": None,
+            "n_eval": 0, "runtime_sec": round(elapsed, 1),
+            "error": f"{type(e).__name__}: {e}", "samples": "",
         }
 
     finally:
