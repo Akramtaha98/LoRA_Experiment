@@ -497,6 +497,8 @@ def run_single_experiment(config_name: str, lora_variant: str, language: str,
     label = f"config={config_name} variant={lora_variant} lang={language}"
     print(f"\n{'='*70}\nRUN: {label}\n{'='*70}")
     t0 = time.time()
+    model = None  # tracked so the finally block below can always release GPU
+                  # memory, even if this run fails before/while building it
 
     try:
         dataset = load_qa_data(language, smoke_test=smoke_test)
@@ -619,6 +621,21 @@ def run_single_experiment(config_name: str, lora_variant: str, language: str,
             "status": "FAIL", "mean_f_faith": None, "n_eval": 0,
             "runtime_sec": round(elapsed, 1), "error": f"{type(e).__name__}: {e}",
         }
+
+    finally:
+        # FIX: explicitly release GPU memory before the next run starts.
+        # Without this, PyTorch's CUDA caching allocator can leave freed
+        # blocks fragmented rather than fully reclaimed, and a heavy run
+        # right after a lighter one (e.g. D_full_ft's full optimizer state
+        # right after a frozen eval-only run) can hit an avoidable
+        # OutOfMemoryError even though total free memory would otherwise
+        # be sufficient. This is what caused the one D_full_ft/arabic FAIL.
+        if model is not None:
+            del model
+        if DEVICE == "cuda":
+            torch.cuda.empty_cache()
+        import gc
+        gc.collect()
 
 
 # ─── MAIN: BUILD THE RUN MATRIX ────────────────────────────────────────────
