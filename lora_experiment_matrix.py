@@ -134,7 +134,20 @@ if DEVICE == "cpu":
 
 # ─── CONFIGURATION ────────────────────────────────────────────────────────────
 BASE_MODEL    = "google/mt5-base"
-NLI_MODEL     = "cross-encoder/nli-deberta-v3-base"
+# FIX: the previous NLI_MODEL ("cross-encoder/nli-deberta-v3-base") is
+# trained ONLY on English SNLI/MultiNLI -- it has never seen Arabic or
+# Malay. Evidence this was corrupting every F_faith score: the 10 Arabic
+# runs averaged 0.332, almost exactly the 1/3 chance level for a 3-way
+# {entailment, neutral, contradiction} classifier guessing near-uniformly
+# on text it can't parse; Malay scores sat BELOW chance (0.076-0.116),
+# consistent with the classifier confidently misreading Latin-script Malay
+# as "not entailment" rather than genuinely judging faithfulness. Neither
+# language's scores were measuring what the metric was supposed to measure.
+# Switched to a genuinely multilingual NLI model: mDeBERTa-v3-base,
+# pretrained on 100 languages (CC100) and fine-tuned on XNLI (includes
+# Arabic) + English MNLI. This is the actual "mDeBERTa, a cross-lingual
+# model" described as the intended F_faith design.
+NLI_MODEL     = "MoritzLaurer/mDeBERTa-v3-base-mnli-xnli"
 LANGUAGES     = ["arabic", "malay"]
 LORA_VARIANTS = ["qlora", "adalora", "dora", "vera"]
 
@@ -423,7 +436,14 @@ def f_faith(answer: str, context: str) -> float:
     if not answer.strip() or not context.strip():
         return 0.0
     tok, model = _load_nli()
-    ent_idx = list(model.config.id2label.values()).index("entailment")
+    # Robust to label-dict ordering/casing differences across NLI model
+    # cards (id2label keys are the actual class indices, not list position --
+    # relying on list-position previously would silently break if a model's
+    # id2label dict wasn't ordered {0: entailment, 1: neutral, 2: contradiction}).
+    label_map = {str(v).lower(): int(k) for k, v in model.config.id2label.items()}
+    if "entailment" not in label_map:
+        raise ValueError(f"NLI model has no 'entailment' label: {model.config.id2label}")
+    ent_idx = label_map["entailment"]
     enc = tok(context, answer, truncation=True, max_length=512, return_tensors="pt")
     with torch.no_grad():
         logits = model(**enc).logits
