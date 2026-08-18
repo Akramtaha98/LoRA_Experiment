@@ -15,3 +15,4 @@
 {"config": "B_ce_lora", "lora_variant": "adalora", "language": "malay", "status": "PASS", "mean_f_faith": 0.125, "n_eval": 30, "runtime_sec": 79.1, "error": ""}
 {"config": "C_composite_lora", "lora_variant": "adalora", "language": "malay", "status": "PASS", "mean_f_faith": 0.0779, "n_eval": 30, "runtime_sec": 389.4, "error": ""}
 {"config": "B_ce_lora", "lora_variant": "dora", "language": "malay", "status": "PASS", "mean_f_faith": 0.1414, "n_eval": 30, "runtime_sec": 71.5, "error": ""}
+{"config": "C_composite_lora", "lora_variant": "dora", "language": "malay", "status": "PASS", "mean_f_faith": 0.0654, "n_eval": 30, "runtime_sec": 461.1, "error": ""}
