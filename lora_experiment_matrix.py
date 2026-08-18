@@ -626,6 +626,20 @@ def run_single_experiment(config_name: str, lora_variant: str, language: str,
                 # training without raising an exception. bf16 does not have
                 # this issue and is natively supported on the RTX 4090.
                 bf16=(DEVICE == "cuda"),
+                # FIX: D_full_ft trains all 580M mT5 parameters with a
+                # standard AdamW optimizer, which needs ~2.3GB weights +
+                # ~2.3GB gradients + ~4.6GB AdamW momentum/variance (2 fp32
+                # copies per param) = ~9.3GB baseline before any activation
+                # memory -- right at the edge of a 24GB GPU, and the run
+                # that OOM'd here happened right after A_frozen's model had
+                # already touched memory in the same process. Gradient
+                # checkpointing trades some compute for much lower
+                # activation memory, and Adafactor (the optimizer T5's own
+                # authors used) needs far less optimizer-state memory than
+                # AdamW. Both only apply to D_full_ft -- LoRA runs have a
+                # tiny trainable parameter budget and don't need this.
+                gradient_checkpointing=(config_name == "D_full_ft"),
+                optim=("adafactor" if config_name == "D_full_ft" else "adamw_torch"),
             )
 
             trainer = CompositeLossTrainer(
