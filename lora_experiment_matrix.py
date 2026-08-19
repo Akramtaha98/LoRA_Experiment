@@ -72,6 +72,27 @@ BUGS FIXED IN THIS VERSION (found during code review, before any server run):
      multiple-choice design. A one-line sample (gold vs. generated) is now
      also printed for the first eval example of every run, for a quick
      qualitative sanity check in the terminal log.
+  8. [CRITICAL, found during external peer review] The Config C "composite
+     loss" was NOT actually differentiable w.r.t. the faithfulness term.
+     The old code called model.generate() under torch.no_grad(), scored
+     the resulting text with a frozen NLI model (also no-grad), and added
+     the resulting Python float to ce_loss as a constant offset:
+         loss = ce_loss + lambda1 * (1.0 - faithfulness_score)
+     Because d(ce_loss + constant)/d(theta) == d(ce_loss)/d(theta) exactly,
+     this made Config C's backward pass IDENTICAL to Config B's (CE-only)
+     for every trainable parameter -- the "faithfulness penalty" changed
+     the number printed in the training log but had ZERO effect on what
+     the optimizer actually did. Combined with the fact that no random
+     seed was ever set (see SEED below), every prior "Config C beats
+     Config B" result in the paper was comparing two independently-
+     initialized CE-only training runs, not two different objectives.
+     FIXED by replacing the no-op composite_loss()/compute_loss() path
+     with a genuine self-critical policy-gradient objective (Rennie et
+     al., 2017, "Self-Critical Sequence Training", CVPR) using a
+     leave-one-out baseline computed from K sampled generations per
+     training example. See CompositeLossTrainer.compute_loss() below for
+     the full gradient-path documentation. A global SEED is now also set
+     for reproducibility across B vs. C comparisons.
 
 REQUIREMENTS:
   Smoke test (Mac, CPU):
@@ -83,8 +104,11 @@ REQUIREMENTS:
                 sentencepiece torch pandas tabulate evaluate
 
 USAGE:
-    python3 lora_experiment_matrix.py --smoke_test     # on your MacBook, now
-    python3 lora_experiment_matrix.py --full           # on lab server, later
+    python3 lora_experiment_matrix.py --smoke_test                      # on your MacBook, now
+    python3 lora_experiment_matrix.py --full                            # on lab server, later (all 20 conditions)
+    python3 lora_experiment_matrix.py --full --composite_only           # on lab server (8 Config C conditions only --
+                                                                          # cheaper rerun of just the previously-invalid
+                                                                          # runs; see BUGS FIXED item 8 above)
 """
 
 import argparse
@@ -96,6 +120,7 @@ import traceback
 from pathlib import Path
 
 import torch
+import torch.nn.functional as F
 import pandas as pd
 from tabulate import tabulate
 from datasets import load_dataset
@@ -174,6 +199,39 @@ TRAIN_BATCH_SIZE = 4
 # real chance to converge on the task before drawing conclusions from the
 # comparison.
 TRAIN_EPOCHS     = 12
+
+# FIX (peer review, item 8 above): no seed was previously set anywhere, so
+# Config B and Config C ran with independently-randomized LoRA adapter
+# initialization -- meaning any B-vs-C difference could not be
+# distinguished from ordinary run-to-run noise even before the
+# differentiability bug is accounted for. SEED is now fixed and applied to
+# every run via set_all_seeds() below, so B and C differ ONLY in their
+# training objective, holding LoRA initialization constant.
+SEED = 42
+
+# Self-critical policy-gradient hyperparameters for the corrected Config C
+# objective (see CompositeLossTrainer.compute_loss()). K is the number of
+# sampled generations per training example used to build the leave-one-out
+# reward baseline; SAMPLE_TEMPERATURE controls exploration in sampling.
+PG_NUM_SAMPLES      = 4
+PG_SAMPLE_TEMPERATURE = 1.0
+PG_SAMPLE_TOP_P     = 0.95
+
+
+def set_all_seeds(seed: int = SEED):
+    """Seed every RNG source that affects LoRA init / batch order / sampling
+    so that Config B and Config C differ only in their training objective,
+    not in incidental randomness. Call once at the start of each run."""
+    import random
+    random.seed(seed)
+    try:
+        import numpy as np
+        np.random.seed(seed)
+    except ImportError:
+        pass
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed)
 
 OUTPUT_DIR = Path("./experiment_results")
 OUTPUT_DIR.mkdir(exist_ok=True)
@@ -424,11 +482,46 @@ def load_model_for_config(config_name: str, lora_variant: str = None,
 
 
 # ─── COMPOSITE LOSS (Config C only) ──────────────────────────────────────────
+# DEPRECATED -- kept only so the bug is visible in a diff / for the paper's
+# reproducibility appendix. This function is NO LONGER CALLED anywhere.
+#
+# Why it was wrong: faithfulness_score here is a plain Python float,
+# computed under torch.no_grad() from a frozen NLI model scoring
+# already-generated (non-differentiable, discretely-sampled) text.
+# `ce_loss + penalty` where `penalty` is a Python float constant has
+# d(ce_loss + penalty)/d(theta) == d(ce_loss)/d(theta) for every parameter
+# theta -- i.e. this is mathematically indistinguishable, at the gradient
+# level, from plain CE-only training. It changed the LOGGED loss value but
+# never changed a single optimizer step. See CompositeLossTrainer below for
+# the corrected, actually-differentiable replacement.
 def composite_loss(ce_loss: torch.Tensor, faithfulness_score: float,
                     lambda1: float = 0.3) -> torch.Tensor:
-    """L_G = L_CE + lambda1 * (1 - F_faith)"""
+    """L_G = L_CE + lambda1 * (1 - F_faith)  [NON-FUNCTIONAL -- see note above]"""
     penalty = lambda1 * (1.0 - faithfulness_score)
     return ce_loss + penalty
+
+
+def _seq_log_probs(model, input_ids: torch.Tensor, attention_mask: torch.Tensor,
+                    target_ids: torch.Tensor, pad_token_id: int) -> torch.Tensor:
+    """Differentiable log p(target_ids | input_ids) per sequence.
+
+    This is the ONLY place in the corrected composite-loss path where
+    gradient actually flows back into the trainable (LoRA) parameters. It
+    is a plain teacher-forced forward pass -- NOT wrapped in no_grad -- so
+    autograd builds a graph from `logits` back through `model`'s trainable
+    weights. `target_ids` themselves are treated as fixed constants (they
+    were produced by a no_grad sampling step upstream); we are not
+    differentiating through how they were chosen, only through how likely
+    the current policy says they are, which is exactly what the REINFORCE
+    / score-function gradient estimator requires.
+    """
+    outputs = model(input_ids=input_ids, attention_mask=attention_mask,
+                     labels=target_ids)
+    log_probs = F.log_softmax(outputs.logits, dim=-1)          # (B, T, V), requires_grad
+    mask = (target_ids != pad_token_id).float()                  # (B, T)
+    safe_targets = target_ids.clamp(min=0)                       # gather() needs >=0 indices
+    token_log_probs = log_probs.gather(2, safe_targets.unsqueeze(-1)).squeeze(-1)  # (B, T)
+    return (token_log_probs * mask).sum(dim=1)                   # (B,) -- sum over tokens
 
 
 # ─── F_faith METRIC (evaluation) ─────────────────────────────────────────────
@@ -507,20 +600,43 @@ def f_faith(answer: str, context: str) -> float:
     return round(probs[ent_idx].item(), 4)
 
 
-# ─── CUSTOM TRAINER (Config C composite loss) ────────────────────────────────
+# ─── CUSTOM TRAINER (Config C composite loss -- CORRECTED, self-critical) ────
 class CompositeLossTrainer(Seq2SeqTrainer):
     """
     Standard Seq2SeqTrainer, except when use_composite=True (Config C only):
-    generates a prediction for the current batch, scores it with f_faith(),
-    and blends the faithfulness penalty into the loss via composite_loss():
-        L_G = L_CE + lambda1 * (1 - F_faith)
+    uses a self-critical policy-gradient objective (Rennie et al., 2017,
+    "Self-Critical Sequence Training", CVPR) to give the faithfulness score
+    a genuine, differentiable path into the trainable LoRA parameters.
     For all other configs this behaves identically to the base Trainer.
+
+    GRADIENT PATH SUMMARY (see compute_loss() below for the full walk-through):
+      1. Sample K generations per example from the current policy
+         (no_grad -- sampling is non-differentiable by construction).
+      2. Score each with the frozen NLI reward model f_faith() (no_grad --
+         the reward model's parameters are never updated).
+      3. Build a leave-one-out advantage per sample: advantage_k =
+         reward_k - mean(reward_{j != k}). Detached scalar weight, not
+         differentiated.
+      4. Recompute log p(sampled sequence | input) via a SEPARATE
+         teacher-forced forward pass that IS differentiable
+         (_seq_log_probs()). This is the only tensor in the composite loss
+         that carries gradient back to the LoRA adapter weights.
+      5. pg_loss = -mean(advantage * log_prob); final loss = ce_loss +
+         lambda1 * pg_loss.
+    FROZEN vs. TRAINABLE: the base mT5 backbone is frozen by
+    get_peft_model() (Section II-B); only the injected LoRA adapter
+    matrices receive gradient, from both ce_loss and pg_loss. The NLI
+    reward model is entirely frozen throughout and supplies a scalar
+    reward signal only, never a gradient.
     """
     def __init__(self, *args, use_composite: bool = False, tokenizer_ref=None,
+                 lambda1: float = 0.3, num_samples: int = PG_NUM_SAMPLES,
                  **kwargs):
         super().__init__(*args, **kwargs)
         self.use_composite = use_composite
         self.tokenizer_ref = tokenizer_ref
+        self.lambda1 = lambda1
+        self.num_samples = num_samples
 
     def compute_loss(self, model, inputs, return_outputs=False, **kwargs):
         outputs = model(**inputs)
@@ -529,21 +645,47 @@ class CompositeLossTrainer(Seq2SeqTrainer):
         if not self.use_composite:
             return (ce_loss, outputs) if return_outputs else ce_loss
 
-        # Config C: generate a prediction to score its faithfulness, then
-        # blend that penalty into the loss. Generation under no_grad keeps
-        # this from adding to the backward graph (only ce_loss is trained).
+        input_ids = inputs["input_ids"]
+        attention_mask = inputs["attention_mask"]
+        batch_size = input_ids.size(0)
+        K = self.num_samples
+        pad_id = self.tokenizer_ref.pad_token_id or 0
+
+        # ---- Step 1-2: sample K generations per example, score (no_grad) ----
         with torch.no_grad():
-            gen_ids = model.generate(
-                input_ids=inputs["input_ids"],
-                attention_mask=inputs["attention_mask"],
+            rep_input_ids = input_ids.repeat_interleave(K, dim=0)
+            rep_attention_mask = attention_mask.repeat_interleave(K, dim=0)
+            sampled_ids = model.generate(
+                input_ids=rep_input_ids,
+                attention_mask=rep_attention_mask,
                 max_new_tokens=40,
+                do_sample=True,
+                temperature=PG_SAMPLE_TEMPERATURE,
+                top_p=PG_SAMPLE_TOP_P,
             )
-        pred_text = self.tokenizer_ref.batch_decode(
-            gen_ids, skip_special_tokens=True)[0]
-        context_text = self.tokenizer_ref.batch_decode(
-            inputs["input_ids"], skip_special_tokens=True)[0]
-        faithfulness_score = f_faith(pred_text, context_text)
-        loss = composite_loss(ce_loss, faithfulness_score)
+            sampled_texts = self.tokenizer_ref.batch_decode(
+                sampled_ids, skip_special_tokens=True)
+            context_texts = self.tokenizer_ref.batch_decode(
+                rep_input_ids, skip_special_tokens=True)
+            rewards = [f_faith(t, c) for t, c in zip(sampled_texts, context_texts)]
+
+        # ---- Step 3: leave-one-out baseline / advantage (detached) ----
+        rewards_t = torch.tensor(rewards, device=input_ids.device,
+                                  dtype=torch.float32).view(batch_size, K)
+        if K > 1:
+            sum_r = rewards_t.sum(dim=1, keepdim=True)
+            baseline = (sum_r - rewards_t) / (K - 1)   # leave-one-out mean
+        else:
+            baseline = rewards_t.mean()                 # degenerate K=1 fallback
+        advantages = (rewards_t - baseline).view(-1).detach()  # (B*K,)
+
+        # ---- Step 4: differentiable log-prob of the sampled sequences ----
+        seq_log_probs = _seq_log_probs(
+            model, rep_input_ids, rep_attention_mask, sampled_ids, pad_id)  # (B*K,)
+
+        # ---- Step 5: policy-gradient loss + combine with CE ----
+        pg_loss = -(advantages * seq_log_probs).mean()
+        loss = ce_loss + self.lambda1 * pg_loss
         return (loss, outputs) if return_outputs else loss
 
 
@@ -555,6 +697,12 @@ def run_single_experiment(config_name: str, lora_variant: str, language: str,
     t0 = time.time()
     model = None  # tracked so the finally block below can always release GPU
                   # memory, even if this run fails before/while building it
+
+    # FIX (peer review, item 8): fixed seed before every run so Config B and
+    # Config C start from identical LoRA initialization and batch order,
+    # isolating the training-objective difference as the only variable
+    # between them. Previously unseeded.
+    set_all_seeds(SEED)
 
     try:
         dataset = load_qa_data(language, smoke_test=smoke_test)
@@ -757,6 +905,13 @@ def main():
                         help="Validate pipeline on CPU/MacBook, no server needed")
     parser.add_argument("--full", action="store_true",
                         help="Run the full experiment matrix (requires GPU)")
+    parser.add_argument("--composite_only", action="store_true",
+                        help="With --full, only (re)run the 8 Config C "
+                             "(composite-loss) conditions -- the ones "
+                             "invalidated by the non-differentiability bug. "
+                             "Configs A/B/D are unaffected by that bug and do "
+                             "not need to be rerun. Cuts GPU time by more "
+                             "than half relative to a full 20-condition rerun.")
     args = parser.parse_args()
 
     if not (args.smoke_test or args.full):
@@ -775,6 +930,11 @@ def main():
     )
 
     runs = build_run_matrix()
+    if args.composite_only:
+        runs = [r for r in runs if r[0] == "C_composite_lora"]
+        print(f"--composite_only: restricting to the {len(runs)} Config C "
+              f"runs (4 LoRA variants x 2 languages). Configs A/B/D are "
+              f"assumed already valid from the original run and are skipped.")
     completed = load_completed_runs(checkpoint_file)
     if completed:
         skip_count = sum(1 for r in runs if _run_key(*r) in completed)
