@@ -507,6 +507,14 @@ def load_model_for_config(config_name: str, lora_variant: str = None,
     peft_config = build_peft_config(lora_variant, total_steps=total_steps)
     model = get_peft_model(model, peft_config)
     model.print_trainable_parameters()
+    # [BUG FOUND ON GPU RERUN, Aug 2026] Needed whenever gradient checkpointing
+    # is enabled on top of a frozen-backbone + PEFT-adapter model -- without
+    # it, checkpointing's recompute pass can produce a graph with no tensor
+    # requiring grad ("element 0 of tensors does not require grad") because
+    # the checkpointed segment's *input* (not just the adapter weights) needs
+    # requires_grad=True for the backward graph to reconnect. No-op if
+    # checkpointing ends up disabled for this run.
+    model.enable_input_require_grads()
     return model
 
 
@@ -815,9 +823,28 @@ def run_single_experiment(config_name: str, lora_variant: str, language: str,
                 # checkpointing trades some compute for much lower
                 # activation memory, and Adafactor (the optimizer T5's own
                 # authors used) needs far less optimizer-state memory than
-                # AdamW. Both only apply to D_full_ft -- LoRA runs have a
-                # tiny trainable parameter budget and don't need this.
-                gradient_checkpointing=(config_name == "D_full_ft"),
+                # AdamW.
+                #
+                # [BUG FOUND ON GPU RERUN, Aug 2026] The original assumption
+                # here -- "LoRA runs have a tiny trainable parameter budget
+                # and don't need this" -- is true for the OPTIMIZER STATE
+                # (only ~1.7M adapter params for LoRA vs. 580M for full FT),
+                # but misses the real memory driver for Config C specifically:
+                # SCST's K=4 sampled generations mean the teacher-forced
+                # log-prob forward pass processes an effective batch of
+                # TRAIN_BATCH_SIZE * PG_NUM_SAMPLES = 16 sequences, and for
+                # any variant that does NOT run a 4-bit quantized backbone
+                # (DoRA / AdaLoRA / VeRA -- unlike QLoRA), that forward pass
+                # holds full-precision (bf16) activations for the entire
+                # 580M-param backbone across all 16 sequences. This OOM'd a
+                # 24GB RTX 4090 at step 4/1416 on dora/arabic. QLoRA is
+                # unaffected (its 4-bit backbone already uses ~4x less
+                # memory) and is deliberately excluded below so its
+                # already-running pods aren't affected by this change.
+                gradient_checkpointing=(
+                    config_name == "D_full_ft"
+                    or (config_name == "C_composite_lora" and lora_variant != "qlora")
+                ),
                 optim=("adafactor" if config_name == "D_full_ft" else "adamw_torch"),
             )
 
