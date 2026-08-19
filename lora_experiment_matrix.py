@@ -943,6 +943,17 @@ def main():
                              "Configs A/B/D are unaffected by that bug and do "
                              "not need to be rerun. Cuts GPU time by more "
                              "than half relative to a full 20-condition rerun.")
+    parser.add_argument("--variant", type=str, default=None,
+                        choices=LORA_VARIANTS,
+                        help="Restrict to a single LoRA variant (e.g. 'qlora'). "
+                             "Combine with --lang to isolate exactly one of the "
+                             "8 Config C conditions, so different rented GPU "
+                             "pods can each run one condition in parallel "
+                             "instead of all 8 running serially on one GPU.")
+    parser.add_argument("--lang", type=str, default=None,
+                        choices=LANGUAGES,
+                        help="Restrict to a single language ('arabic' or "
+                             "'malay'). See --variant.")
     args = parser.parse_args()
 
     if not (args.smoke_test or args.full):
@@ -956,9 +967,17 @@ def main():
               "lab server, not locally.")
         return
 
-    checkpoint_file = OUTPUT_DIR / (
-        "checkpoint_smoke.jsonl" if args.smoke_test else "checkpoint_full.jsonl"
-    )
+    if args.smoke_test:
+        checkpoint_name = "checkpoint_smoke.jsonl"
+    elif args.variant and args.lang:
+        # Sharded run (one pod = one condition): give each shard its OWN
+        # checkpoint file so N parallel pods never push-conflict on the same
+        # path/branch in the shared GitHub repo. Merge the shard files
+        # together once all pods finish (see printed NOTE below).
+        checkpoint_name = f"checkpoint_full_{args.variant}_{args.lang}.jsonl"
+    else:
+        checkpoint_name = "checkpoint_full.jsonl"
+    checkpoint_file = OUTPUT_DIR / checkpoint_name
 
     runs = build_run_matrix()
     if args.composite_only:
@@ -966,6 +985,21 @@ def main():
         print(f"--composite_only: restricting to the {len(runs)} Config C "
               f"runs (4 LoRA variants x 2 languages). Configs A/B/D are "
               f"assumed already valid from the original run and are skipped.")
+    if args.variant:
+        runs = [r for r in runs if r[1] == args.variant]
+        print(f"--variant {args.variant}: restricting to this LoRA variant only.")
+    if args.lang:
+        runs = [r for r in runs if r[2] == args.lang]
+        print(f"--lang {args.lang}: restricting to this language only.")
+    if args.variant and args.lang and not args.smoke_test:
+        print(f"NOTE: sharded run -- this pod writes ONLY to "
+              f"{checkpoint_file.name} (not the shared checkpoint_full.jsonl), "
+              f"so 8 parallel pods can each push to the same GitHub repo "
+              f"without conflicting. After all 8 pods finish, run "
+              f"`cat experiment_results/checkpoint_full_*.jsonl > "
+              f"experiment_results/checkpoint_full.jsonl` once (on any one "
+              f"pod, after pulling all shards) to merge them into the file "
+              f"the final report/CSV step expects.")
     completed = load_completed_runs(checkpoint_file)
     if completed:
         skip_count = sum(1 for r in runs if _run_key(*r) in completed)
