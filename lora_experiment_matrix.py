@@ -878,7 +878,25 @@ def run_single_experiment(config_name: str, lora_variant: str, language: str,
             inputs = tokenizer(prompt, return_tensors="pt", truncation=True,
                               max_length=512).to(DEVICE)
             with torch.no_grad():
-                out = model.generate(**inputs, max_new_tokens=40)
+                # [BUG FOUND ON GPU RERUN, Aug 2026] This eval-time generate()
+                # call never got the NaN-safety guard added to the SCST
+                # training-time generate() call above -- and it turns out it
+                # needed it too. qlora/malay produced an EMPTY generated
+                # string for every single evaluation example (mean_f_faith
+                # exactly 0.0), which is the signature of greedy decoding
+                # collapsing to an immediate EOS prediction under
+                # NaN/Inf logits, not a genuine "worst" result. QLoRA is the
+                # only variant with a 4-bit quantized backbone, and Malay's
+                # prompt is longer than Arabic's (it embeds all 4
+                # multiple-choice options -- see build_prompt()), so this
+                # combination is the most numerically fragile one in the
+                # matrix. Same fix as the training-time call: sanitize NaN/
+                # Inf logits and renormalize before argmax/sampling.
+                out = model.generate(
+                    **inputs, max_new_tokens=40,
+                    renormalize_logits=True,
+                    logits_processor=LogitsProcessorList([_NaNSafeLogitsProcessor()]),
+                )
             answer = tokenizer.decode(out[0], skip_special_tokens=True)
             scores.append(f_faith(answer, context))
             # EM/F1 measure whether the answer is actually CORRECT (matches
