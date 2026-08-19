@@ -131,7 +131,36 @@ from transformers import (
     Seq2SeqTrainer,
     Seq2SeqTrainingArguments,
     DataCollatorForSeq2Seq,
+    LogitsProcessor,
+    LogitsProcessorList,
 )
+
+
+class _NaNSafeLogitsProcessor(LogitsProcessor):
+    """Sanitize NaN/Inf logits before sampling.
+
+    [BUG FOUND ON GPU RERUN, Aug 2026] The QLoRA (4-bit, bitsandbytes NF4)
+    Config C runs hit `torch.AcceleratorError: CUDA error: device-side
+    assert triggered` inside `model.generate()`'s `_sample()` step around
+    step ~30 of training, with a very large pre-clip grad_norm (~586) logged
+    a few steps earlier. This is consistent with the K=4-sample policy-
+    gradient step (Section "The fix" in the paper) occasionally producing
+    NaN/Inf logits under 4-bit-quantized compute combined with an
+    unstabilized LoRA adapter early in training -- `torch.multinomial`
+    cannot sample from a probability distribution containing NaN, which
+    manifests as a device-side assert (and, because the CUDA context is
+    then unrecoverable within the same process, every subsequent CUDA call
+    -- including the `torch.cuda.empty_cache()` in the per-run cleanup
+    handler -- also raises, escaping the per-run try/except and crashing
+    the whole script instead of just marking one run FAILED). This
+    processor clamps any NaN/Inf logit to a large-finite value immediately
+    before sampling, which is the standard mitigation for this failure mode
+    and does not alter the training objective on any step where logits are
+    already finite (the overwhelming majority of steps).
+    """
+
+    def __call__(self, input_ids, scores):
+        return torch.nan_to_num(scores, nan=-1e4, posinf=1e4, neginf=-1e4)
 
 try:
     from transformers import BitsAndBytesConfig
@@ -662,6 +691,8 @@ class CompositeLossTrainer(Seq2SeqTrainer):
                 do_sample=True,
                 temperature=PG_SAMPLE_TEMPERATURE,
                 top_p=PG_SAMPLE_TOP_P,
+                renormalize_logits=True,
+                logits_processor=LogitsProcessorList([_NaNSafeLogitsProcessor()]),
             )
             sampled_texts = self.tokenizer_ref.batch_decode(
                 sampled_ids, skip_special_tokens=True)
