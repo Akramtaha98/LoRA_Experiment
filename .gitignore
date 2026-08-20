@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+.venv/
+experiment_results/ckpt_*/
+*.log
+.DS_Store

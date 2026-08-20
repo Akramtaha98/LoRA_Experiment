@@ -1,0 +1,11 @@
+transformers>=4.40
+peft>=0.11
+bitsandbytes>=0.43
+accelerate>=0.30
+datasets>=2.19
+sentencepiece
+torch>=2.1
+pandas
+tabulate
+evaluate
+scipy
