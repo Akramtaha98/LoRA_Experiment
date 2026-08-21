@@ -1,0 +1,1 @@
+{"config": "B_ce_lora", "lora_variant": "qlora", "language": "arabic", "seed": 123, "status": "FAIL", "mean_f_faith": null, "mean_em": null, "mean_f1": null, "n_eval": 0, "runtime_sec": 6.9, "error": "ValueError: `tiktoken` is required to read a `tiktoken` file. Install it with `pip install tiktoken`.", "samples": ""}
