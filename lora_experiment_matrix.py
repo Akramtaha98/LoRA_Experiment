@@ -576,7 +576,11 @@ _nli_model = None
 def _load_nli():
     global _nli_tokenizer, _nli_model
     if _nli_model is None:
-        _nli_tokenizer = AutoTokenizer.from_pretrained(NLI_MODEL)
+        # use_fast=False for the same reason as the BASE_MODEL tokenizer above:
+        # XLM-R's tokenizer is also SentencePiece-based and can hit the same
+        # fast-tokenizer-conversion / tiktoken-misrouting bug on recent
+        # `transformers` releases.
+        _nli_tokenizer = AutoTokenizer.from_pretrained(NLI_MODEL, use_fast=False)
         _nli_model = AutoModelForSequenceClassification.from_pretrained(NLI_MODEL)
         _nli_model.eval()
     return _nli_tokenizer, _nli_model
@@ -761,7 +765,16 @@ def run_single_experiment(config_name: str, lora_variant: str, language: str,
 
     try:
         dataset = load_qa_data(language, smoke_test=smoke_test)
-        tokenizer = AutoTokenizer.from_pretrained(BASE_MODEL)
+        # use_fast=False: on recent `transformers` releases, the fast-tokenizer
+        # slow-to-fast conversion path for mT5 has a bug where it misroutes
+        # mT5's SentencePiece `spiece.model` (a binary protobuf) through a
+        # tiktoken-style BPE-vocab parser (`load_tiktoken_bpe`), which then
+        # crashes on the first non-text byte it hits (e.g. "Error parsing
+        # line b'\x0e' in .../spiece.model"). Forcing the slow tokenizer
+        # sidesteps that conversion entirely and loads spiece.model directly
+        # via sentencepiece, which is what actually works for T5-family
+        # models regardless of transformers version.
+        tokenizer = AutoTokenizer.from_pretrained(BASE_MODEL, use_fast=False)
 
         # Carve out the eval slice FIRST and exclude it from training data.
         # Without this split, train_ds and eval_slice previously overlapped

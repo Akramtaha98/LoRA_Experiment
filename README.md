@@ -106,13 +106,15 @@ QLoRA leads both languages under the composite objective (Config C). DoRA leads 
 
 ```bibtex
 @article{taha2026lora,
-  author  = {Taha Zeyad, Akram},
+  author  = {Taha Zeyad, Akram and Qadri Zakaria, Lailatul},
   title   = {LoRA-Based Mitigation of Retrieval-Augmented Generation Failure Modes: A Closed-Passage Evaluation on Arabic and Malay},
   journal = {IEEE/ACM Transactions on Audio, Speech, and Language Processing},
   year    = {2026},
   note    = {Under review}
 }
 ```
+
+**Authors:** Akram Taha Zeyad and Lailatul Qadri Zakaria, Faculty of Information Science and Technology (FTSM), Universiti Kebangsaan Malaysia.
 
 ## License
 
