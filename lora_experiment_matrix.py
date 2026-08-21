@@ -272,8 +272,15 @@ OUTPUT_DIR.mkdir(exist_ok=True)
 # matrix (killed process, RunPod disconnect, OOM, etc.), re-running the same
 # command skips every run that already PASSED and continues from where it
 # stopped, instead of re-running (and re-paying for) everything from scratch.
-def _run_key(config_name: str, lora_variant: str, language: str) -> str:
-    return f"{config_name}|{lora_variant}|{language}"
+#
+# FIX (multi-seed replication, peer review roadmap item): seed is now part
+# of the run key. Without this, running the same 8 Config C conditions
+# under a second/third seed would look identical to already-completed runs
+# from the seed=42 pass and be silently skipped by the resume logic below --
+# exactly the bug that would make "3 seeds per condition" collapse back
+# into 1 seed per condition on every rerun.
+def _run_key(config_name: str, lora_variant: str, language: str, seed: int) -> str:
+    return f"{config_name}|{lora_variant}|{language}|seed={seed}"
 
 
 def load_completed_runs(checkpoint_file: Path) -> set:
@@ -291,7 +298,8 @@ def load_completed_runs(checkpoint_file: Path) -> set:
                     continue
                 if entry.get("status") == "PASS":
                     completed.add(_run_key(entry["config"], entry["lora_variant"],
-                                            entry["language"]))
+                                            entry["language"],
+                                            entry.get("seed", SEED)))
     return completed
 
 
@@ -730,8 +738,8 @@ class CompositeLossTrainer(Seq2SeqTrainer):
 
 # ─── TRAIN + EVAL ONE RUN (FIXED: per-run try/except, no full-script crash) ──
 def run_single_experiment(config_name: str, lora_variant: str, language: str,
-                           smoke_test: bool = False) -> dict:
-    label = f"config={config_name} variant={lora_variant} lang={language}"
+                           smoke_test: bool = False, seed: int = SEED) -> dict:
+    label = f"config={config_name} variant={lora_variant} lang={language} seed={seed}"
     print(f"\n{'='*70}\nRUN: {label}\n{'='*70}")
     t0 = time.time()
     model = None  # tracked so the finally block below can always release GPU
@@ -741,7 +749,15 @@ def run_single_experiment(config_name: str, lora_variant: str, language: str,
     # Config C start from identical LoRA initialization and batch order,
     # isolating the training-objective difference as the only variable
     # between them. Previously unseeded.
-    set_all_seeds(SEED)
+    #
+    # FIX (multi-seed replication): seed is now a parameter, not the hardcoded
+    # SEED constant, so the same 8 Config C conditions can be rerun under
+    # multiple seeds (see --seed below) to actually test whether the
+    # composite-loss effect (mean +0.0074, sign test p~=0.73 at n=8/seed=42
+    # only) is real or single-seed noise -- the single most important open
+    # item from peer review. SEED=42 remains the default, so omitting --seed
+    # reproduces the original single-seed results exactly.
+    set_all_seeds(seed)
 
     try:
         dataset = load_qa_data(language, smoke_test=smoke_test)
@@ -922,6 +938,7 @@ def run_single_experiment(config_name: str, lora_variant: str, language: str,
 
         result = {
             "config": config_name, "lora_variant": lora_variant, "language": language,
+            "seed": seed,
             "status": "PASS", "mean_f_faith": round(mean_score, 4),
             "mean_em": round(mean_em, 4), "mean_f1": round(mean_f1, 4),
             "n_eval": len(scores), "runtime_sec": round(elapsed, 1), "error": "",
@@ -938,6 +955,7 @@ def run_single_experiment(config_name: str, lora_variant: str, language: str,
         traceback.print_exc()
         return {
             "config": config_name, "lora_variant": lora_variant, "language": language,
+            "seed": seed,
             "status": "FAIL", "mean_f_faith": None, "mean_em": None, "mean_f1": None,
             "n_eval": 0, "runtime_sec": round(elapsed, 1),
             "error": f"{type(e).__name__}: {e}", "samples": "",
@@ -999,6 +1017,16 @@ def main():
                         choices=LANGUAGES,
                         help="Restrict to a single language ('arabic' or "
                              "'malay'). See --variant.")
+    parser.add_argument("--seed", type=int, default=SEED,
+                        help="Random seed for this run (default 42, the "
+                             "original single-seed value). Use a different "
+                             "--seed (e.g. 123, 2026) to run a replicate of "
+                             "the same conditions under fresh LoRA "
+                             "initialization/batch order/SCST sampling, for "
+                             "multi-seed significance testing of the "
+                             "composite-loss effect. Each seed's results are "
+                             "written to their own checkpoint file (see "
+                             "below) so seeds never overwrite each other.")
     args = parser.parse_args()
 
     if not (args.smoke_test or args.full):
@@ -1012,6 +1040,7 @@ def main():
               "lab server, not locally.")
         return
 
+    seed_suffix = "" if args.seed == SEED else f"_seed{args.seed}"
     if args.smoke_test:
         checkpoint_name = "checkpoint_smoke.jsonl"
     elif args.variant and args.lang:
@@ -1019,9 +1048,15 @@ def main():
         # checkpoint file so N parallel pods never push-conflict on the same
         # path/branch in the shared GitHub repo. Merge the shard files
         # together once all pods finish (see printed NOTE below).
-        checkpoint_name = f"checkpoint_full_{args.variant}_{args.lang}.jsonl"
+        #
+        # Multi-seed replication: a non-default --seed gets its own
+        # checkpoint file too (checkpoint_full_{variant}_{lang}_seed{N}.jsonl),
+        # so seed=42 (original), seed=123, seed=2026, etc. can all run in
+        # parallel across different pods without colliding, and the merge
+        # step below can distinguish which rows belong to which seed.
+        checkpoint_name = f"checkpoint_full_{args.variant}_{args.lang}{seed_suffix}.jsonl"
     else:
-        checkpoint_name = "checkpoint_full.jsonl"
+        checkpoint_name = f"checkpoint_full{seed_suffix}.jsonl"
     checkpoint_file = OUTPUT_DIR / checkpoint_name
 
     runs = build_run_matrix()
@@ -1047,22 +1082,23 @@ def main():
               f"the final report/CSV step expects.")
     completed = load_completed_runs(checkpoint_file)
     if completed:
-        skip_count = sum(1 for r in runs if _run_key(*r) in completed)
-        runs = [r for r in runs if _run_key(*r) not in completed]
+        skip_count = sum(1 for r in runs if _run_key(*r, args.seed) in completed)
+        runs = [r for r in runs if _run_key(*r, args.seed) not in completed]
         print(f"Resuming from checkpoint ({checkpoint_file.name}): "
               f"{skip_count} runs already PASSED in a previous session, skipping them.")
 
-    print(f"Total runs queued: {len(runs)} | mode: "
+    print(f"Total runs queued: {len(runs)} | seed: {args.seed} | mode: "
           f"{'SMOKE TEST (CPU, pipeline validation only)' if args.smoke_test else 'FULL (GPU)'}")
 
     for config_name, lora_variant, language in runs:
         result = run_single_experiment(config_name, lora_variant, language,
-                                       smoke_test=args.smoke_test)
+                                       smoke_test=args.smoke_test, seed=args.seed)
         append_checkpoint(checkpoint_file, result)
         if not args.smoke_test:
             git_commit_and_push(
                 checkpoint_file,
-                f"Checkpoint: {config_name}/{lora_variant}/{language} = {result['status']}",
+                f"Checkpoint: {config_name}/{lora_variant}/{language} "
+                f"seed={args.seed} = {result['status']}",
             )
 
     # Final report always reflects EVERY recorded result — runs skipped this
