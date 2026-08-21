@@ -1006,6 +1006,18 @@ def main():
                              "Configs A/B/D are unaffected by that bug and do "
                              "not need to be rerun. Cuts GPU time by more "
                              "than half relative to a full 20-condition rerun.")
+    parser.add_argument("--bc_only", action="store_true",
+                        help="With --full, only (re)run Config B and Config C "
+                             "(CE-only and composite-loss LoRA) -- the matched "
+                             "pair the composite-loss significance test needs, "
+                             "run under the SAME --seed so they differ only in "
+                             "training objective. Use this (not --composite_only "
+                             "alone) for multi-seed replication runs: Config A "
+                             "(frozen, no training) and Config D (full "
+                             "fine-tuning) are not part of the composite-loss "
+                             "comparison and don't need re-running under new "
+                             "seeds, so skipping them here saves real GPU time "
+                             "and cost across a multi-seed x multi-pod sweep.")
     parser.add_argument("--variant", type=str, default=None,
                         choices=LORA_VARIANTS,
                         help="Restrict to a single LoRA variant (e.g. 'qlora'). "
@@ -1065,6 +1077,13 @@ def main():
         print(f"--composite_only: restricting to the {len(runs)} Config C "
               f"runs (4 LoRA variants x 2 languages). Configs A/B/D are "
               f"assumed already valid from the original run and are skipped.")
+    if args.bc_only:
+        runs = [r for r in runs if r[0] in ("B_ce_lora", "C_composite_lora")]
+        print(f"--bc_only: restricting to the {len(runs)} Config B/C "
+              f"runs (CE-only + composite, 4 LoRA variants x 2 languages). "
+              f"Config A (frozen) and Config D (full fine-tuning) are not "
+              f"part of the composite-loss significance test and are "
+              f"skipped -- use this flag for multi-seed replication runs.")
     if args.variant:
         runs = [r for r in runs if r[1] == args.variant]
         print(f"--variant {args.variant}: restricting to this LoRA variant only.")
