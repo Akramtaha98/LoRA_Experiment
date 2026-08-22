@@ -442,7 +442,7 @@ def build_prompt(question: str, context: str, options=None) -> str:
 
 
 # ─── LoRA VARIANT CONFIG BUILDERS (FIXED: AdaLoRA scheduling params) ─────────
-def build_peft_config(variant: str, total_steps: int = 30):
+def build_peft_config(variant: str, total_steps: int = 30, seed: int = 42):
     if variant == "qlora":
         return LoraConfig(
             task_type=TaskType.SEQ_2_SEQ_LM,
@@ -470,17 +470,26 @@ def build_peft_config(variant: str, total_steps: int = 30):
             use_dora=True,
         )
     elif variant == "vera":
+        # [BUG FOUND during multi-seed replication, Aug 2026] VeraConfig's
+        # projection_prng_key defaults to a FIXED constant (0) regardless of
+        # torch's global RNG state. VeRA's shared frozen random projection
+        # basis -- the dominant source of its behavior, since only small
+        # per-layer scaling vectors are actually trained -- was therefore
+        # IDENTICAL across every --seed value, making seed=123 and seed=2026
+        # runs produce byte-identical generations. Passing seed here so each
+        # replication seed gets a genuinely different frozen basis.
         return VeraConfig(
             task_type=TaskType.SEQ_2_SEQ_LM,
             r=8,
             target_modules=["q", "k", "v", "o"],
+            projection_prng_key=seed,
         )
     else:
         raise ValueError(f"Unknown LoRA variant: {variant}")
 
 
 def load_model_for_config(config_name: str, lora_variant: str = None,
-                          total_steps: int = 30):
+                          total_steps: int = 30, seed: int = 42):
     """
     A_frozen   -> plain mT5-base, no adapter, eval only
     B/C (LoRA) -> mT5-base + PEFT adapter (specified variant)
@@ -512,7 +521,7 @@ def load_model_for_config(config_name: str, lora_variant: str = None,
         return model   # all params trainable, no PEFT wrapper
 
     # Config B / C -> attach LoRA adapter
-    peft_config = build_peft_config(lora_variant, total_steps=total_steps)
+    peft_config = build_peft_config(lora_variant, total_steps=total_steps, seed=seed)
     model = get_peft_model(model, peft_config)
     model.print_trainable_parameters()
     # [BUG FOUND ON GPU RERUN, Aug 2026] Needed whenever gradient checkpointing
@@ -787,7 +796,7 @@ def run_single_experiment(config_name: str, lora_variant: str, language: str,
             steps_per_epoch = max(1, -(-n_train // TRAIN_BATCH_SIZE))  # ceil div
             total_steps = max(2, steps_per_epoch * TRAIN_EPOCHS)
 
-        model = load_model_for_config(config_name, lora_variant, total_steps)
+        model = load_model_for_config(config_name, lora_variant, total_steps, seed)
 
         if config_name != "A_frozen" and not smoke_test:
             def _tokenize_fn(ex):
