@@ -103,6 +103,24 @@ REQUIREMENTS:
     pip install transformers peft bitsandbytes accelerate datasets \
                 sentencepiece torch pandas tabulate evaluate
 
+  Full run on an RTX 5090 / any Blackwell-architecture GPU (sm_120):
+    A plain `pip install torch` on an older cached wheel can silently
+    install a build with NO Blackwell kernel support, which fails at the
+    first CUDA op with "no kernel image is available for execution on the
+    device" -- AFTER the model has already loaded and (worse) can surface
+    mid-run rather than at import time. Blackwell (sm_120) needs a CUDA
+    12.8+ PyTorch build; the first stable PyTorch release with native
+    sm_120 support is 2.7.0. On a fresh RTX 5090 pod, either:
+      pip install torch --index-url https://download.pytorch.org/whl/cu128
+    or, if the pod's default `pip install torch` already resolves to
+    torch>=2.7.0 (check with `python3 -c "import torch; print(torch.__version__)"`
+    -- true on most GPU-cloud base images by now), no special index is
+    needed. Either way, main() below now checks torch's reported CUDA
+    architecture list against the detected GPU's compute capability at
+    startup and refuses to proceed with --full on a mismatch, rather than
+    letting a --full run burn rented GPU-hours before failing deep inside
+    training.
+
 USAGE:
     python3 lora_experiment_matrix.py --smoke_test                      # on your MacBook, now
     python3 lora_experiment_matrix.py --full                            # on lab server, later (all 20 conditions)
@@ -162,6 +180,54 @@ class _NaNSafeLogitsProcessor(LogitsProcessor):
     def __call__(self, input_ids, scores):
         return torch.nan_to_num(scores, nan=-1e4, posinf=1e4, neginf=-1e4)
 
+
+# FIX (readiness review item B1, prime suspect #4): "<extra_id_N>" tokens
+# (T5's pretraining span-corruption sentinel markers) are never a valid
+# answer to a QA prompt, in Arabic, Malay, or any other language this task
+# is posed in. Banning them at decode time is a legitimate task-level
+# constraint (not a metric-gaming trick: no correct XQuAD/Belebele answer
+# is ever a sentinel token), and it is also the review's suggested
+# diagnostic -- it separates "the model cannot produce a real answer"
+# (F_faith/EM stay near zero even with sentinels banned -- the FFN
+# target_modules fix above didn't work) from "the decoder defaults to
+# denoising behavior only because nothing stops it" (scores improve once
+# banned). Applied at BOTH training-time sampling (so Config C's SCST
+# policy-gradient step never gets rewarded for exploring the sentinel
+# collapse mode in the first place) and eval-time generation.
+_SENTINEL_TOKEN_IDS = None
+
+
+def get_sentinel_token_ids(tokenizer) -> list:
+    """Token ids for <extra_id_0> .. <extra_id_99> (T5/mT5 sentinel
+    vocabulary), cached after first lookup.
+
+    NOTE on a bug caught during review of this very fix: mT5-base's
+    SentencePiece vocab stores these as the WORD-INITIAL piece
+    "▁<extra_id_N>" (leading "▁"), not the bare string "<extra_id_N>".
+    `tokenizer.convert_tokens_to_ids([f"<extra_id_{i}>" ...])` (bare,
+    no "▁") silently resolves every one of the 100 to unk_token_id
+    instead of raising -- a fully silent no-op that would have shipped a
+    suppress_tokens list of pure unk ids, banning nothing. Verified against
+    the real tokenizer: `tok.encode("<extra_id_0>", add_special_tokens=False)`
+    correctly returns a single token id (250099 for extra_id_0 on
+    mT5-base's 250100-entry vocab, counting down to 250000 for
+    extra_id_99), so we resolve ids via encode() per sentinel string
+    rather than a bare convert_tokens_to_ids lookup."""
+    global _SENTINEL_TOKEN_IDS
+    if _SENTINEL_TOKEN_IDS is None:
+        unk_id = tokenizer.unk_token_id
+        ids = []
+        for i in range(100):
+            enc = tokenizer.encode(f"<extra_id_{i}>", add_special_tokens=False)
+            if len(enc) == 1 and enc[0] != unk_id:
+                ids.append(enc[0])
+        if len(ids) < 100:
+            print(f"  [WARN] only resolved {len(ids)}/100 sentinel token ids "
+                  f"for suppress_tokens -- check tokenizer vocab.")
+        _SENTINEL_TOKEN_IDS = ids
+    return _SENTINEL_TOKEN_IDS
+
+
 try:
     from transformers import BitsAndBytesConfig
     _BNB_AVAILABLE = True
@@ -187,6 +253,47 @@ if DEVICE == "cpu":
     print("  This validates pipeline LOGIC only, not real training quality.\n")
 
 
+def check_gpu_compatibility() -> tuple:
+    """Returns (is_compatible: bool, message: str).
+
+    FIX (added for RTX 5090 / Blackwell pods): `torch.cuda.is_available()`
+    only checks that a CUDA driver and device are visible -- it says
+    NOTHING about whether the installed torch BUILD was compiled with
+    kernels for this specific GPU's compute capability. On a Blackwell
+    card (RTX 50-series, compute capability 12.0, "sm_120"), an older
+    cached torch wheel imports cleanly, reports CUDA as available, loads
+    the model onto the GPU without error, and then fails deep inside the
+    first real forward/backward pass with "CUDA error: no kernel image is
+    available for execution on the device" -- i.e. AFTER burning setup
+    time and possibly partway through a --full run, not at startup. This
+    check compares the GPU's actual compute capability against
+    torch.cuda.get_arch_list() (the architectures this torch BUILD
+    actually shipped kernels for) so an incompatible pod fails immediately
+    and loudly, before any rented GPU-hours are spent. See the
+    REQUIREMENTS docstring at the top of this file for the fix (torch
+    >=2.7.0, CUDA 12.8 build) if this reports incompatible.
+    """
+    if DEVICE != "cuda":
+        return True, ""
+    cap_major, cap_minor = torch.cuda.get_device_capability(0)
+    sm_tag = f"sm_{cap_major}{cap_minor}"
+    gpu_name = torch.cuda.get_device_name(0)
+    arch_list = torch.cuda.get_arch_list()
+    compatible = sm_tag in arch_list
+    msg = (f"GPU: {gpu_name} | compute capability {cap_major}.{cap_minor} "
+           f"({sm_tag}) | torch {torch.__version__} | torch built for: "
+           f"{', '.join(arch_list) if arch_list else '(none reported)'}")
+    if not compatible:
+        msg += (
+            f"\n  ✗ This torch build was NOT compiled with {sm_tag} kernels. "
+            f"It will load the model and appear to work, then fail mid-run with "
+            f"'no kernel image is available for execution on the device'. Fix: "
+            f"pip install torch --index-url https://download.pytorch.org/whl/cu128 "
+            f"(see REQUIREMENTS docstring at the top of this file)."
+        )
+    return compatible, msg
+
+
 # ─── CONFIGURATION ────────────────────────────────────────────────────────────
 BASE_MODEL    = "google/mt5-base"
 # FIX: the previous NLI_MODEL ("cross-encoder/nli-deberta-v3-base") is
@@ -206,14 +313,26 @@ NLI_MODEL     = "MoritzLaurer/mDeBERTa-v3-base-mnli-xnli"
 LANGUAGES     = ["arabic", "malay"]
 LORA_VARIANTS = ["qlora", "adalora", "dora", "vera"]
 
-# Data scale for --full runs. 500 is safely under both XQuAD's ~1190 Arabic
-# validation examples and Belebele's ~900 Malay test examples per language.
-# Raised from an earlier 50-example cap that made --full finish in minutes
-# instead of doing meaningful training -- that cap was fine for smoke-test
-# pipeline validation but was accidentally also governing the real run.
-FULL_DATA_CAP   = 500
+# Data scale for --full runs.
+# FIX (post-submission readiness review, item B2 -- the single highest-
+# leverage fix in that review): evaluation was previously capped at
+# FULL_EVAL_SIZE=30 held-out examples per condition, versus XQuAD-ar's
+# ~1190 and Belebele-zsm's ~900 available examples. At n=30, EM=0.144 is
+# 4.3 examples and the seed-SD we report explicitly excludes this
+# per-example sampling variance (see results_section.tex Sec. IV), so none
+# of the reported deltas had a stated uncertainty covering the dominant
+# error term. TRAIN_SIZE now names a FIXED training-set size (still ~470
+# after excluding empty examples, same scale as before -- this fix targets
+# eval size only, not training size, so any change in results can be
+# attributed to the eval fix and not a simultaneous training-scale change).
+# Eval now uses EVERY remaining example in the dataset after the training
+# slice is removed (~720 for Arabic, ~430 for Malay) instead of a fixed 30,
+# with no overlap between train and eval indices.
+TRAIN_SIZE      = 470   # matches the training-set size already reported in
+                         # the paper (old FULL_DATA_CAP=500 minus old
+                         # FULL_EVAL_SIZE=30); kept fixed so this fix changes
+                         # eval size only, not training size
 SMOKE_DATA_CAP  = 3     # unchanged -- pipeline validation only, keep tiny
-FULL_EVAL_SIZE  = 30    # more eval examples -> less noisy F_faith comparison
 SMOKE_EVAL_SIZE = 3
 TRAIN_BATCH_SIZE = 4
 # FIX: 3 epochs on ~470 train examples (~350 steps total) was nowhere near
@@ -332,7 +451,23 @@ def load_all_checkpoint_results(checkpoint_file: Path) -> list:
 # (no network, no cached credentials, etc.) this NEVER crashes the
 # experiment — the checkpoint file is still safely saved and committed
 # locally; you can push it manually later with `git push`.
-def git_commit_and_push(repo_file: Path, message: str) -> None:
+def git_commit_and_push(repo_file: Path, message: str, max_retries: int = 3) -> None:
+    """
+    FIX [multi-pod race, found during 8-pod parallel rerun]: the original
+    version here did a single bare `git push` with no pull first. With
+    several rented-GPU pods finishing conditions around the same time and
+    all pushing to the same `main` branch, whichever pod pushes second gets
+    a non-fast-forward rejection -- and the old code just logged a warning
+    and moved on, silently leaving that pod's checkpoint committed locally
+    but never actually on GitHub until someone noticed and pushed by hand.
+    Each pod writes to its OWN uniquely-named checkpoint file
+    (checkpoint_full_{variant}_{lang}.jsonl), so a `git pull --rebase` here
+    can never produce a real merge conflict -- at worst it replays this
+    pod's one-line commit on top of other pods' unrelated-file commits.
+    This now retries pull-rebase-then-push up to `max_retries` times with a
+    short backoff before giving up and falling back to the original
+    "committed locally, push manually later" behavior.
+    """
     try:
         subprocess.run(["git", "add", str(repo_file)],
                         check=True, capture_output=True, text=True)
@@ -341,12 +476,33 @@ def git_commit_and_push(repo_file: Path, message: str) -> None:
         if commit.returncode != 0 and "nothing to commit" not in commit.stdout:
             print(f"  [GIT] commit warning: {commit.stdout.strip()} {commit.stderr.strip()}")
             return
-        push = subprocess.run(["git", "push"], capture_output=True, text=True)
-        if push.returncode != 0:
-            print(f"  [GIT] push FAILED (checkpoint is committed locally, "
-                  f"push manually later): {push.stderr.strip()}")
-        else:
-            print("  [GIT] checkpoint pushed to GitHub")
+
+        for attempt in range(1, max_retries + 1):
+            push = subprocess.run(["git", "push"], capture_output=True, text=True)
+            if push.returncode == 0:
+                print("  [GIT] checkpoint pushed to GitHub")
+                return
+
+            rejected = ("fetch first" in push.stderr or
+                        "non-fast-forward" in push.stderr or
+                        "rejected" in push.stderr)
+            if not rejected or attempt == max_retries:
+                print(f"  [GIT] push FAILED after {attempt} attempt(s) "
+                      f"(checkpoint is committed locally, push manually "
+                      f"later): {push.stderr.strip()}")
+                return
+
+            print(f"  [GIT] push rejected (another pod pushed first) -- "
+                  f"pulling + retrying, attempt {attempt}/{max_retries}")
+            pull = subprocess.run(["git", "pull", "--rebase", "--autostash"],
+                                   capture_output=True, text=True)
+            if pull.returncode != 0:
+                print(f"  [GIT] pull --rebase failed, aborting retry loop: "
+                      f"{pull.stderr.strip()}")
+                subprocess.run(["git", "rebase", "--abort"],
+                                capture_output=True, text=True)
+                return
+            time.sleep(2)
     except Exception as e:
         print(f"  [GIT] auto-push error (non-fatal, experiment continues): {e}")
 
@@ -372,8 +528,14 @@ def load_qa_data(language: str, smoke_test: bool = False):
 
     if smoke_test:
         ds = ds.select(range(min(SMOKE_DATA_CAP, len(ds))))  # tiny slice, dry run
-    else:
-        ds = ds.select(range(min(FULL_DATA_CAP, len(ds))))   # real training scale
+    # FIX (readiness review item B2): real runs no longer truncate the
+    # dataset here. Previously this capped the pool to FULL_DATA_CAP=500
+    # examples total, of which a fixed 30 became eval -- meaning ~690
+    # (Arabic) / ~400 (Malay) published test examples were never touched at
+    # all, on top of eval itself being only 30 examples. Now the full
+    # dataset is returned and run_single_experiment() below carves a fixed
+    # TRAIN_SIZE training slice off the front, with EVERY remaining example
+    # used for eval.
     return ds
 
 
@@ -442,12 +604,32 @@ def build_prompt(question: str, context: str, options=None) -> str:
 
 
 # ─── LoRA VARIANT CONFIG BUILDERS (FIXED: AdaLoRA scheduling params) ─────────
-def build_peft_config(variant: str, total_steps: int = 30, seed: int = 42):
+# FIX (readiness review item B1, prime suspect #1): target_modules previously
+# covered only the attention projections (q/k/v/o). google/mt5-base uses a
+# GATED feed-forward block (config.feed_forward_proj == "gated-gelu",
+# confirmed against the actual HF config), whose submodules are named
+# wi_0/wi_1/wo -- NOT the plain wi/wo of a non-gated T5. A rank-8 adapter
+# touching only ~1/3 of the transformer's linear layers, with the much
+# larger gated-FFN block (which does most of the representational work in a
+# T5-family block) left completely frozen, is a plausible reason a 470-
+# example fine-tune could fail to override the pretrained span-corruption
+# prior -- exactly the sentinel-token leakage (56% of logged Arabic
+# generations) reported in Sec. IV-F. Adding wi_0/wi_1/wo gives every
+# variant real capacity in the FFN, not just attention. lm_head is
+# deliberately NOT added here (mT5-base ties lm_head to the input
+# embedding, config.tie_word_embeddings=True); that's the review's next
+# suspect to try if sentinel leakage persists after this fix, isolated
+# separately so any improvement can be attributed to one change at a time.
+MT5_FFN_MODULES = ["wi_0", "wi_1", "wo"]
+
+
+def build_peft_config(variant: str, total_steps: int = 30):
+    attn_and_ffn = ["q", "k", "v", "o"] + MT5_FFN_MODULES
     if variant == "qlora":
         return LoraConfig(
             task_type=TaskType.SEQ_2_SEQ_LM,
             r=8, lora_alpha=16, lora_dropout=0.05,
-            target_modules=["q", "k", "v", "o"],
+            target_modules=attn_and_ffn,
         )
     elif variant == "adalora":
         # FIX: tinit/tfinal/deltaT/total_step are REQUIRED by AdaLoRA's rank
@@ -455,7 +637,7 @@ def build_peft_config(variant: str, total_steps: int = 30, seed: int = 42):
         return AdaLoraConfig(
             task_type=TaskType.SEQ_2_SEQ_LM,
             r=8, lora_alpha=16, lora_dropout=0.05,
-            target_modules=["q", "k", "v", "o"],
+            target_modules=attn_and_ffn,
             init_r=12, target_r=8,
             tinit=max(1, total_steps // 10),
             tfinal=max(2, total_steps // 2),
@@ -466,30 +648,21 @@ def build_peft_config(variant: str, total_steps: int = 30, seed: int = 42):
         return LoraConfig(
             task_type=TaskType.SEQ_2_SEQ_LM,
             r=8, lora_alpha=16, lora_dropout=0.05,
-            target_modules=["q", "k", "v", "o"],
+            target_modules=attn_and_ffn,
             use_dora=True,
         )
     elif variant == "vera":
-        # [BUG FOUND during multi-seed replication, Aug 2026] VeraConfig's
-        # projection_prng_key defaults to a FIXED constant (0) regardless of
-        # torch's global RNG state. VeRA's shared frozen random projection
-        # basis -- the dominant source of its behavior, since only small
-        # per-layer scaling vectors are actually trained -- was therefore
-        # IDENTICAL across every --seed value, making seed=123 and seed=2026
-        # runs produce byte-identical generations. Passing seed here so each
-        # replication seed gets a genuinely different frozen basis.
         return VeraConfig(
             task_type=TaskType.SEQ_2_SEQ_LM,
             r=8,
-            target_modules=["q", "k", "v", "o"],
-            projection_prng_key=seed,
+            target_modules=attn_and_ffn,
         )
     else:
         raise ValueError(f"Unknown LoRA variant: {variant}")
 
 
 def load_model_for_config(config_name: str, lora_variant: str = None,
-                          total_steps: int = 30, seed: int = 42):
+                          total_steps: int = 30):
     """
     A_frozen   -> plain mT5-base, no adapter, eval only
     B/C (LoRA) -> mT5-base + PEFT adapter (specified variant)
@@ -521,7 +694,7 @@ def load_model_for_config(config_name: str, lora_variant: str = None,
         return model   # all params trainable, no PEFT wrapper
 
     # Config B / C -> attach LoRA adapter
-    peft_config = build_peft_config(lora_variant, total_steps=total_steps, seed=seed)
+    peft_config = build_peft_config(lora_variant, total_steps=total_steps)
     model = get_peft_model(model, peft_config)
     model.print_trainable_parameters()
     # [BUG FOUND ON GPU RERUN, Aug 2026] Needed whenever gradient checkpointing
@@ -718,6 +891,11 @@ class CompositeLossTrainer(Seq2SeqTrainer):
                 top_p=PG_SAMPLE_TOP_P,
                 renormalize_logits=True,
                 logits_processor=LogitsProcessorList([_NaNSafeLogitsProcessor()]),
+                # FIX (readiness review item B1, prime suspect #4): ban
+                # sentinel tokens during training-time sampling too, not
+                # just eval, so SCST never rewards the sentinel-collapse
+                # mode.
+                suppress_tokens=get_sentinel_token_ids(self.tokenizer_ref),
             )
             sampled_texts = self.tokenizer_ref.batch_decode(
                 sampled_ids, skip_special_tokens=True)
@@ -772,16 +950,23 @@ def run_single_experiment(config_name: str, lora_variant: str, language: str,
         dataset = load_qa_data(language, smoke_test=smoke_test)
         tokenizer = AutoTokenizer.from_pretrained(BASE_MODEL)
 
-        # Carve out the eval slice FIRST and exclude it from training data.
-        # Without this split, train_ds and eval_slice previously overlapped
-        # (eval_slice was the first N examples of the SAME dataset used for
-        # training), meaning the model was evaluated on data it had just
-        # trained on -- train/test leakage that would invalidate the
-        # F_faith comparison across LoRA variants for the paper.
-        n_eval = min(SMOKE_EVAL_SIZE if smoke_test else FULL_EVAL_SIZE, len(dataset))
-        eval_indices = list(range(n_eval))
-        train_indices = list(range(n_eval, len(dataset)))
-        n_train = len(train_indices) if train_indices else len(eval_indices)
+        # Carve out a FIXED-SIZE training slice and use EVERY remaining
+        # example for eval. Without any split at all, train_ds and
+        # eval_slice would overlap -- train/test leakage that would
+        # invalidate the F_faith comparison across LoRA variants for the
+        # paper -- so the split itself is not new. What changed (readiness
+        # review item B2) is eval size: previously eval was a fixed 30
+        # examples and training got everything else; now training keeps its
+        # previously-reported size (TRAIN_SIZE=470) and eval gets
+        # everything else in the dataset (~720 for Arabic XQuAD-ar, ~430
+        # for Malay Belebele-zsm), so the paper's headline EM/F1/F_faith
+        # numbers are no longer 30-example means.
+        if smoke_test:
+            n_train = min(SMOKE_DATA_CAP, len(dataset))
+        else:
+            n_train = min(TRAIN_SIZE, len(dataset))
+        train_indices = list(range(n_train))
+        eval_indices = list(range(n_train, len(dataset))) or list(range(n_train))
 
         # total_steps drives AdaLoRA's rank-decay schedule (tinit/tfinal/
         # deltaT). It must match the ACTUAL number of optimizer steps the
@@ -796,7 +981,7 @@ def run_single_experiment(config_name: str, lora_variant: str, language: str,
             steps_per_epoch = max(1, -(-n_train // TRAIN_BATCH_SIZE))  # ceil div
             total_steps = max(2, steps_per_epoch * TRAIN_EPOCHS)
 
-        model = load_model_for_config(config_name, lora_variant, total_steps, seed)
+        model = load_model_for_config(config_name, lora_variant, total_steps)
 
         if config_name != "A_frozen" and not smoke_test:
             def _tokenize_fn(ex):
@@ -921,6 +1106,12 @@ def run_single_experiment(config_name: str, lora_variant: str, language: str,
                     **inputs, max_new_tokens=40,
                     renormalize_logits=True,
                     logits_processor=LogitsProcessorList([_NaNSafeLogitsProcessor()]),
+                    # FIX (readiness review item B1, prime suspect #4): ban
+                    # sentinel tokens at eval decode time. No correct
+                    # XQuAD/Belebele answer is ever a sentinel token, so
+                    # this is a legitimate task constraint, not a metric
+                    # trick.
+                    suppress_tokens=get_sentinel_token_ids(tokenizer),
                 )
             answer = tokenizer.decode(out[0], skip_special_tokens=True)
             scores.append(f_faith(answer, context))
@@ -1027,6 +1218,14 @@ def main():
                              "comparison and don't need re-running under new "
                              "seeds, so skipping them here saves real GPU time "
                              "and cost across a multi-seed x multi-pod sweep.")
+    parser.add_argument("--ad_only", action="store_true",
+                        help="With --full, only (re)run the 4 Config A "
+                             "(frozen, eval-only) and Config D (full "
+                             "fine-tuning) conditions (2 languages each). "
+                             "Neither has a lora_variant, so they never "
+                             "match a --variant shard -- use this flag to "
+                             "give them their own small pod/command instead "
+                             "of folding them into a --variant-sharded run.")
     parser.add_argument("--variant", type=str, default=None,
                         choices=LORA_VARIANTS,
                         help="Restrict to a single LoRA variant (e.g. 'qlora'). "
@@ -1061,9 +1260,26 @@ def main():
               "lab server, not locally.")
         return
 
+    if args.full:
+        # FIX: catch a torch build that doesn't actually support this pod's
+        # GPU (e.g. an RTX 5090 / Blackwell pod with a pre-2.7.0 torch
+        # wheel) BEFORE spending any rented GPU-time on it. See
+        # check_gpu_compatibility() above and the REQUIREMENTS docstring.
+        gpu_compatible, gpu_msg = check_gpu_compatibility()
+        print(gpu_msg)
+        if not gpu_compatible:
+            print("\nAborting --full run: incompatible torch/GPU combination "
+                  "(see message above for the fix).")
+            return
+
     seed_suffix = "" if args.seed == SEED else f"_seed{args.seed}"
     if args.smoke_test:
         checkpoint_name = "checkpoint_smoke.jsonl"
+    elif args.ad_only:
+        # Own checkpoint file, same reasoning as the --variant+--lang shards
+        # below: keeps this pod's progress isolated so it can run alongside
+        # the --variant-sharded pods without checkpoint collisions.
+        checkpoint_name = f"checkpoint_full_ad{seed_suffix}.jsonl"
     elif args.variant and args.lang:
         # Sharded run (one pod = one condition): give each shard its OWN
         # checkpoint file so N parallel pods never push-conflict on the same
@@ -1093,6 +1309,11 @@ def main():
               f"Config A (frozen) and Config D (full fine-tuning) are not "
               f"part of the composite-loss significance test and are "
               f"skipped -- use this flag for multi-seed replication runs.")
+    if args.ad_only:
+        runs = [r for r in runs if r[0] in ("A_frozen", "D_full_ft")]
+        print(f"--ad_only: restricting to the {len(runs)} Config A/D runs "
+              f"(2 languages each, single seed -- neither varies by seed or "
+              f"LoRA variant).")
     if args.variant:
         runs = [r for r in runs if r[1] == args.variant]
         print(f"--variant {args.variant}: restricting to this LoRA variant only.")
