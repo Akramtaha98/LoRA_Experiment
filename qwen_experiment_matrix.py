@@ -1023,6 +1023,13 @@ def main():
         checkpoint_name = f"checkpoint_full_qwen_ad{seed_suffix}.jsonl"
     elif args.variant and args.lang:
         checkpoint_name = f"checkpoint_full_qwen_{args.variant}_{args.lang}{seed_suffix}.jsonl"
+    elif args.lang:
+        # --lang alone (no --variant): give it its own shard file so two pods
+        # running --lang arabic / --lang malay in parallel never write to the
+        # same checkpoint path (see multi-pod note below).
+        checkpoint_name = f"checkpoint_full_qwen_{args.lang}{seed_suffix}.jsonl"
+    elif args.variant:
+        checkpoint_name = f"checkpoint_full_qwen_{args.variant}{seed_suffix}.jsonl"
     else:
         checkpoint_name = f"checkpoint_full_qwen{seed_suffix}.jsonl"
     checkpoint_file = OUTPUT_DIR / checkpoint_name
