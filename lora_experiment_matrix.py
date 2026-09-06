@@ -265,13 +265,27 @@ def check_gpu_compatibility() -> tuple:
     the model onto the GPU without error, and then fails deep inside the
     first real forward/backward pass with "CUDA error: no kernel image is
     available for execution on the device" -- i.e. AFTER burning setup
-    time and possibly partway through a --full run, not at startup. This
-    check compares the GPU's actual compute capability against
-    torch.cuda.get_arch_list() (the architectures this torch BUILD
-    actually shipped kernels for) so an incompatible pod fails immediately
-    and loudly, before any rented GPU-hours are spent. See the
-    REQUIREMENTS docstring at the top of this file for the fix (torch
-    >=2.7.0, CUDA 12.8 build) if this reports incompatible.
+    time and possibly partway through a --full run, not at startup.
+
+    [BUG FOUND on RTX 4090 pod, first real use of this check] The original
+    version of this function compared the GPU's compute capability string
+    (e.g. "sm_89") against torch.cuda.get_arch_list() and required an
+    EXACT match. This produced a false positive on a perfectly working
+    RTX 4090 (compute capability 8.9) + torch 2.8.0+cu128 setup: torch's
+    arch_list reported sm_70/75/80/86/90/100/120 with NO literal "sm_89"
+    entry, because Ada Lovelace (8.9) commonly runs via the sm_86 SASS
+    kernels plus embedded PTX JIT-compiled at first launch -- a normal,
+    fully-functional configuration that this string-matching check
+    incorrectly flagged as incompatible and aborted before any GPU time
+    was spent. String-matching get_arch_list() is NOT a reliable proxy
+    for "will this actually run" because of this PTX forward-compatibility
+    path. FIXED by replacing the string comparison with an actual, tiny
+    real CUDA op (a matmul on the target device) inside a try/except --
+    this is the only fully reliable way to know whether the installed
+    torch build can execute on this GPU. Genuinely incompatible builds
+    (e.g. a pre-2.7.0 torch on a Blackwell/sm_120 pod) still fail this
+    real op immediately with the same "no kernel image" error, so the
+    fail-fast guarantee for that original RTX 5090 case is preserved.
     """
     if DEVICE != "cuda":
         return True, ""
@@ -279,19 +293,24 @@ def check_gpu_compatibility() -> tuple:
     sm_tag = f"sm_{cap_major}{cap_minor}"
     gpu_name = torch.cuda.get_device_name(0)
     arch_list = torch.cuda.get_arch_list()
-    compatible = sm_tag in arch_list
-    msg = (f"GPU: {gpu_name} | compute capability {cap_major}.{cap_minor} "
-           f"({sm_tag}) | torch {torch.__version__} | torch built for: "
-           f"{', '.join(arch_list) if arch_list else '(none reported)'}")
-    if not compatible:
-        msg += (
-            f"\n  ✗ This torch build was NOT compiled with {sm_tag} kernels. "
-            f"It will load the model and appear to work, then fail mid-run with "
-            f"'no kernel image is available for execution on the device'. Fix: "
+    base_msg = (f"GPU: {gpu_name} | compute capability {cap_major}.{cap_minor} "
+                f"({sm_tag}) | torch {torch.__version__} | torch built for: "
+                f"{', '.join(arch_list) if arch_list else '(none reported)'}")
+    try:
+        a = torch.randn(256, 256, device="cuda")
+        b = torch.randn(256, 256, device="cuda")
+        (a @ b).sum().item()  # .item() forces a real device sync, not a lazy no-op
+        torch.cuda.synchronize()
+        return True, base_msg
+    except RuntimeError as e:
+        msg = (
+            f"{base_msg}\n"
+            f"  ✗ A real CUDA matmul on this GPU FAILED: {e}\n"
+            f"  This torch build cannot actually execute kernels on {sm_tag}. Fix: "
             f"pip install torch --index-url https://download.pytorch.org/whl/cu128 "
             f"(see REQUIREMENTS docstring at the top of this file)."
         )
-    return compatible, msg
+        return False, msg
 
 
 # ─── CONFIGURATION ────────────────────────────────────────────────────────────
