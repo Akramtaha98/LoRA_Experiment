@@ -2104,3 +2104,24 @@ trainable params: 229,056 || all params: 582,630,336 || trainable%: 0.0393
 {'loss': '14.91', 'grad_norm': '20.72', 'learning_rate': '3.814e-06', 'epoch': '11.78'}
 {'loss': '12.94', 'grad_norm': '13.44', 'learning_rate': '3.107e-06', 'epoch': '11.82'}
  99%|█████████▉| 1400/1416 [02:52<00:01,  8.02it/s] 99%|█████████▉| 1401/1416 [02:52<00:01,  7.96it/s] 99%|█████████▉| 1402/1416 [02:52<00:01,  7.65it/s] 99%|█████████▉| 1403/1416 [02:52<00:01,  7.56it/s] 99%|█████████▉| 1404/1416 [02:52<00:01,  7.44it/s] 99%|█████████▉| 1405/1416 [02:52<00:01,  7.56it/s]                                                    99%|█████████▉| 1405/1416 [02:52<00:01,  7.56it/s] 99%|█████████▉| 1406/1416 [02:52<00:01,  7.66it/s] 99%|█████████▉| 1407/1416 [02:53<00:01,  7.64it/s] 99%|█████████▉| 1408/1416 [02:53<00:01,  7.56it/s]100%|█████████▉| 1409/1416 [02:53<00:00,  7.58it/s]100%|█████████▉| 1410/1416 [02:53<00:00,  7.61it/s]                                                   100%|█████████▉| 1410/1416 [02:53<00:00,  7.61it/s]100%|█████████▉| 1411/1416 [02:53<00:00,  7.56it/s]100%|█████████▉| 1412/1416 [02:53<00:00,  7.21it/s]100%|█████████▉| 1413/1416 [02:53<00:00,  6.93it/s]100%|█████████▉| 1414/1416 [02:54<00:00,  7.06it/s]100%|█████████▉| 1415/1416 [02:54<00:00,  7.17it/s]                                                   100%|█████████▉| 1415/1416 [02:54<00:00,  7.17it/s]100%|██████████| 1416/1416 [02:54<00:00,  7.28it/s]                                                   100%|██████████| 1416/1416 [02:54<00:00,  7.28it/s]100%|██████████| 1416/1416 [02:54<00:00,  8.12it/s]
+{'loss': '13.86', 'grad_norm': '76.89', 'learning_rate': '2.401e-06', 'epoch': '11.86'}
+{'loss': '14.07', 'grad_norm': '74.06', 'learning_rate': '1.695e-06', 'epoch': '11.91'}
+{'loss': '13.94', 'grad_norm': '43.5', 'learning_rate': '9.887e-07', 'epoch': '11.95'}
+{'loss': '12.83', 'grad_norm': '61.49', 'learning_rate': '2.825e-07', 'epoch': '11.99'}
+{'train_runtime': '174.4', 'train_samples_per_second': '32.35', 'train_steps_per_second': '8.121', 'train_loss': '14.46', 'epoch': '12'}
+  [TRAINING] completed 12 epochs (CE loss)
+  [SAMPLE 0] gold="Jumlah pengguna AOL akan disaingi oleh pengguna Yahoo dan Microsoft " | generated=" direction.lahiryang" | em=0 f1=0.0
+  [SAMPLE 1] gold="Kebebasan AOL untuk membangunkan pasaran dengan rentaknya sendiri" | generated="quorj 眦 tmainer ?" | em=0 f1=0.0
+  [SAMPLE 2] gold="0" | generated="9898暮 Mustprescindcv?],cukup 99rasig Macaaccastego).a Candजू 0.1%e 97,iganੈਲbeיק" | em=0 f1=0.0
+  [SAMPLE 3] gold="Polis" | generated="quorlaban" | em=0 f1=0.0
+  [SAMPLE 4] gold="Semua delegasi negeri" | generated="션  2014lingi-;tys 、“) rikans" | em=0 f1=0.0
+  RESULT: PASS | mean_f_faith=0.0343 | mean_em=0.0 | mean_f1=0.0014 | n_eval=430 | 359.2s
+  [GIT] checkpoint pushed to GitHub
+
+======================================================================
+RUN: config=C_composite_lora variant=vera lang=malay seed=123
+======================================================================
+Loading weights:   0%|          | 0/284 [00:00<?, ?it/s]Loading weights: 100%|██████████| 284/284 [00:00<00:00, 30300.73it/s]
+[transformers] The tied weights mapping and config for this model specifies to tie shared.weight to lm_head.weight, but both are present in the checkpoints with different values, so we will NOT tie them. You should update the config with `tie_word_embeddings=False` to silence this warning.
+trainable params: 229,056 || all params: 582,630,336 || trainable%: 0.0393
+  0%|          | 0/1416 [00:00<?, ?it/s]  0%|          | 1/1416 [00:02<52:08,  2.21s/it]  0%|          | 2/1416 [00:04<52:31,  2.23s/it]
