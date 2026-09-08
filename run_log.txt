@@ -892,3 +892,26 @@ trainable params: 5,089,824 || all params: 587,491,320 || trainable%: 0.8664
 {'loss': '7.952', 'grad_norm': '4.213', 'learning_rate': '3.814e-06', 'epoch': '11.78'}
 {'loss': '8.296', 'grad_norm': '22.35', 'learning_rate': '3.107e-06', 'epoch': '11.82'}
  99%|█████████▉| 1400/1416 [04:22<00:02,  5.36it/s] 99%|█████████▉| 1401/1416 [04:22<00:02,  5.35it/s] 99%|█████████▉| 1402/1416 [04:22<00:02,  5.36it/s] 99%|█████████▉| 1403/1416 [04:23<00:02,  5.33it/s] 99%|█████████▉| 1404/1416 [04:23<00:02,  5.35it/s] 99%|█████████▉| 1405/1416 [04:23<00:02,  5.37it/s]                                                    99%|█████████▉| 1405/1416 [04:23<00:02,  5.37it/s] 99%|█████████▉| 1406/1416 [04:23<00:01,  5.37it/s] 99%|█████████▉| 1407/1416 [04:23<00:01,  5.38it/s] 99%|█████████▉| 1408/1416 [04:24<00:01,  5.35it/s]100%|█████████▉| 1409/1416 [04:24<00:01,  5.36it/s]100%|█████████▉| 1410/1416 [04:24<00:01,  5.37it/s]                                                   100%|█████████▉| 1410/1416 [04:24<00:01,  5.37it/s]100%|█████████▉| 1411/1416 [04:24<00:00,  5.38it/s]100%|█████████▉| 1412/1416 [04:24<00:00,  5.37it/s]100%|█████████▉| 1413/1416 [04:24<00:00,  5.37it/s]100%|█████████▉| 1414/1416 [04:25<00:00,  5.38it/s]100%|█████████▉| 1415/1416 [04:25<00:00,  5.39it/s]                                                   100%|█████████▉| 1415/1416 [04:25<00:00,  5.39it/s]100%|██████████| 1416/1416 [04:25<00:00,  5.41it/s]                                                   100%|██████████| 1416/1416 [04:25<00:00,  5.41it/s]100%|██████████| 1416/1416 [04:25<00:00,  5.33it/s]
+{'loss': '9.09', 'grad_norm': '109', 'learning_rate': '2.401e-06', 'epoch': '11.86'}
+{'loss': '8.46', 'grad_norm': '14.42', 'learning_rate': '1.695e-06', 'epoch': '11.91'}
+{'loss': '9.191', 'grad_norm': '5.376', 'learning_rate': '9.887e-07', 'epoch': '11.95'}
+{'loss': '8.468', 'grad_norm': '7.822', 'learning_rate': '2.825e-07', 'epoch': '11.99'}
+{'train_runtime': '265.5', 'train_samples_per_second': '21.24', 'train_steps_per_second': '5.333', 'train_loss': '11.44', 'epoch': '12'}
+  [TRAINING] completed 12 epochs (CE loss)
+  [SAMPLE 0] gold="Jumlah pengguna AOL akan disaingi oleh pengguna Yahoo dan Microsoft " | generated="quor  anхтар" | em=0 f1=0.0
+  [SAMPLE 1] gold="Kebebasan AOL untuk membangunkan pasaran dengan rentaknya sendiri" | generated="ுவh" | em=0 f1=0.0
+  [SAMPLE 2] gold="0" | generated=" yang" | em=0 f1=0.0
+  [SAMPLE 3] gold="Polis" | generated="quorsilam" | em=0 f1=0.0
+  [SAMPLE 4] gold="Semua delegasi negeri" | generated=" pelepaskeraokrasie keanangnya" | em=0 f1=0.0
+  RESULT: PASS | mean_f_faith=0.0317 | mean_em=0.0 | mean_f1=0.0099 | n_eval=430 | 351.5s
+  [GIT] checkpoint pushed to GitHub
+
+======================================================================
+RUN: config=C_composite_lora variant=adalora lang=malay seed=2026
+======================================================================
+Loading weights:   0%|          | 0/284 [00:00<?, ?it/s]Loading weights: 100%|██████████| 284/284 [00:00<00:00, 32917.41it/s]
+[transformers] The tied weights mapping and config for this model specifies to tie shared.weight to lm_head.weight, but both are present in the checkpoints with different values, so we will NOT tie them. You should update the config with `tie_word_embeddings=False` to silence this warning.
+trainable params: 5,089,824 || all params: 587,491,320 || trainable%: 0.8664
+  0%|          | 0/1416 [00:00<?, ?it/s][transformers] `use_cache=True` is incompatible with gradient checkpointing. Setting `use_cache=False`.
+[transformers] Caching is incompatible with gradient checkpointing in MT5Block. Setting `past_key_values=None`.
+  0%|          | 1/1416 [00:02<54:56,  2.33s/it]  0%|          | 2/1416 [00:04<56:23,  2.39s/it]  0%|          | 3/1416 [00:06<53:13,  2.26s/it]  0%|          | 4/1416 [00:08<50:19,  2.14s/it]  0%|          | 5/1416 [00:11<52:14,  2.22s/it]                                                  0%|          | 5/1416 [00:11<52:14,  2.22s/it]  0%|          | 6/1416 [00:13<54:08,  2.30s/it]  0%|          | 7/1416 [00:16<1:02:01,  2.64s/it]  1%|          | 8/1416 [00:19<59:56,  2.55s/it]  
