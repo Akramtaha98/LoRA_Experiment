@@ -5,3 +5,5 @@ experiment_results/ckpt_*/
 *.log
 .DS_Store
 experiment_results/full_matrix_results.csv
+run_log.txt
+sync_log.txt
