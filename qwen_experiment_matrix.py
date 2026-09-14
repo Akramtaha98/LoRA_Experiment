@@ -806,7 +806,8 @@ class CompositeLossTrainer(Trainer):
 
 # ─── TRAIN + EVAL ONE RUN ────────────────────────────────────────────────────
 def run_single_experiment(config_name: str, lora_variant: str, language: str,
-                           smoke_test: bool = False, seed: int = SEED) -> dict:
+                           smoke_test: bool = False, seed: int = SEED,
+                           log_all_examples: bool = False) -> dict:
     label = f"config={config_name} variant={lora_variant} lang={language} seed={seed}"
     print(f"\n{'='*70}\nRUN (Qwen3-0.6B-Base): {label}\n{'='*70}")
     t0 = time.time()
@@ -927,12 +928,25 @@ def run_single_experiment(config_name: str, lora_variant: str, language: str,
             generated_ids = out[0, inputs["input_ids"].size(1):]
             answer = _truncate_at_newline(
                 tokenizer.decode(generated_ids, skip_special_tokens=True))
-            scores.append(f_faith(answer, context))
+            f_faith_score = f_faith(answer, context)
+            scores.append(f_faith_score)
             em_scores.append(exact_match(answer, gold))
             f1_scores.append(token_f1(answer, gold))
             if i < 5:
                 print(f"  [SAMPLE {i}] gold=\"{gold[:80]}\" | generated=\"{answer[:80]}\" "
                       f"| em={em_scores[-1]} f1={round(f1_scores[-1], 2)}")
+            if log_all_examples:
+                # Full per-example record (context included) for every
+                # held-out example, needed to sample a human-annotation set
+                # for the F_faith validation study (docs/EXPERIMENTAL_DEBT_ROADMAP.md
+                # item 7). The default (log_all_examples=False) keeps the
+                # original first-5, no-context log for backward compatibility.
+                sample_log.append({"example_index": i, "context": context,
+                                    "question": question, "gold": gold,
+                                    "generated": answer, "em": em_scores[-1],
+                                    "f1": round(f1_scores[-1], 4),
+                                    "f_faith": round(f_faith_score, 4)})
+            elif i < 5:
                 sample_log.append({"gold": gold, "generated": answer,
                                     "em": em_scores[-1], "f1": round(f1_scores[-1], 4)})
 
@@ -997,6 +1011,14 @@ def main():
     parser.add_argument("--variant", type=str, default=None, choices=LORA_VARIANTS)
     parser.add_argument("--lang", type=str, default=None, choices=LANGUAGES)
     parser.add_argument("--seed", type=int, default=SEED)
+    parser.add_argument("--log_all_examples", action="store_true",
+                         help="Log every held-out example (context, gold, "
+                              "generated, EM, F1, F_faith) instead of only "
+                              "the first 5. Needed to sample a human-"
+                              "annotation set for the F_faith validation "
+                              "study (docs/EXPERIMENTAL_DEBT_ROADMAP.md "
+                              "item 7). Produces a larger checkpoint JSONL "
+                              "but costs no extra GPU time.")
     args = parser.parse_args()
 
     if not (args.smoke_test or args.full):
@@ -1065,7 +1087,8 @@ def main():
 
     for config_name, lora_variant, language in runs:
         result = run_single_experiment(config_name, lora_variant, language,
-                                       smoke_test=args.smoke_test, seed=args.seed)
+                                       smoke_test=args.smoke_test, seed=args.seed,
+                                       log_all_examples=args.log_all_examples)
         append_checkpoint(checkpoint_file, result)
         if not args.smoke_test:
             git_commit_and_push(

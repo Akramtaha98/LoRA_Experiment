@@ -944,7 +944,9 @@ class CompositeLossTrainer(Seq2SeqTrainer):
 
 # ─── TRAIN + EVAL ONE RUN (FIXED: per-run try/except, no full-script crash) ──
 def run_single_experiment(config_name: str, lora_variant: str, language: str,
-                           smoke_test: bool = False, seed: int = SEED) -> dict:
+                           smoke_test: bool = False, seed: int = SEED,
+                           log_all_examples: bool = False,
+                           lambda1: float = 0.3) -> dict:
     label = f"config={config_name} variant={lora_variant} lang={language} seed={seed}"
     print(f"\n{'='*70}\nRUN: {label}\n{'='*70}")
     t0 = time.time()
@@ -1084,6 +1086,7 @@ def run_single_experiment(config_name: str, lora_variant: str, language: str,
                 data_collator=data_collator,
                 use_composite=(config_name == "C_composite_lora"),
                 tokenizer_ref=tokenizer,
+                lambda1=lambda1,
             )
             trainer.train()
             print(f"  [TRAINING] completed {training_args.num_train_epochs} epochs "
@@ -1133,7 +1136,8 @@ def run_single_experiment(config_name: str, lora_variant: str, language: str,
                     suppress_tokens=get_sentinel_token_ids(tokenizer),
                 )
             answer = tokenizer.decode(out[0], skip_special_tokens=True)
-            scores.append(f_faith(answer, context))
+            f_faith_score = f_faith(answer, context)
+            scores.append(f_faith_score)
             # EM/F1 measure whether the answer is actually CORRECT (matches
             # gold), independent of F_faith's "is it entailed by context"
             # judgment -- see note above exact_match()/token_f1() for why
@@ -1147,6 +1151,19 @@ def run_single_experiment(config_name: str, lora_variant: str, language: str,
             if i < 5:
                 print(f"  [SAMPLE {i}] gold=\"{gold[:80]}\" | generated=\"{answer[:80]}\" "
                       f"| em={em_scores[-1]} f1={round(f1_scores[-1], 2)}")
+            if log_all_examples:
+                # Full per-example record (context included) for every
+                # held-out example, needed to sample a human-annotation set
+                # for the F_faith validation study
+                # (docs/EXPERIMENTAL_DEBT_ROADMAP.md item 7). The default
+                # (log_all_examples=False) keeps the original first-5,
+                # no-context log for backward compatibility.
+                sample_log.append({"example_index": i, "context": context,
+                                    "question": question, "gold": gold,
+                                    "generated": answer, "em": em_scores[-1],
+                                    "f1": round(f1_scores[-1], 4),
+                                    "f_faith": round(f_faith_score, 4)})
+            elif i < 5:
                 sample_log.append({"gold": gold, "generated": answer,
                                     "em": em_scores[-1], "f1": round(f1_scores[-1], 4)})
 
@@ -1157,7 +1174,7 @@ def run_single_experiment(config_name: str, lora_variant: str, language: str,
 
         result = {
             "config": config_name, "lora_variant": lora_variant, "language": language,
-            "seed": seed,
+            "seed": seed, "lambda1": lambda1,
             "status": "PASS", "mean_f_faith": round(mean_score, 4),
             "mean_em": round(mean_em, 4), "mean_f1": round(mean_f1, 4),
             "n_eval": len(scores), "runtime_sec": round(elapsed, 1), "error": "",
@@ -1266,6 +1283,27 @@ def main():
                              "composite-loss effect. Each seed's results are "
                              "written to their own checkpoint file (see "
                              "below) so seeds never overwrite each other.")
+    parser.add_argument("--log_all_examples", action="store_true",
+                         help="Log every held-out example (context, gold, "
+                              "generated, EM, F1, F_faith) instead of only "
+                              "the first 5. Needed to sample a human-"
+                              "annotation set for the F_faith validation "
+                              "study (docs/EXPERIMENTAL_DEBT_ROADMAP.md "
+                              "item 7). Produces a larger checkpoint JSONL "
+                              "but costs no extra GPU time.")
+    parser.add_argument("--lambda1", type=float, default=0.3,
+                         help="Composite-loss penalty weight (default 0.3, "
+                              "the value used throughout the main "
+                              "experiment matrix and reported in the "
+                              "paper). Only affects Config C "
+                              "(composite-loss) runs; ignored for A/B/D. "
+                              "Use a different value to sweep the "
+                              "penalty's dose-response for the QLoRA/DoRA "
+                              "headline effects (docs/"
+                              "EXPERIMENTAL_DEBT_ROADMAP.md item 3). The "
+                              "value actually used is recorded in each "
+                              "checkpoint JSONL record's 'lambda1' field, "
+                              "so sweep output is self-documenting.")
     args = parser.parse_args()
 
     if not (args.smoke_test or args.full):
@@ -1292,6 +1330,11 @@ def main():
             return
 
     seed_suffix = "" if args.seed == SEED else f"_seed{args.seed}"
+    # A non-default --lambda1 gets its own checkpoint file too, same
+    # reasoning as seed_suffix: without this, a lambda1 sweep run would
+    # silently append into (and get merged with) the main lambda1=0.3
+    # results, corrupting the paper's headline numbers with sweep data.
+    lambda1_suffix = "" if args.lambda1 == 0.3 else f"_lambda1_{args.lambda1}"
     if args.smoke_test:
         checkpoint_name = "checkpoint_smoke.jsonl"
     elif args.ad_only:
@@ -1310,9 +1353,9 @@ def main():
         # so seed=42 (original), seed=123, seed=2026, etc. can all run in
         # parallel across different pods without colliding, and the merge
         # step below can distinguish which rows belong to which seed.
-        checkpoint_name = f"checkpoint_full_{args.variant}_{args.lang}{seed_suffix}.jsonl"
+        checkpoint_name = f"checkpoint_full_{args.variant}_{args.lang}{seed_suffix}{lambda1_suffix}.jsonl"
     else:
-        checkpoint_name = f"checkpoint_full{seed_suffix}.jsonl"
+        checkpoint_name = f"checkpoint_full{seed_suffix}{lambda1_suffix}.jsonl"
     checkpoint_file = OUTPUT_DIR / checkpoint_name
 
     runs = build_run_matrix()
@@ -1360,7 +1403,9 @@ def main():
 
     for config_name, lora_variant, language in runs:
         result = run_single_experiment(config_name, lora_variant, language,
-                                       smoke_test=args.smoke_test, seed=args.seed)
+                                       smoke_test=args.smoke_test, seed=args.seed,
+                                       log_all_examples=args.log_all_examples,
+                                       lambda1=args.lambda1)
         append_checkpoint(checkpoint_file, result)
         if not args.smoke_test:
             git_commit_and_push(
