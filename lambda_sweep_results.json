@@ -1,0 +1,114 @@
+{
+  "qlora_arabic_0.3": {
+    "f_faith": 0.1534,
+    "em": 0.0153,
+    "f1": 0.0445,
+    "status": "PASS",
+    "n_eval": 720
+  },
+  "qlora_malay_0.3": {
+    "f_faith": 0.336,
+    "em": 0.1349,
+    "f1": 0.2982,
+    "status": "PASS",
+    "n_eval": 430
+  },
+  "dora_arabic_0.3": {
+    "f_faith": 0.049,
+    "em": 0.0014,
+    "f1": 0.0043,
+    "status": "PASS",
+    "n_eval": 720
+  },
+  "dora_malay_0.3": {
+    "f_faith": 0.0527,
+    "em": 0.0047,
+    "f1": 0.0856,
+    "status": "PASS",
+    "n_eval": 430
+  },
+  "qlora_arabic_0.1": {
+    "f_faith": 0.1535,
+    "em": 0.0181,
+    "f1": 0.0516,
+    "status": "PASS",
+    "n_eval": 720
+  },
+  "qlora_arabic_0.5": {
+    "f_faith": 0.1728,
+    "em": 0.0125,
+    "f1": 0.0482,
+    "status": "PASS",
+    "n_eval": 720
+  },
+  "qlora_arabic_0.7": {
+    "f_faith": 0.1874,
+    "em": 0.0028,
+    "f1": 0.0292,
+    "status": "PASS",
+    "n_eval": 720
+  },
+  "qlora_malay_0.1": {
+    "f_faith": 0.2978,
+    "em": 0.1442,
+    "f1": 0.3022,
+    "status": "PASS",
+    "n_eval": 430
+  },
+  "qlora_malay_0.5": {
+    "f_faith": 0.3152,
+    "em": 0.1023,
+    "f1": 0.2708,
+    "status": "PASS",
+    "n_eval": 430
+  },
+  "qlora_malay_0.7": {
+    "f_faith": 0.3599,
+    "em": 0.1093,
+    "f1": 0.2769,
+    "status": "PASS",
+    "n_eval": 430
+  },
+  "dora_arabic_0.1": {
+    "f_faith": 0.0418,
+    "em": 0.0014,
+    "f1": 0.005,
+    "status": "PASS",
+    "n_eval": 720
+  },
+  "dora_arabic_0.5": {
+    "f_faith": 0.0534,
+    "em": 0.0014,
+    "f1": 0.005,
+    "status": "PASS",
+    "n_eval": 720
+  },
+  "dora_arabic_0.7": {
+    "f_faith": 0.0543,
+    "em": 0.0,
+    "f1": 0.0009,
+    "status": "PASS",
+    "n_eval": 720
+  },
+  "dora_malay_0.1": {
+    "f_faith": 0.0463,
+    "em": 0.0047,
+    "f1": 0.0728,
+    "status": "PASS",
+    "n_eval": 430
+  },
+  "dora_malay_0.5": {
+    "f_faith": 0.0593,
+    "em": 0.0233,
+    "f1": 0.1008,
+    "status": "PASS",
+    "n_eval": 430
+  },
+  "dora_malay_0.7": {
+    "f_faith": 0.0597,
+    "em": 0.0023,
+    "f1": 0.09,
+    "status": "PASS",
+    "n_eval": 430
+  }
+}
