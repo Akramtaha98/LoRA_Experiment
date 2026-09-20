@@ -7,7 +7,7 @@
       "exact_match",
       "f1"
     ],
-    "description": "Best model = higher faithfulness; ties broken by Exact Match, then Token F1. Equal on all three → tie."
+    "description": "Best model = higher faithfulness; ties broken by Exact Match, then Token F1. Equal on all three is a tie."
   },
   "sources": {
     "arabic": {
