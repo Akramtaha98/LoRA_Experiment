@@ -1,0 +1,804 @@
+{
+  "version": 1,
+  "description": "Curated paired mT5 vs Qwen evaluation samples from logged experiment results (QLoRA, seed 42). Offline — no GPU required.",
+  "scoring_rule": {
+    "order": [
+      "faithfulness",
+      "exact_match",
+      "f1"
+    ],
+    "description": "Best model = higher faithfulness; ties broken by Exact Match, then Token F1. Equal on all three → tie."
+  },
+  "sources": {
+    "arabic": {
+      "mt5": {
+        "config": "B_ce_lora",
+        "lora_variant": "qlora",
+        "language": "arabic",
+        "seed": 42,
+        "lambda1": 0.3,
+        "mean_f_faith": 0.1317,
+        "mean_em": 0.0097,
+        "mean_f1": 0.0468
+      },
+      "qwen": {
+        "config": "C_composite_lora",
+        "lora_variant": "qlora",
+        "language": "arabic",
+        "seed": 42,
+        "backbone": "qwen3-0.6b-base",
+        "mean_f_faith": 0.1331,
+        "mean_em": 0.3931,
+        "mean_f1": 0.5568
+      }
+    },
+    "malay": {
+      "mt5": {
+        "config": "B_ce_lora",
+        "lora_variant": "qlora",
+        "language": "malay",
+        "seed": 42,
+        "lambda1": 0.3,
+        "mean_f_faith": 0.2717,
+        "mean_em": 0.1326,
+        "mean_f1": 0.3032
+      },
+      "qwen": {
+        "config": "C_composite_lora",
+        "lora_variant": "qlora",
+        "language": "malay",
+        "seed": 42,
+        "backbone": "qwen3-0.6b-base",
+        "mean_f_faith": 0.2906,
+        "mean_em": 0.5465,
+        "mean_f1": 0.614
+      }
+    }
+  },
+  "examples": [
+    {
+      "id": "arabic-482",
+      "language": "arabic",
+      "example_index": 482,
+      "curation_tag": "qwen_wins_em",
+      "context": "تحتل كينيا مرتبة منخفضة في مؤشر مدركات الفساد في منظمة الشفافية الدولية، وهو مقياس يحاول قياس مدى انتشار الفساد في القطاع العام في بلدان مختلفة. في عام 2012، وضعت الأمة 139 من أصل 176 دولة في مؤشر مؤشر مدركات الفساد، برصيد 27/100. ومع ذلك، هناك العديد من التطورات المهمة إلى حد ما فيما يتعلق بكبح الفساد من الحكومة الكينية، على سبيل المثال، إنشاء لجنة جديدة ومستقلة للأخلاقيات ومكافحة الفساد.",
+      "question": "كيف تكبح كينيا الفساد؟",
+      "reference": "إنشاء لجنة جديدة ومستقلة للأخلاقيات ومكافحة الفساد",
+      "mt5": {
+        "answer": "روسيد 27/100",
+        "faithfulness": 0.7412,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "إنشاء لجنة جديدة ومستقلة للأخلاقيات ومكافحة الفساد",
+        "faithfulness": 0.9917,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "best_model": "qwen",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "arabic-109",
+      "language": "arabic",
+      "example_index": 109,
+      "curation_tag": "qwen_wins_em",
+      "context": "غالباً ما يُرى جيمس هوتون كأول عالم جيولوجي حديث. قدّم في عام 1785 أطروحةً بعنوان نظرية الأرض إلى الجمعية الملكية في إدنبرة. شرح في أطروحته نظريته بأن الأرض لا بد من أن تكون أقدم بكثير مما كان يُفترض سابقاً لإتاحة الوقت الكافي لتآكل الجبال ولتكوِّن الرواسب صخوراً جديدة في قاع المحيط والتي ترتفع بدورها لتصبح أرضاً يابسة. نشر هوتون نسخةً مكونة من مجلدين من أفكاره في 1795 (مجلد 1، مجلد 2).",
+      "question": "ما الأطروحة التي قدمها جيمس هوتون لجمعية إدنبرة الملكية في عام 1785؟",
+      "reference": "نظرية الأرض",
+      "mt5": {
+        "answer": "كل من عالم جاءً حديث",
+        "faithfulness": 0.0019,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "نظرية الأرض",
+        "faithfulness": 0.004,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "best_model": "qwen",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "arabic-294",
+      "language": "arabic",
+      "example_index": 294,
+      "curation_tag": "qwen_wins_em",
+      "context": "البناء هو عملية بناء المباني أو البنى التحتية. يختلف البناء عن التصنيع في أن التصنيع يشتمل عادةً على الإنتاج الضخم للعناصر المتشابهة دون وجود مشتر معين، في حين أن البناء يتم عادةً في الموقع لصالح عميل معروف. يشكل البناء كصناعة ما نسبته من ستة إلى تسعة في المئة من الناتج المحلي الإجمالي للبلدان المتقدمة. يبدأ البناء بالتخطيط [بحاجة لمصدر]، ثم التصميم، ثم التمويل ويستمر حتى يتم بناء المشروع ويصبح جاهزًا للاستخدام.",
+      "question": "‏ماذا تسمى عملية بناء المباني أو البنى التحتية؟",
+      "reference": "البناء",
+      "mt5": {
+        "answer": "سنةًا",
+        "faithfulness": 0.0003,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "البناء",
+        "faithfulness": 0.0006,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "best_model": "qwen",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "arabic-110",
+      "language": "arabic",
+      "example_index": 110,
+      "curation_tag": "tie_correct",
+      "context": "غالباً ما يُرى جيمس هوتون كأول عالم جيولوجي حديث. قدّم في عام 1785 أطروحةً بعنوان نظرية الأرض إلى الجمعية الملكية في إدنبرة. شرح في أطروحته نظريته بأن الأرض لا بد من أن تكون أقدم بكثير مما كان يُفترض سابقاً لإتاحة الوقت الكافي لتآكل الجبال ولتكوِّن الرواسب صخوراً جديدة في قاع المحيط والتي ترتفع بدورها لتصبح أرضاً يابسة. نشر هوتون نسخةً مكونة من مجلدين من أفكاره في 1795 (مجلد 1، مجلد 2).",
+      "question": "في أي عام نشر جيمس هوتون نسخة مكونة من مجلدين لنظرياته؟",
+      "reference": "1795",
+      "mt5": {
+        "answer": "1795",
+        "faithfulness": 0.003,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "qwen": {
+        "answer": "1795",
+        "faithfulness": 0.0032,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "best_model": "qwen",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "arabic-685",
+      "language": "arabic",
+      "example_index": 685,
+      "curation_tag": "tie_correct",
+      "context": "في أوروبا، لا يُطلق عادةً اسم منفصل على مسرح أمريكا الشمالية لحرب السنوات السبع. يعرف الصراع الدولي برمته بحرب السنوات السبع. فتشير \"السنوات السبع\" إلى الأحداث في أوروبا، من الإعلان الرسمي للحرب في 1756 إلى توقيع معاهدة السلام في 1763. وهذه التواريخ لا تتوافق مع القتال على الأراضي شمال الأمريكية، حيث اختتم القتال بين القوتين الاستعماريتين بشكل كبير في ست سنوات، من معركة جومونفيل غلين في 1754 إلى الاستيلاء على مونتريال في 1760.",
+      "question": "متى تم الاستيلاء على مونتريال؟",
+      "reference": "1760",
+      "mt5": {
+        "answer": "1760",
+        "faithfulness": 0.0096,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "qwen": {
+        "answer": "1760",
+        "faithfulness": 0.0097,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "best_model": "qwen",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "arabic-479",
+      "language": "arabic",
+      "example_index": 479,
+      "curation_tag": "tie_wrong",
+      "context": "تحتل كينيا مرتبة منخفضة في مؤشر مدركات الفساد في منظمة الشفافية الدولية، وهو مقياس يحاول قياس مدى انتشار الفساد في القطاع العام في بلدان مختلفة. في عام 2012، وضعت الأمة 139 من أصل 176 دولة في مؤشر مؤشر مدركات الفساد، برصيد 27/100. ومع ذلك، هناك العديد من التطورات المهمة إلى حد ما فيما يتعلق بكبح الفساد من الحكومة الكينية، على سبيل المثال، إنشاء لجنة جديدة ومستقلة للأخلاقيات ومكافحة الفساد.",
+      "question": "أين موقع كينيا على مقياس مؤشر مدركات الفساد؟",
+      "reference": "منخفضة",
+      "mt5": {
+        "answer": "أكني وزير الشفافية الدولية",
+        "faithfulness": 0.0006,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "منظمة الشفافية الدولية",
+        "faithfulness": 0.0006,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "best_model": "tie",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "arabic-111",
+      "language": "arabic",
+      "example_index": 111,
+      "curation_tag": "tie_wrong",
+      "context": "غالباً ما يُرى جيمس هوتون كأول عالم جيولوجي حديث. قدّم في عام 1785 أطروحةً بعنوان نظرية الأرض إلى الجمعية الملكية في إدنبرة. شرح في أطروحته نظريته بأن الأرض لا بد من أن تكون أقدم بكثير مما كان يُفترض سابقاً لإتاحة الوقت الكافي لتآكل الجبال ولتكوِّن الرواسب صخوراً جديدة في قاع المحيط والتي ترتفع بدورها لتصبح أرضاً يابسة. نشر هوتون نسخةً مكونة من مجلدين من أفكاره في 1795 (مجلد 1، مجلد 2).",
+      "question": "ما هي الفكرة الرئيسية لأطروحة جيمس هوتون؟",
+      "reference": "لا بد من أن تكون أقدم بكثير مما كان يُفترض سابقاً",
+      "mt5": {
+        "answer": "إدنبرة",
+        "faithfulness": 0.0008,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "نظريته بأن الأرض لا بد من أن تكون أقدم بكثير مما كان يُفترض سابقاً",
+        "faithfulness": 0.9897,
+        "exact_match": 0.0,
+        "f1": 0.88
+      },
+      "best_model": "qwen",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "arabic-716",
+      "language": "arabic",
+      "example_index": 716,
+      "curation_tag": "mt5_faith",
+      "context": "حيث هي منطقة المقطع العرضي ذات الصلة للحجم الذي من أجله يتم حساب موتر الإجهاد. وتتضمن هذه الشكلية شروط الضغط المرتبطة بالقوى التي تعمل بشكل طبيعي في منطقة المقطع العرضي (أقطار المصفوفة الخاصة بالموتر) وكذلك مصطلحات المرتبطة بالقوى التي تعمل بالتوازي مع منطقة المقطع العرضي (العناصر الخارج-قطرية). ويفسر موتر الإجهاد القوى التي تسبب كل الشدود (التشوهات) بما في ذلك أيضاً الإجهادات التوترية والضغطات.:133â€“134:38-1â€“38-11",
+      "question": "ما الذي يسبب الإجهاد في البنيات؟",
+      "reference": "موتر الإجهاد",
+      "mt5": {
+        "answer": "منطقة المقطع العرضي ذات الصلة للحجمالذي يربط طبيعي",
+        "faithfulness": 0.9971,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "الشدود",
+        "faithfulness": 0.0173,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "best_model": "mt5",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "arabic-717",
+      "language": "arabic",
+      "example_index": 717,
+      "curation_tag": "mt5_faith",
+      "context": "حيث هي منطقة المقطع العرضي ذات الصلة للحجم الذي من أجله يتم حساب موتر الإجهاد. وتتضمن هذه الشكلية شروط الضغط المرتبطة بالقوى التي تعمل بشكل طبيعي في منطقة المقطع العرضي (أقطار المصفوفة الخاصة بالموتر) وكذلك مصطلحات المرتبطة بالقوى التي تعمل بالتوازي مع منطقة المقطع العرضي (العناصر الخارج-قطرية). ويفسر موتر الإجهاد القوى التي تسبب كل الشدود (التشوهات) بما في ذلك أيضاً الإجهادات التوترية والضغطات.:133â€“134:38-1â€“38-11",
+      "question": "ما الذي يتم استخدامه لحساب مساحة المقطع العرضي في حجم جسم ما؟",
+      "reference": "شروط الضغط",
+      "mt5": {
+        "answer": "منطقة المقطع العرضي",
+        "faithfulness": 0.6021,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "موتر الإجهاد",
+        "faithfulness": 0.3008,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "best_model": "mt5",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "arabic-480",
+      "language": "arabic",
+      "example_index": 480,
+      "curation_tag": "fill",
+      "context": "تحتل كينيا مرتبة منخفضة في مؤشر مدركات الفساد في منظمة الشفافية الدولية، وهو مقياس يحاول قياس مدى انتشار الفساد في القطاع العام في بلدان مختلفة. في عام 2012، وضعت الأمة 139 من أصل 176 دولة في مؤشر مؤشر مدركات الفساد، برصيد 27/100. ومع ذلك، هناك العديد من التطورات المهمة إلى حد ما فيما يتعلق بكبح الفساد من الحكومة الكينية، على سبيل المثال، إنشاء لجنة جديدة ومستقلة للأخلاقيات ومكافحة الفساد.",
+      "question": "ماذا قياس مؤشر مدركات الفساد؟",
+      "reference": "الفساد في القطاع العام",
+      "mt5": {
+        "answer": "41",
+        "faithfulness": 0.0004,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "27/100",
+        "faithfulness": 0.0054,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "best_model": "qwen",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "arabic-481",
+      "language": "arabic",
+      "example_index": 481,
+      "curation_tag": "fill",
+      "context": "تحتل كينيا مرتبة منخفضة في مؤشر مدركات الفساد في منظمة الشفافية الدولية، وهو مقياس يحاول قياس مدى انتشار الفساد في القطاع العام في بلدان مختلفة. في عام 2012، وضعت الأمة 139 من أصل 176 دولة في مؤشر مؤشر مدركات الفساد، برصيد 27/100. ومع ذلك، هناك العديد من التطورات المهمة إلى حد ما فيما يتعلق بكبح الفساد من الحكومة الكينية، على سبيل المثال، إنشاء لجنة جديدة ومستقلة للأخلاقيات ومكافحة الفساد.",
+      "question": "أين تقع كينيا على المقياس في عام 2012؟",
+      "reference": "139",
+      "mt5": {
+        "answer": "138",
+        "faithfulness": 0.0007,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "139 من أصل 176 دولة",
+        "faithfulness": 0.0006,
+        "exact_match": 0.0,
+        "f1": 0.3333
+      },
+      "best_model": "mt5",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "arabic-108",
+      "language": "arabic",
+      "example_index": 108,
+      "curation_tag": "qwen_wins_em",
+      "context": "غالباً ما يُرى جيمس هوتون كأول عالم جيولوجي حديث. قدّم في عام 1785 أطروحةً بعنوان نظرية الأرض إلى الجمعية الملكية في إدنبرة. شرح في أطروحته نظريته بأن الأرض لا بد من أن تكون أقدم بكثير مما كان يُفترض سابقاً لإتاحة الوقت الكافي لتآكل الجبال ولتكوِّن الرواسب صخوراً جديدة في قاع المحيط والتي ترتفع بدورها لتصبح أرضاً يابسة. نشر هوتون نسخةً مكونة من مجلدين من أفكاره في 1795 (مجلد 1، مجلد 2).",
+      "question": "من الذي يعتبر أول عالم جيولوجي حديث؟",
+      "reference": "جيمس هوتون",
+      "mt5": {
+        "answer": "1795",
+        "faithfulness": 0.003,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "جيمس هوتون",
+        "faithfulness": 0.0025,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "best_model": "mt5",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "malay-223",
+      "language": "malay",
+      "example_index": 223,
+      "curation_tag": "qwen_wins_em",
+      "context": "Binatang moose (juga dikenali sebagai elk) sebenarnya tidak agresif, namun akan mempertahankan diri sekiranya merasakan ancaman. Apabila orang tidak menganggap moose berpotensi berbahaya, mereka mungkin menghampirinya dengan terlalu dekat dan membahayakan diri sendiri.",
+      "question": "Manakah antara berikut perkara yang orang patut elak lakukan dengan moose?",
+      "reference": "Mengurangkan tahap ancaman berpotensinya",
+      "mt5": {
+        "answer": "Tidak mengendahkan diri sendiri",
+        "faithfulness": 0.177,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "Mengurangkan tahap ancaman berpotensinya",
+        "faithfulness": 0.8232,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "best_model": "qwen",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "malay-50",
+      "language": "malay",
+      "example_index": 50,
+      "curation_tag": "qwen_wins_em",
+      "context": "Dalam puncak Siklon Tropika Gonu, yang mendapat nama daripada sebeg daun palma dalam Bahasa Maldives, telah mencapai angin berterusan selaju 240 kilometer sejam (149 batu sejam) . Menjelang awal hari ini, angin sekitar 83 km sejam, dan dijangka terus melemah.",
+      "question": "Menurut petikan, bilakan Siklon Tropika Gonu dijangka untuk terus melemah?",
+      "reference": "Apabila kelajuan angin turun ke kira-kira 83 kilometer sejam",
+      "mt5": {
+        "answer": "Sebelum mencapai puncak",
+        "faithfulness": 0.1204,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "Apabila kelajuan angin turun ke kira-kira 83 kilometer sejam",
+        "faithfulness": 0.7529,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "best_model": "qwen",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "malay-36",
+      "language": "malay",
+      "example_index": 36,
+      "curation_tag": "qwen_wins_em",
+      "context": "Presiden A.S. George W. Bush mengalu-alukan pengumuman itu dengan baik. Jurucakap Bush, Gordon Johndroe memanggil Korea Utara ikrar “Langkah utama bergerak untuk mencapai matlamat dapat nyah-penukleusan ditentusahkan di wilayah rakyat Korea.”",
+      "question": "Siapakah yang berpendapat ikrar tersebut “langkah utama”?",
+      "reference": "Gordon Johndroe",
+      "mt5": {
+        "answer": "Pihak media",
+        "faithfulness": 0.0005,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "Gordon Johndroe",
+        "faithfulness": 0.4788,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "best_model": "qwen",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "malay-41",
+      "language": "malay",
+      "example_index": 41,
+      "curation_tag": "mt5_wins_em",
+      "context": "Syarikat Jurutera A.S. menganggarkan bahawa 6 inci daripada hujan boleh melanggar benteng yang sebelumnya rosak. Kawasan perumahan Ninth Ward yang mengalami banjir setinggi 20 kaki semasa Taufan Katrina kini berada pada paras pinggang ketika tanggul yang berdekatan telah melebihi batas. Air melimpah ke tetambak seluas 100 kaki.",
+      "question": "Apakah yang berlaku The Ninth Ward semasa Taufan Katrina?",
+      "reference": "Banjir ialah 20 kaki tinggi",
+      "mt5": {
+        "answer": "Banjir ialah 20 kaki tinggi",
+        "faithfulness": 0.9912,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "qwen": {
+        "answer": "Air paras pinggang telah melebihi tambak",
+        "faithfulness": 0.9888,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "best_model": "mt5",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "malay-142",
+      "language": "malay",
+      "example_index": 142,
+      "curation_tag": "mt5_wins_em",
+      "context": "Askar sekutu dan Afghanistan masuk ke kawasan terbabit untuk mengawal tapak tersebut dan pesawat sekutu lain telah dihantar untuk membantu. Kemalangan itu berlaku di kawasan pergunungan tinggi, dan dipercayai akibat api. Usaha untuk mencari lokasi nahas ditentang cuaca buruk dan permukaan yang sukar dicapai.",
+      "question": "Pada jenis rupa bumi apakah yang nahas berlaku?",
+      "reference": "Bergunung ",
+      "mt5": {
+        "answer": "Bergunung",
+        "faithfulness": 0.0034,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "qwen": {
+        "answer": "Buruk",
+        "faithfulness": 0.0019,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "best_model": "mt5",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "malay-95",
+      "language": "malay",
+      "example_index": 95,
+      "curation_tag": "tie_correct",
+      "context": "Vidal yang berusia 28 tahun telah menyertai pasukan Barça tiga musim yang lalu, dari Sevilla. Sejak berpindah ke ibu negeri Catalan, Vidal telah bermain 49 perlawanan untuk kelab itu.",
+      "question": "Berapakah jumlah perlawanan yang Vidal telah bermain untuk Barça?",
+      "reference": "49",
+      "mt5": {
+        "answer": "49",
+        "faithfulness": 0.0077,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "qwen": {
+        "answer": "49",
+        "faithfulness": 0.0087,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "best_model": "qwen",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "malay-130",
+      "language": "malay",
+      "example_index": 130,
+      "curation_tag": "tie_correct",
+      "context": "Pengumuman hari ini juga telah melanjutkan komitmen kerajaan yang dibuat pada bulan Mac tahun ini untuk membiayai gerabak tambahan. 300 unit tambahan membawa jumlah keseluruhan kepada 1,300 gerabak yang akan diperoleh untuk mengurangkan kesesakan.",
+      "question": "Menurut petikan, manakah antara berikut ialah matlamat keseluruhan kerajaan?",
+      "reference": "Mengurangkan kesesakan dalam gerabak",
+      "mt5": {
+        "answer": "Mengurangkan kesesakan dalam gerabak",
+        "faithfulness": 0.9961,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "qwen": {
+        "answer": "Mengurangkan kesesakan dalam gerabak",
+        "faithfulness": 0.9961,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "best_model": "tie",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "malay-224",
+      "language": "malay",
+      "example_index": 224,
+      "curation_tag": "mt5_faith",
+      "context": "Binatang moose (juga dikenali sebagai elk) sebenarnya tidak agresif, namun akan mempertahankan diri sekiranya merasakan ancaman. Apabila orang tidak menganggap moose berpotensi berbahaya, mereka mungkin menghampirinya dengan terlalu dekat dan membahayakan diri sendiri.",
+      "question": "Berdasarkan petikan, manakah antara pernyataan berikut tidak benar tentang moose?",
+      "reference": "Ia merupakan haiwan yang agresif secara semula jadi",
+      "mt5": {
+        "answer": "Ia mungkin terasa terancam secara semula jadi",
+        "faithfulness": 0.8833,
+        "exact_match": 0.0,
+        "f1": 0.5333
+      },
+      "qwen": {
+        "answer": "Ia merupakan haiwan yang agresif secara semula jadi",
+        "faithfulness": 0.0004,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "best_model": "mt5",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "malay-132",
+      "language": "malay",
+      "example_index": 132,
+      "curation_tag": "tie_wrong",
+      "context": "Beliau berkata, “Tidak ada kepintaran untuk mencadangkan bahawa serangan dijangka tidak lama lagi. Namun,pengurangan tahap ancaman kepada teruk tidak bermakna keseluruhan ancaman telah hilang.",
+      "question": "Menurut petikan, apakah maklumat yang diketahui?",
+      "reference": "Tahap ancaman telah dikurangkan",
+      "mt5": {
+        "answer": "Serangan dijangka",
+        "faithfulness": 0.5171,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "Tiada lagi sebarang ancaman",
+        "faithfulness": 0.0003,
+        "exact_match": 0.0,
+        "f1": 0.25
+      },
+      "best_model": "mt5",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "malay-396",
+      "language": "malay",
+      "example_index": 396,
+      "curation_tag": "mt5_wins_em",
+      "context": "Cara yang paling mudah untuk memulakan bisnes penulisan mengenai pelancongan adalah dengan mengasah kemahiran anda di laman web blog pelancongan yang dikenali. Apabila anda telah selesa dengan pemformatan dan penyuntingan di web, kemudian, anda mungkin membina laman web sendiri.",
+      "question": "Semasa memulakan perniagaan penulisan mengenai pelancongan, manakah antara kebolehan berikut perlu diperhalusi terlebih dahulu?",
+      "reference": "Penulisan blog",
+      "mt5": {
+        "answer": "Penulisan blog",
+        "faithfulness": 0.9204,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "qwen": {
+        "answer": "Pemformatan web",
+        "faithfulness": 0.978,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "best_model": "qwen",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "malay-127",
+      "language": "malay",
+      "example_index": 127,
+      "curation_tag": "tie_wrong",
+      "context": "Pada malam 9hb Ogos, taufan Eye of Morakot berada kira-kira tujuh puluh kilometer dari wilayah China Fujian. Taufan dijangka bergerak ke negara China pada kelajuan sebelas kmj.",
+      "question": "Menurut petikan, berapa jauhkah Fujian daripada taufan?",
+      "reference": "70 kilometer",
+      "mt5": {
+        "answer": "",
+        "faithfulness": 0.0,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "11 kilometer",
+        "faithfulness": 0.0561,
+        "exact_match": 0.0,
+        "f1": 0.5
+      },
+      "best_model": "qwen",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "malay-51",
+      "language": "malay",
+      "example_index": 51,
+      "curation_tag": "qwen_wins_em",
+      "context": "Dalam puncak Siklon Tropika Gonu, yang mendapat nama daripada sebeg daun palma dalam Bahasa Maldives, telah mencapai angin berterusan selaju 240 kilometer sejam (149 batu sejam) . Menjelang awal hari ini, angin sekitar 83 km sejam, dan dijangka terus melemah.",
+      "question": "Berapakah kelajuan angin pada puncak Siklon Tropika Gonu?",
+      "reference": "149 batu sejam",
+      "mt5": {
+        "answer": "141 batu sejam",
+        "faithfulness": 0.0059,
+        "exact_match": 0.0,
+        "f1": 0.6667
+      },
+      "qwen": {
+        "answer": "149 batu sejam",
+        "faithfulness": 0.0028,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "best_model": "mt5",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    }
+  ]
+}

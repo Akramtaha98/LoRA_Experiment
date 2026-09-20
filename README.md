@@ -43,15 +43,38 @@ No inflated claims. This project reports what the data actually shows, including
 ```
 .
 ├── lora_experiment_matrix.py    Main experiment script: trains + evaluates all conditions
+├── qwen_experiment_matrix.py    Qwen experiment matrix (same PEFT family)
 ├── experiment_results/          Per-condition checkpoint logs (JSONL) + results CSV
+├── experiment_results_qwen/     Qwen result logs
 ├── analysis/
 │   ├── generate_figures.py      Regenerates the paper's result figures from logged data
 │   └── xlmr_rescore.py          Independent NLI re-scoring (verification pass)
+├── frontend/                    Phase 1 RAG Faithfulness Lab UI (Vite + React)
+├── backend/                     Phase 1 mock FastAPI (`/api/health`, `/api/compare`)
 ├── docs/
-│   └── PROJECT_GUIDE.md         Full narrative: motivation, bug, fix, GPU rerun, verification
+│   ├── PROJECT_GUIDE.md         Full narrative: motivation, bug, fix, GPU rerun, verification
+│   └── WEBSITE_GUIDE.md         Website architecture, API contract, and phased plan
 ├── requirements.txt
 └── README.md
 ```
+
+## Website (RAG Faithfulness Lab)
+
+Interactive mT5 vs Qwen UI with **Dataset** examples (Arabic / Malay logged predictions, offline) and an English **Compare** demo. Dark/light theme. No training from the website.
+
+```bash
+# UI only (Dataset tab works without an API)
+cd frontend && npm install && npm run dev
+
+# Optional mock API for the Compare tab
+pip install fastapi "uvicorn[standard]"
+uvicorn backend.api:app --reload --port 8000
+```
+
+- Frontend: http://localhost:5173
+- Static data: `frontend/public/data/dataset-examples.json` (12 Arabic + 12 Malay)
+- Vercel: set Root Directory to `frontend` (see `frontend/vercel.json`)
+- Details: [`docs/WEBSITE_GUIDE.md`](docs/WEBSITE_GUIDE.md) and [`frontend/README.md`](frontend/README.md)
 
 ## Setup
 

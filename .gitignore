@@ -7,3 +7,5 @@ experiment_results/ckpt_*/
 experiment_results/full_matrix_results.csv
 run_log.txt
 sync_log.txt
+frontend/node_modules/
+frontend/dist/
