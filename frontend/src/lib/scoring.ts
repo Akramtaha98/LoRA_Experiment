@@ -8,13 +8,19 @@ export type ModelScores = {
 
 export type BestModel = "mt5" | "qwen" | "tie";
 
-/** Higher faithfulness first, then EM, then F1. Equal on all three is a tie. */
+/**
+ * Best answer vs the reference: higher Exact Match first, then Token F1,
+ * then faithfulness. Equal on all three is a tie.
+ *
+ * Correctness is prioritized so a wrong high-faithfulness answer cannot beat
+ * an exact match to the gold reference.
+ */
 export function pickBestModel(
   mt5: Pick<ModelScores, "faithfulness" | "exact_match" | "f1">,
   qwen: Pick<ModelScores, "faithfulness" | "exact_match" | "f1">,
 ): BestModel {
-  const mt = [mt5.faithfulness, mt5.exact_match, mt5.f1] as const;
-  const qw = [qwen.faithfulness, qwen.exact_match, qwen.f1] as const;
+  const mt = [mt5.exact_match, mt5.f1, mt5.faithfulness] as const;
+  const qw = [qwen.exact_match, qwen.f1, qwen.faithfulness] as const;
   for (let i = 0; i < 3; i++) {
     if (mt[i] > qw[i]) return "mt5";
     if (qw[i] > mt[i]) return "qwen";
@@ -23,4 +29,4 @@ export function pickBestModel(
 }
 
 export const SCORING_RULE_LABEL =
-  "Best model: higher faithfulness, then Exact Match, then Token F1. Equal on all three is a tie.";
+  "Best answer: higher Exact Match vs reference, then Token F1, then faithfulness. Equal on all three is a tie.";

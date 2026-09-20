@@ -3,11 +3,11 @@
   "description": "Curated paired mT5 vs Qwen evaluation samples from logged experiment results (QLoRA, seed 42). Offline — no GPU required.",
   "scoring_rule": {
     "order": [
-      "faithfulness",
       "exact_match",
-      "f1"
+      "f1",
+      "faithfulness"
     ],
-    "description": "Best model = higher faithfulness; ties broken by Exact Match, then Token F1. Equal on all three is a tie."
+    "description": "Best answer = higher Exact Match vs reference, then Token F1, then faithfulness. Equal on all three is a tie."
   },
   "sources": {
     "arabic": {
@@ -93,7 +93,7 @@
         "exact_match": 1.0,
         "f1": 1.0
       },
-      "best_model": "mt5",
+      "best_model": "qwen",
       "source": {
         "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
         "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
@@ -153,7 +153,7 @@
         "exact_match": 1.0,
         "f1": 1.0
       },
-      "best_model": "mt5",
+      "best_model": "qwen",
       "source": {
         "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
         "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
@@ -213,7 +213,7 @@
         "exact_match": 1.0,
         "f1": 1.0
       },
-      "best_model": "mt5",
+      "best_model": "qwen",
       "source": {
         "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
         "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
@@ -303,7 +303,7 @@
         "exact_match": 1.0,
         "f1": 1.0
       },
-      "best_model": "mt5",
+      "best_model": "qwen",
       "source": {
         "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
         "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
@@ -333,7 +333,7 @@
         "exact_match": 1.0,
         "f1": 1.0
       },
-      "best_model": "mt5",
+      "best_model": "qwen",
       "source": {
         "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
         "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
@@ -393,7 +393,7 @@
         "exact_match": 1.0,
         "f1": 1.0
       },
-      "best_model": "mt5",
+      "best_model": "qwen",
       "source": {
         "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
         "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
@@ -483,7 +483,7 @@
         "exact_match": 1.0,
         "f1": 1.0
       },
-      "best_model": "mt5",
+      "best_model": "qwen",
       "source": {
         "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
         "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
@@ -513,7 +513,7 @@
         "exact_match": 1.0,
         "f1": 1.0
       },
-      "best_model": "mt5",
+      "best_model": "qwen",
       "source": {
         "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
         "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
@@ -543,7 +543,7 @@
         "exact_match": 1.0,
         "f1": 1.0
       },
-      "best_model": "mt5",
+      "best_model": "qwen",
       "source": {
         "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
         "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
@@ -573,7 +573,7 @@
         "exact_match": 1.0,
         "f1": 1.0
       },
-      "best_model": "mt5",
+      "best_model": "qwen",
       "source": {
         "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
         "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
@@ -633,7 +633,7 @@
         "exact_match": 1.0,
         "f1": 1.0
       },
-      "best_model": "mt5",
+      "best_model": "qwen",
       "source": {
         "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
         "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
@@ -933,7 +933,7 @@
         "exact_match": 0.0,
         "f1": 0.3333
       },
-      "best_model": "mt5",
+      "best_model": "qwen",
       "source": {
         "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
         "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
@@ -1233,7 +1233,7 @@
         "exact_match": 0.0,
         "f1": 0.5
       },
-      "best_model": "mt5",
+      "best_model": "qwen",
       "source": {
         "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
         "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
@@ -1353,7 +1353,7 @@
         "exact_match": 0.0,
         "f1": 0.5714
       },
-      "best_model": "mt5",
+      "best_model": "qwen",
       "source": {
         "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
         "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
@@ -1533,7 +1533,7 @@
         "exact_match": 0.0,
         "f1": 0.8
       },
-      "best_model": "mt5",
+      "best_model": "qwen",
       "source": {
         "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
         "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
@@ -1593,7 +1593,7 @@
         "exact_match": 0.0,
         "f1": 0.6667
       },
-      "best_model": "mt5",
+      "best_model": "qwen",
       "source": {
         "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
         "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
@@ -1623,7 +1623,7 @@
         "exact_match": 0.0,
         "f1": 0.3529
       },
-      "best_model": "mt5",
+      "best_model": "qwen",
       "source": {
         "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
         "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
@@ -1713,7 +1713,7 @@
         "exact_match": 0.0,
         "f1": 0.25
       },
-      "best_model": "mt5",
+      "best_model": "qwen",
       "source": {
         "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
         "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
@@ -1803,7 +1803,7 @@
         "exact_match": 0.0,
         "f1": 0.6667
       },
-      "best_model": "mt5",
+      "best_model": "qwen",
       "source": {
         "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
         "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
@@ -1893,7 +1893,7 @@
         "exact_match": 1.0,
         "f1": 1.0
       },
-      "best_model": "mt5",
+      "best_model": "qwen",
       "source": {
         "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
         "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
@@ -1953,7 +1953,7 @@
         "exact_match": 1.0,
         "f1": 1.0
       },
-      "best_model": "mt5",
+      "best_model": "qwen",
       "source": {
         "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
         "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
@@ -2013,7 +2013,7 @@
         "exact_match": 1.0,
         "f1": 1.0
       },
-      "best_model": "mt5",
+      "best_model": "qwen",
       "source": {
         "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
         "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
@@ -2073,7 +2073,7 @@
         "exact_match": 1.0,
         "f1": 1.0
       },
-      "best_model": "mt5",
+      "best_model": "qwen",
       "source": {
         "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
         "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
@@ -2283,7 +2283,7 @@
         "exact_match": 1.0,
         "f1": 1.0
       },
-      "best_model": "mt5",
+      "best_model": "qwen",
       "source": {
         "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
         "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
@@ -2343,7 +2343,7 @@
         "exact_match": 0.0,
         "f1": 0.0
       },
-      "best_model": "qwen",
+      "best_model": "mt5",
       "source": {
         "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
         "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
@@ -2433,7 +2433,7 @@
         "exact_match": 0.0,
         "f1": 0.0
       },
-      "best_model": "qwen",
+      "best_model": "mt5",
       "source": {
         "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
         "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
@@ -2493,7 +2493,7 @@
         "exact_match": 0.0,
         "f1": 0.125
       },
-      "best_model": "qwen",
+      "best_model": "mt5",
       "source": {
         "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
         "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
@@ -2703,7 +2703,7 @@
         "exact_match": 0.0,
         "f1": 0.25
       },
-      "best_model": "mt5",
+      "best_model": "qwen",
       "source": {
         "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
         "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
@@ -2733,7 +2733,7 @@
         "exact_match": 0.0,
         "f1": 0.4286
       },
-      "best_model": "qwen",
+      "best_model": "mt5",
       "source": {
         "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
         "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
@@ -2793,7 +2793,7 @@
         "exact_match": 0.0,
         "f1": 0.0
       },
-      "best_model": "qwen",
+      "best_model": "mt5",
       "source": {
         "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
         "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
@@ -2823,7 +2823,7 @@
         "exact_match": 0.0,
         "f1": 0.1538
       },
-      "best_model": "mt5",
+      "best_model": "qwen",
       "source": {
         "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
         "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
@@ -2853,7 +2853,7 @@
         "exact_match": 0.0,
         "f1": 0.4615
       },
-      "best_model": "qwen",
+      "best_model": "mt5",
       "source": {
         "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
         "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
@@ -2943,7 +2943,7 @@
         "exact_match": 0.0,
         "f1": 0.5
       },
-      "best_model": "mt5",
+      "best_model": "qwen",
       "source": {
         "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
         "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
@@ -3033,7 +3033,7 @@
         "exact_match": 0.0,
         "f1": 0.2
       },
-      "best_model": "qwen",
+      "best_model": "mt5",
       "source": {
         "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
         "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
@@ -3063,7 +3063,7 @@
         "exact_match": 0.0,
         "f1": 0.1818
       },
-      "best_model": "mt5",
+      "best_model": "qwen",
       "source": {
         "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
         "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
