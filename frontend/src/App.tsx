@@ -325,7 +325,7 @@ export default function App() {
         const stats = selectionStats(cfg.id, variant.id);
         if (stats.both > 0) {
           labels.push(
-            `${cfg.label.replace(/^([A-D])\s+/, "$1")} · ${variant.label} (${stats.both}/${stats.total})`,
+            `${cfg.label.replace(/^([A-D])\s+/, "$1 · ")} · ${variant.label} (${stats.both}/${stats.total})`,
           );
         }
       }
