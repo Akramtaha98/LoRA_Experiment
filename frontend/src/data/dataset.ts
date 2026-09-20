@@ -2,36 +2,56 @@ import type { BestModel, ModelScores } from "../lib/scoring";
 
 export type DatasetLanguage = "arabic" | "malay";
 
+export type ConfigId =
+  | "A_frozen"
+  | "B_ce_lora"
+  | "C_composite_lora"
+  | "D_full_ft";
+
+export type ConfigPrediction = {
+  mt5: (ModelScores & { lora_variant?: string }) | null;
+  qwen: (ModelScores & { lora_variant?: string }) | null;
+  best_model: BestModel;
+};
+
 export type DatasetExample = {
   id: string;
   language: DatasetLanguage;
   example_index: number;
-  curation_tag?: string;
   context: string;
   question: string;
   reference: string;
-  mt5: ModelScores;
-  qwen: ModelScores;
-  best_model: BestModel;
-  source: {
-    mt5_file: string;
-    qwen_file: string;
-    mt5_config: string;
-    mt5_lora_variant: string;
-    qwen_config: string;
-    qwen_lora_variant: string;
-    seed: number;
-  };
+  configs: Record<ConfigId, ConfigPrediction>;
+};
+
+export type ConfigDef = {
+  id: ConfigId;
+  label: string;
+  description: string;
+};
+
+export type AggregateMetrics = {
+  mean_faithfulness: number;
+  mean_em: number;
+  mean_f1: number;
+  n_eval: number;
+  lora_variant: string;
+  seed: number;
 };
 
 export type DatasetFile = {
   version: number;
   description: string;
+  notes?: string[];
   scoring_rule: {
     order: string[];
     description: string;
   };
-  sources: Record<string, unknown>;
+  config_defs: ConfigDef[];
+  aggregates: Record<
+    string,
+    Record<string, Partial<Record<"mt5" | "qwen", AggregateMetrics>>>
+  >;
   examples: DatasetExample[];
 };
 
