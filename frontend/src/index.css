@@ -598,14 +598,23 @@ button {
 }
 
 .table-wrap {
-  overflow: auto;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   border-top: 1px solid var(--line);
+  max-width: 100%;
 }
 
 table {
   width: 100%;
+  min-width: 720px;
   border-collapse: collapse;
   font-size: 13px;
+}
+
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  word-break: break-all;
 }
 
 th,

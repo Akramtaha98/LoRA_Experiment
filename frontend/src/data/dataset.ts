@@ -8,9 +8,11 @@ export type ConfigId =
   | "C_composite_lora"
   | "D_full_ft";
 
-export type ConfigPrediction = {
-  mt5: (ModelScores & { lora_variant?: string }) | null;
-  qwen: (ModelScores & { lora_variant?: string }) | null;
+export type VariantId = "qlora" | "adalora" | "dora" | "vera";
+
+export type VariantPrediction = {
+  mt5: (ModelScores & { lora_variant?: string; source_file?: string }) | null;
+  qwen: (ModelScores & { lora_variant?: string; source_file?: string }) | null;
   best_model: BestModel;
 };
 
@@ -21,13 +23,18 @@ export type DatasetExample = {
   context: string;
   question: string;
   reference: string;
-  configs: Record<ConfigId, ConfigPrediction>;
+  configs: Record<ConfigId, { variants: Record<VariantId, VariantPrediction> }>;
 };
 
 export type ConfigDef = {
   id: ConfigId;
   label: string;
   description: string;
+};
+
+export type VariantDef = {
+  id: VariantId;
+  label: string;
 };
 
 export type AggregateMetrics = {
@@ -37,10 +44,12 @@ export type AggregateMetrics = {
   n_eval: number;
   lora_variant: string;
   seed: number;
+  source_file?: string;
 };
 
 export type DatasetFile = {
   version: number;
+  generated_at?: string;
   description: string;
   notes?: string[];
   scoring_rule: {
@@ -48,9 +57,13 @@ export type DatasetFile = {
     description: string;
   };
   config_defs: ConfigDef[];
+  variant_defs: VariantDef[];
   aggregates: Record<
     string,
-    Record<string, Partial<Record<"mt5" | "qwen", AggregateMetrics>>>
+    Record<
+      string,
+      Record<string, Partial<Record<"mt5" | "qwen", AggregateMetrics>>>
+    >
   >;
   examples: DatasetExample[];
 };
