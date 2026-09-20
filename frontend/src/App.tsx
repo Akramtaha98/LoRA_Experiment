@@ -17,6 +17,8 @@ import {
   type DatasetExample,
   type DatasetFile,
   type DatasetLanguage,
+  type VariantDef,
+  type VariantId,
 } from "./data/dataset";
 import {
   pickBestModel,
@@ -37,14 +39,9 @@ function fmt(value: number | null | undefined, digits = 3) {
   return Number(value).toFixed(digits);
 }
 
-function MetricBar({
-  label,
-  value,
-}: {
-  label: string;
-  value: number;
-}) {
+function MetricBar({ label, value }: { label: string; value: number }) {
   const pct = Math.max(0, Math.min(100, value * 100));
+  const width = value > 0 ? Math.max(pct, 3) : 0;
   return (
     <div className="mbar">
       <div className="mbar-top">
@@ -52,7 +49,7 @@ function MetricBar({
         <strong>{fmt(value, label === "EM" ? 2 : 3)}</strong>
       </div>
       <div className="mbar-track">
-        <div className="mbar-fill" style={{ width: `${pct}%` }} />
+        <div className="mbar-fill" style={{ width: `${width}%` }} />
       </div>
     </div>
   );
@@ -114,19 +111,19 @@ function AnswerCard({
         <div className="missing-block">
           <p className="missing">
             {missingHint ??
-              "No per-example prediction was saved in the experiment logs for this config."}
+              "No per-example prediction was saved in the experiment logs for this selection."}
           </p>
           {aggregate ? (
             <div className="agg-fallback">
-              <p className="agg-title">Dataset mean for this config</p>
+              <p className="agg-title">Dataset mean for this selection</p>
               <div className="metric-stack">
                 <MetricBar label="EM" value={aggregate.mean_em} />
                 <MetricBar label="F1" value={aggregate.mean_f1} />
                 <MetricBar label="Faith" value={aggregate.mean_faithfulness} />
               </div>
               <p className="missing">
-                n={aggregate.n_eval}, adapter={aggregate.lora_variant}, seed=
-                {aggregate.seed}
+                n={aggregate.n_eval}, seed={aggregate.seed}
+                {aggregate.source_file ? `, ${aggregate.source_file}` : ""}
               </p>
             </div>
           ) : null}
@@ -136,60 +133,13 @@ function AnswerCard({
   );
 }
 
-function AggregateTable({
-  language,
-  configDefs,
-  aggregates,
-}: {
-  language: DatasetLanguage;
-  configDefs: ConfigDef[];
-  aggregates: DatasetFile["aggregates"];
-}) {
-  return (
-    <div className="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Config</th>
-            <th>Model</th>
-            <th>Adapter</th>
-            <th>n</th>
-            <th>Faith</th>
-            <th>EM</th>
-            <th>F1</th>
-          </tr>
-        </thead>
-        <tbody>
-          {configDefs.flatMap((cfg) => {
-            const block = aggregates?.[language]?.[cfg.id] || {};
-            return (["mt5", "qwen"] as const).map((model) => {
-              const row = block[model] as AggregateMetrics | undefined;
-              return (
-                <tr key={`${cfg.id}-${model}`}>
-                  <td>{cfg.label}</td>
-                  <td>{model === "mt5" ? "mT5" : "Qwen"}</td>
-                  <td>{row?.lora_variant ?? "n/a"}</td>
-                  <td>{row?.n_eval ?? "n/a"}</td>
-                  <td>{fmt(row?.mean_faithfulness)}</td>
-                  <td>{fmt(row?.mean_em)}</td>
-                  <td>{fmt(row?.mean_f1)}</td>
-                </tr>
-              );
-            });
-          })}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
 function bestLabel(
   best: BestModel,
   mt5: ModelScores | null,
   qwen: ModelScores | null,
 ) {
   if (best === "incomplete") {
-    return "Incomplete comparison: only one model is logged for this config";
+    return "Incomplete comparison: only one model is logged for this selection";
   }
   if (neitherMatchedGold(mt5, qwen)) {
     return "Neither model matched the correct answer";
@@ -204,10 +154,11 @@ export default function App() {
   const [file, setFile] = useState<DatasetFile | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [language, setLanguage] = useState<DatasetLanguage>("arabic");
+  const [variantId, setVariantId] = useState<VariantId>("qlora");
   const [configId, setConfigId] = useState<ConfigId>("C_composite_lora");
   const [exampleId, setExampleId] = useState<string>("");
   const [showContext, setShowContext] = useState(false);
-  const [showMeans, setShowMeans] = useState(false);
+  const [showMeans, setShowMeans] = useState(true);
   const [showAcross, setShowAcross] = useState(true);
 
   useEffect(() => {
@@ -236,6 +187,7 @@ export default function App() {
   }, []);
 
   const configDefs = file?.config_defs ?? [];
+  const variantDefs = file?.variant_defs ?? [];
   const examples = file?.examples ?? [];
 
   const filtered = useMemo(
@@ -251,19 +203,20 @@ export default function App() {
   const activeConfig: ConfigDef | undefined = configDefs.find(
     (c) => c.id === configId,
   );
-  const configPred = active?.configs?.[configId];
-  const mt5 = configPred?.mt5 ?? null;
-  const qwen = configPred?.qwen ?? null;
+  const activeVariant: VariantDef | undefined = variantDefs.find(
+    (v) => v.id === variantId,
+  );
+
+  const pred = active?.configs?.[configId]?.variants?.[variantId];
+  const mt5 = pred?.mt5 ?? null;
+  const qwen = pred?.qwen ?? null;
   const best = useMemo(() => pickBestModel(mt5, qwen), [mt5, qwen]);
   const noGoldMatch = neitherMatchedGold(mt5, qwen);
+
   const qwenAggregate =
-    file?.aggregates?.[language]?.[configId]?.qwen ?? null;
+    file?.aggregates?.[language]?.[configId]?.[variantId]?.qwen ?? null;
   const mt5Aggregate =
-    file?.aggregates?.[language]?.[configId]?.mt5 ?? null;
-  const qwenMissingHint =
-    configId === "B_ce_lora"
-      ? "Qwen B CE LoRA did not save full per-question answers in this repo (only dataset means + a few snippets). Switch to C Composite LoRA for full Qwen answers."
-      : undefined;
+    file?.aggregates?.[language]?.[configId]?.[variantId]?.mt5 ?? null;
 
   const arabicCount = examples.filter((e) => e.language === "arabic").length;
   const malayCount = examples.filter((e) => e.language === "malay").length;
@@ -287,7 +240,7 @@ export default function App() {
           </span>
           <div>
             <strong>RAG Faithfulness Lab</strong>
-            <small>mT5 × Qwen · offline logs</small>
+            <small>mT5 × Qwen · offline seed-42 logs</small>
           </div>
         </div>
         <div className="top-actions">
@@ -313,10 +266,10 @@ export default function App() {
 
       <main className="shell">
         <section className="hero">
-          <h1>Compare answers against gold evidence</h1>
+          <h1>Compare LoRA variants against gold answers</h1>
           <p>
-            Pick a language, training config, and question. See the correct
-            answer beside mT5 and Qwen using logged experiment results.
+            Paper axis: QLoRA / AdaLoRA / DoRA / VeRA. Secondary axis: training
+            procedure A–D. Numbers prefer dedicated seed-42 checkpoint files.
           </p>
         </section>
 
@@ -342,7 +295,23 @@ export default function App() {
           </div>
 
           <div className="control-block">
-            <span className="control-label">Training config</span>
+            <span className="control-label">LoRA variant (paper comparison)</span>
+            <div className="seg seg-wrap" role="tablist" aria-label="Variant">
+              {variantDefs.map((v) => (
+                <button
+                  key={v.id}
+                  type="button"
+                  className={variantId === v.id ? "seg-btn active" : "seg-btn"}
+                  onClick={() => setVariantId(v.id)}
+                >
+                  {v.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="control-block">
+            <span className="control-label">Training procedure</span>
             <div className="seg seg-wrap" role="tablist" aria-label="Config">
               {configDefs.map((cfg) => (
                 <button
@@ -358,14 +327,6 @@ export default function App() {
             </div>
             {activeConfig ? (
               <p className="hint">{activeConfig.description}</p>
-            ) : null}
-            {configId === "B_ce_lora" ? (
-              <p className="hint warn-hint">
-                Qwen under B CE is mostly Not logged at question level here.
-                Mean Qwen B metrics still appear in the table below and on the
-                Qwen card. Use <strong>C Composite LoRA</strong> for full
-                side-by-side Qwen answers.
-              </p>
             ) : null}
           </div>
 
@@ -401,7 +362,8 @@ export default function App() {
                 <div>
                   <span className="pill">
                     {active.language === "arabic" ? "Arabic" : "Malay"} #
-                    {active.example_index}
+                    {active.example_index} · {activeVariant?.label ?? variantId}{" "}
+                    · {activeConfig?.label ?? configId}
                   </span>
                   <h2 dir="auto">{active.question}</h2>
                 </div>
@@ -451,7 +413,6 @@ export default function App() {
                 metrics={qwen}
                 badge={best === "qwen" && !noGoldMatch ? "Best" : undefined}
                 aggregate={!qwen ? qwenAggregate : null}
-                missingHint={qwenMissingHint}
               />
             </section>
 
@@ -463,8 +424,11 @@ export default function App() {
                 aria-expanded={showAcross}
               >
                 <div>
-                  <h3>Same example across A / B / C / D</h3>
-                  <p>Scan how answers change with training configuration.</p>
+                  <h3>Same example across LoRA variants</h3>
+                  <p>
+                    Under {activeConfig?.label ?? configId}: compare QLoRA /
+                    AdaLoRA / DoRA / VeRA for this question.
+                  </p>
                 </div>
                 <ChevronDown
                   size={18}
@@ -476,32 +440,35 @@ export default function App() {
                   <table>
                     <thead>
                       <tr>
-                        <th>Config</th>
+                        <th>Variant</th>
                         <th>mT5 answer</th>
                         <th>Qwen answer</th>
                         <th>Best</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {configDefs.map((cfg) => {
-                        const row = active.configs[cfg.id];
+                      {variantDefs.map((v) => {
+                        const row =
+                          active.configs[configId]?.variants?.[v.id];
                         return (
                           <tr
-                            key={cfg.id}
+                            key={v.id}
                             className={
-                              cfg.id === configId ? "is-active-row" : undefined
+                              v.id === variantId ? "is-active-row" : undefined
                             }
                           >
                             <td>
                               <button
                                 type="button"
                                 className="linkish"
-                                onClick={() => setConfigId(cfg.id)}
+                                onClick={() => setVariantId(v.id)}
                               >
-                                {cfg.label}
+                                {v.label}
                               </button>
                             </td>
-                            <td dir="auto">{row?.mt5?.answer ?? "Not logged"}</td>
+                            <td dir="auto">
+                              {row?.mt5?.answer ?? "Not logged"}
+                            </td>
                             <td dir="auto">
                               {row?.qwen?.answer ?? "Not logged"}
                             </td>
@@ -538,26 +505,65 @@ export default function App() {
             aria-expanded={showMeans}
           >
             <div>
-              <h3>Mean metrics by configuration</h3>
+              <h3>Mean metrics by variant ({activeConfig?.label})</h3>
               <p>
-                Aggregate experiment scores for {language} (seed 42 / QLoRA when
-                available).
+                Aggregate seed-42 scores for {language}. Prefer dedicated
+                checkpoint files (paper QLoRA Arabic Qwen: 0.1331 / 0.3931 /
+                0.5568).
               </p>
             </div>
             <ChevronDown size={18} className={showMeans ? "chev open" : "chev"} />
           </button>
           {showMeans && file ? (
-            <AggregateTable
-              language={language}
-              configDefs={configDefs}
-              aggregates={file.aggregates}
-            />
+            <div className="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Variant</th>
+                    <th>Model</th>
+                    <th>Source file</th>
+                    <th>n</th>
+                    <th>Faith</th>
+                    <th>EM</th>
+                    <th>F1</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {variantDefs.flatMap((v) => {
+                    const block =
+                      file.aggregates?.[language]?.[configId]?.[v.id] || {};
+                    return (["mt5", "qwen"] as const).map((model) => {
+                      const row = block[model] as AggregateMetrics | undefined;
+                      return (
+                        <tr
+                          key={`${v.id}-${model}`}
+                          className={
+                            v.id === variantId ? "is-active-row" : undefined
+                          }
+                        >
+                          <td>{v.label}</td>
+                          <td>{model === "mt5" ? "mT5" : "Qwen"}</td>
+                          <td className="mono">
+                            {row?.source_file ?? "n/a"}
+                          </td>
+                          <td>{row?.n_eval ?? "n/a"}</td>
+                          <td>{fmt(row?.mean_faithfulness)}</td>
+                          <td>{fmt(row?.mean_em)}</td>
+                          <td>{fmt(row?.mean_f1)}</td>
+                        </tr>
+                      );
+                    });
+                  })}
+                </tbody>
+              </table>
+            </div>
           ) : null}
         </section>
 
         <footer className="footer">
           <span>
             {arabicCount} Arabic · {malayCount} Malay · static logs
+            {file?.generated_at ? ` · data ${file.generated_at}` : ""}
           </span>
           <span>No GPU required</span>
         </footer>
