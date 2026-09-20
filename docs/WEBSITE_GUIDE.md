@@ -116,6 +116,8 @@ Curated paired examples from logged experiment JSONL (no GPU, works on static Ve
 - **Secondary axis:** training procedure **A Frozen / B CE LoRA / C Composite LoRA / D Full FT**.
 - Aggregates prefer dedicated seed-42 files (e.g. Qwen Arabic QLoRA Composite → faith **0.1331**, EM **0.3931**, F1 **0.5568**).
 - UI: language + variant + config + example menubox; gold vs mT5 vs Qwen; variant comparison table; mean metrics with source file + `generated_at` stamp.
+- **Complete pairs only (default on):** only combinations with both mT5 and Qwen per-question answers are selectable. Today that is **C · QLoRA** and **C · DoRA** (full coverage). Empty pills are disabled; a coverage banner explains gaps.
+- **Why “Not logged”:** missing cells are missing eval dumps, not a frontend bug. **A / D** have no per-question logs; **B** is mT5-only; **C · AdaLoRA / VeRA** are Qwen-only. To show real answers there, re-run eval and export full per-question JSONL, then rebuild `dataset-examples.json`. Aggregate means may still appear when present.
 - **Best answer rule:** higher Exact Match vs gold, then Token F1; faithfulness only if F1 &gt; 0 on a tie; both miss gold → Neither; one model missing → incomplete.
 
 ### Compare

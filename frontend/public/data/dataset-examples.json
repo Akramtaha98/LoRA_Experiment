@@ -6,7 +6,8 @@
     "Paper headline axis: LoRA variants QLoRA / AdaLoRA / DoRA / VeRA (especially under C Composite).",
     "Secondary axis: training procedure A Frozen / B CE LoRA / C Composite LoRA / D Full FT.",
     "Aggregates and per-example answers prefer dedicated seed-42 files (e.g. checkpoint_full_qwen_qlora_arabic.jsonl → faith 0.1331 / EM 0.3931 / F1 0.5568).",
-    "Best vs gold: Exact Match, then F1; faithfulness only if F1>0 on a tie; both miss gold → Neither; missing model → incomplete."
+    "Best vs gold: Exact Match, then F1; faithfulness only if F1>0 on a tie; both miss gold → Neither; missing model → incomplete.",
+    "UI defaults to Complete pairs only: C·QLoRA and C·DoRA have full mT5+Qwen per-question logs. A/D empty; B is mT5-only; C·AdaLoRA/VeRA are Qwen-only — those cells show Not logged until eval dumps are re-exported."
   ],
   "scoring_rule": {
     "order": [
