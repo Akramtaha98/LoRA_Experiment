@@ -500,6 +500,10 @@ button {
   gap: 12px;
 }
 
+.panels-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 .model-panel {
   padding: 14px;
   transition:
@@ -517,6 +521,34 @@ button {
 .model-panel.is-best {
   border-color: color-mix(in srgb, var(--good) 55%, transparent);
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--good) 35%, transparent);
+}
+
+.correct-panel {
+  border-color: color-mix(in srgb, var(--accent-2) 45%, transparent);
+  background: color-mix(in srgb, var(--good-bg) 70%, var(--panel));
+}
+
+.correct-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: var(--good-bg);
+  color: var(--good);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.correct-answer {
+  font-weight: 650;
+  border-color: color-mix(in srgb, var(--good) 35%, var(--border));
+}
+
+.correct-hint {
+  margin: 12px 0 0;
+  color: var(--soft);
+  font-size: 12px;
+  line-height: 1.45;
 }
 
 .model-panel header {
@@ -622,7 +654,8 @@ button {
   }
 
   .lab-grid,
-  .panels {
+  .panels,
+  .panels-3 {
     grid-template-columns: 1fr;
   }
 

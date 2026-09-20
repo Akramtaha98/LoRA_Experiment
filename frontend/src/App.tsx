@@ -82,13 +82,33 @@ function ModelPanel({
   );
 }
 
+function CorrectPanel({ answer }: { answer: string }) {
+  return (
+    <article className="model-panel correct-panel">
+      <header>
+        <div>
+          <p>Ground truth</p>
+          <h3>Correct answer</h3>
+        </div>
+        <span className="correct-pill">Gold</span>
+      </header>
+      <div className="answer correct-answer" dir="auto">
+        {answer || "(empty)"}
+      </div>
+      <p className="correct-hint">
+        Compare this gold answer with mT5 and Qwen on the right.
+      </p>
+    </article>
+  );
+}
+
 function BestLine({ best }: { best: BestModel }) {
   const label =
     best === "tie"
-      ? "Tie on faithfulness, EM, and F1"
+      ? "Tie on Exact Match, F1, and faithfulness"
       : best === "mt5"
-        ? "Best: mT5"
-        : "Best: Qwen";
+        ? "Best match to correct answer: mT5"
+        : "Best match to correct answer: Qwen";
   return (
     <div className={`best-line best-${best}`}>
       <Trophy size={15} />
@@ -357,8 +377,8 @@ export default function App() {
                 <div className="evidence">
                   <div className="evidence-top">
                     <div>
-                      <small>Reference</small>
-                      <h2 dir="auto">{active.reference}</h2>
+                      <small>Question</small>
+                      <h2 dir="auto">{active.question}</h2>
                     </div>
                     <button
                       type="button"
@@ -368,9 +388,6 @@ export default function App() {
                       {contextOpen ? "Hide context" : "Show context"}
                     </button>
                   </div>
-                  <p className="question" dir="auto">
-                    {active.question}
-                  </p>
                   {contextOpen ? (
                     <div className="context-box" dir="auto">
                       {active.context}
@@ -385,7 +402,8 @@ export default function App() {
 
                 <BestLine best={datasetBest} />
 
-                <div className="panels">
+                <div className="panels panels-3">
+                  <CorrectPanel answer={active.reference} />
                   <ModelPanel
                     name="mT5"
                     kind="Encoder-decoder"
@@ -432,8 +450,8 @@ export default function App() {
             <div className="evidence">
               <div className="evidence-top">
                 <div>
-                  <small>Reference</small>
-                  <h2>{demo.reference}</h2>
+                  <small>Question</small>
+                  <h2>{demo.question}</h2>
                 </div>
                 <button
                   type="button"
@@ -445,7 +463,6 @@ export default function App() {
                   {loading ? "Running…" : "Compare"}
                 </button>
               </div>
-              <p className="question">{demo.question}</p>
               <div className="context-box">{demo.context}</div>
               <p className="source-line">
                 Selecting a demo updates answers below. On Vercel, Compare uses
@@ -455,7 +472,8 @@ export default function App() {
 
             <BestLine best={compareBest} />
 
-            <div className="panels">
+            <div className="panels panels-3">
+              <CorrectPanel answer={demo.reference} />
               <ModelPanel
                 name="mT5"
                 kind="Encoder-decoder"
