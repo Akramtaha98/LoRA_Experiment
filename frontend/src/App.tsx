@@ -1,5 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
-import { ExternalLink, Moon, Sun } from "lucide-react";
+import {
+  BookOpenText,
+  CheckCircle2,
+  ChevronDown,
+  ExternalLink,
+  Moon,
+  Sun,
+  Trophy,
+} from "lucide-react";
 
 import {
   loadDatasetExamples,
@@ -28,6 +36,27 @@ function fmt(value: number | null | undefined, digits = 3) {
   return Number(value).toFixed(digits);
 }
 
+function MetricBar({
+  label,
+  value,
+}: {
+  label: string;
+  value: number;
+}) {
+  const pct = Math.max(0, Math.min(100, value * 100));
+  return (
+    <div className="mbar">
+      <div className="mbar-top">
+        <span>{label}</span>
+        <strong>{fmt(value, label === "EM" ? 2 : 3)}</strong>
+      </div>
+      <div className="mbar-track">
+        <div className="mbar-fill" style={{ width: `${pct}%` }} />
+      </div>
+    </div>
+  );
+}
+
 function AnswerCard({
   title,
   subtitle,
@@ -43,35 +72,44 @@ function AnswerCard({
   badge?: string;
   variant?: "gold" | "model";
 }) {
+  const matched = metrics && metrics.exact_match >= 1;
   return (
-    <article className={`answer-card ${variant}`}>
+    <article
+      className={`answer-card ${variant}${badge === "Best" ? " is-best" : ""}`}
+    >
       <header>
         <div>
           <p>{subtitle}</p>
           <h3>{title}</h3>
         </div>
-        {badge ? <span className="badge">{badge}</span> : null}
+        {badge ? (
+          <span className={`badge ${badge === "Best" ? "badge-best" : ""}`}>
+            {badge === "Best" ? <Trophy size={12} /> : null}
+            {badge}
+          </span>
+        ) : null}
       </header>
       <div className="answer-body" dir="auto">
         {answer}
       </div>
       {metrics ? (
-        <dl className="metric-dl">
-          <div>
-            <dt>EM</dt>
-            <dd>{fmt(metrics.exact_match, 2)}</dd>
-          </div>
-          <div>
-            <dt>F1</dt>
-            <dd>{fmt(metrics.f1, 3)}</dd>
-          </div>
-          <div>
-            <dt>Faith</dt>
-            <dd>{fmt(metrics.faithfulness, 3)}</dd>
-          </div>
-        </dl>
+        <div className="metric-stack">
+          {matched ? (
+            <p className="match-ok">
+              <CheckCircle2 size={14} /> Exact match to gold
+            </p>
+          ) : null}
+          <MetricBar label="EM" value={metrics.exact_match} />
+          <MetricBar label="F1" value={metrics.f1} />
+          <MetricBar label="Faith" value={metrics.faithfulness} />
+        </div>
+      ) : variant === "gold" ? (
+        <p className="missing">Use this gold answer to judge the models.</p>
       ) : (
-        <p className="missing">No indexed prediction in the logs for this example.</p>
+        <p className="missing">
+          No indexed prediction in the logs for this example under the selected
+          config.
+        </p>
       )}
     </article>
   );
@@ -138,6 +176,8 @@ export default function App() {
   const [configId, setConfigId] = useState<ConfigId>("C_composite_lora");
   const [exampleId, setExampleId] = useState<string>("");
   const [showContext, setShowContext] = useState(false);
+  const [showMeans, setShowMeans] = useState(false);
+  const [showAcross, setShowAcross] = useState(true);
 
   useEffect(() => {
     const initial = getPreferredTheme();
@@ -177,6 +217,9 @@ export default function App() {
     return filtered.find((e) => e.id === exampleId) ?? filtered[0];
   }, [filtered, exampleId]);
 
+  const activeConfig: ConfigDef | undefined = configDefs.find(
+    (c) => c.id === configId,
+  );
   const configPred = active?.configs?.[configId];
   const mt5 = configPred?.mt5 ?? null;
   const qwen = configPred?.qwen ?? null;
@@ -190,19 +233,29 @@ export default function App() {
   const arabicCount = examples.filter((e) => e.language === "arabic").length;
   const malayCount = examples.filter((e) => e.language === "malay").length;
 
+  function setLang(next: DatasetLanguage) {
+    setLanguage(next);
+    const first = examples.find((ex) => ex.language === next);
+    if (first) setExampleId(first.id);
+    setShowContext(false);
+  }
+
   return (
-    <div className="page">
-      <header className="masthead">
-        <div className="masthead-main">
-          <p className="eyebrow">LoRA Experiment · Offline evaluation browser</p>
-          <h1>RAG Faithfulness Lab</h1>
-          <p className="lede">
-            Compare logged mT5 and Qwen answers against the gold reference under
-            training configurations A (Frozen), B (CE LoRA), C (Composite LoRA),
-            and D (Full FT). No live GPU inference.
-          </p>
+    <div className="app">
+      <div className="bg-orb bg-orb-a" aria-hidden />
+      <div className="bg-orb bg-orb-b" aria-hidden />
+
+      <header className="topbar">
+        <div className="brand">
+          <span className="brand-mark">
+            <BookOpenText size={18} />
+          </span>
+          <div>
+            <strong>RAG Faithfulness Lab</strong>
+            <small>mT5 × Qwen · offline logs</small>
+          </div>
         </div>
-        <div className="masthead-actions">
+        <div className="top-actions">
           <button
             type="button"
             className="icon-btn"
@@ -223,200 +276,243 @@ export default function App() {
         </div>
       </header>
 
-      <section className="controls panel">
-        <label>
-          Language
-          <select
-            value={language}
-            onChange={(e) => {
-              const next = e.target.value as DatasetLanguage;
-              setLanguage(next);
-              const first = examples.find((ex) => ex.language === next);
-              if (first) setExampleId(first.id);
-              setShowContext(false);
-            }}
-          >
-            <option value="arabic">Arabic ({arabicCount})</option>
-            <option value="malay">Malay ({malayCount})</option>
-          </select>
-        </label>
-
-        <label>
-          Training configuration
-          <select
-            value={configId}
-            onChange={(e) => setConfigId(e.target.value as ConfigId)}
-          >
-            {configDefs.map((cfg) => (
-              <option key={cfg.id} value={cfg.id}>
-                {cfg.label}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <label className="menubox">
-          Example
-          <select
-            value={active?.id ?? ""}
-            onChange={(e) => {
-              setExampleId(e.target.value);
-              setShowContext(false);
-            }}
-          >
-            {filtered.map((ex) => (
-              <option key={ex.id} value={ex.id}>
-                {ex.language === "arabic" ? "AR" : "MS"} #{ex.example_index}:{" "}
-                {ex.question.length > 72
-                  ? `${ex.question.slice(0, 72)}…`
-                  : ex.question}
-              </option>
-            ))}
-          </select>
-        </label>
-      </section>
-
-      {configDefs.length ? (
-        <p className="config-note">
-          {configDefs.find((c) => c.id === configId)?.description}.{" "}
-          {SCORING_RULE_LABEL}
-        </p>
-      ) : null}
-
-      <section className="panel">
-        <div className="section-title">
-          <h2>Mean metrics by configuration</h2>
+      <main className="shell">
+        <section className="hero">
+          <h1>Compare answers against gold evidence</h1>
           <p>
-            Aggregate scores from experiment logs ({language}; preferred seed 42,
-            QLoRA when available).
+            Pick a language, training config, and question. See the correct
+            answer beside mT5 and Qwen using logged experiment results.
           </p>
-        </div>
-        {file ? (
-          <AggregateTable
-            language={language}
-            configDefs={configDefs}
-            aggregates={file.aggregates}
-          />
-        ) : (
-          <p className="muted">{error ?? "Loading…"}</p>
-        )}
-      </section>
+        </section>
 
-      {active ? (
-        <>
-          <section className="panel">
-            <div className="section-title row">
-              <div>
-                <h2>Selected example</h2>
-                <p>
-                  {active.language === "arabic" ? "Arabic" : "Malay"} example #
-                  {active.example_index}
-                </p>
-              </div>
+        <section className="control-card">
+          <div className="control-block">
+            <span className="control-label">Language</span>
+            <div className="seg" role="tablist" aria-label="Language">
               <button
                 type="button"
-                className="text-btn"
-                onClick={() => setShowContext((v) => !v)}
+                className={language === "arabic" ? "seg-btn active" : "seg-btn"}
+                onClick={() => setLang("arabic")}
               >
-                {showContext ? "Hide passage" : "Show passage"}
+                Arabic <em>{arabicCount}</em>
+              </button>
+              <button
+                type="button"
+                className={language === "malay" ? "seg-btn active" : "seg-btn"}
+                onClick={() => setLang("malay")}
+              >
+                Malay <em>{malayCount}</em>
               </button>
             </div>
-            <p className="question" dir="auto">
-              {active.question}
-            </p>
-            {showContext ? (
-              <div className="passage" dir="auto">
-                {active.context}
-              </div>
+          </div>
+
+          <div className="control-block">
+            <span className="control-label">Training config</span>
+            <div className="seg seg-wrap" role="tablist" aria-label="Config">
+              {configDefs.map((cfg) => (
+                <button
+                  key={cfg.id}
+                  type="button"
+                  className={configId === cfg.id ? "seg-btn active" : "seg-btn"}
+                  onClick={() => setConfigId(cfg.id)}
+                  title={cfg.description}
+                >
+                  {cfg.label.replace(/^([A-D])\s+/, "$1 · ")}
+                </button>
+              ))}
+            </div>
+            {activeConfig ? (
+              <p className="hint">{activeConfig.description}</p>
             ) : null}
-          </section>
+          </div>
 
-          <section className="best-strip">
-            <strong>{bestLabel(best)}</strong>
-            <span>{SCORING_RULE_LABEL}</span>
-          </section>
+          <label className="control-block menubox">
+            <span className="control-label">Example question</span>
+            <div className="select-shell">
+              <select
+                value={active?.id ?? ""}
+                onChange={(e) => {
+                  setExampleId(e.target.value);
+                  setShowContext(false);
+                }}
+              >
+                {filtered.map((ex) => (
+                  <option key={ex.id} value={ex.id}>
+                    {ex.language === "arabic" ? "AR" : "MS"} #{ex.example_index}
+                    :{" "}
+                    {ex.question.length > 90
+                      ? `${ex.question.slice(0, 90)}…`
+                      : ex.question}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown size={16} className="select-caret" />
+            </div>
+          </label>
+        </section>
 
-          <section className="compare-grid">
-            <AnswerCard
-              title="Correct answer"
-              subtitle="Gold reference"
-              answer={active.reference}
-              variant="gold"
-              badge="Gold"
-            />
-            <AnswerCard
-              title="mT5"
-              subtitle="Encoder-decoder"
-              answer={mt5?.answer || "Not logged"}
-              metrics={mt5}
-              badge={best === "mt5" ? "Best" : undefined}
-            />
-            <AnswerCard
-              title="Qwen"
-              subtitle="Decoder-only"
-              answer={qwen?.answer || "Not logged"}
-              metrics={qwen}
-              badge={best === "qwen" ? "Best" : undefined}
-            />
-          </section>
+        {active ? (
+          <>
+            <section className="question-card">
+              <div className="question-top">
+                <div>
+                  <span className="pill">
+                    {active.language === "arabic" ? "Arabic" : "Malay"} #
+                    {active.example_index}
+                  </span>
+                  <h2 dir="auto">{active.question}</h2>
+                </div>
+                <button
+                  type="button"
+                  className="ghost-btn"
+                  onClick={() => setShowContext((v) => !v)}
+                >
+                  {showContext ? "Hide passage" : "Show passage"}
+                </button>
+              </div>
+              {showContext ? (
+                <div className="passage" dir="auto">
+                  {active.context}
+                </div>
+              ) : null}
+            </section>
 
-          <section className="panel">
-            <div className="section-title">
-              <h2>Same example across configs</h2>
+            <section className={`winner winner-${best}`}>
+              <Trophy size={18} />
+              <div>
+                <strong>{bestLabel(best)}</strong>
+                <p>{SCORING_RULE_LABEL}</p>
+              </div>
+            </section>
+
+            <section className="compare-grid">
+              <AnswerCard
+                title="Correct answer"
+                subtitle="Gold reference"
+                answer={active.reference}
+                variant="gold"
+                badge="Gold"
+              />
+              <AnswerCard
+                title="mT5"
+                subtitle="Encoder-decoder"
+                answer={mt5?.answer || "Not logged"}
+                metrics={mt5}
+                badge={best === "mt5" ? "Best" : undefined}
+              />
+              <AnswerCard
+                title="Qwen"
+                subtitle="Decoder-only"
+                answer={qwen?.answer || "Not logged"}
+                metrics={qwen}
+                badge={best === "qwen" ? "Best" : undefined}
+              />
+            </section>
+
+            <section className="fold panel">
+              <button
+                type="button"
+                className="fold-head"
+                onClick={() => setShowAcross((v) => !v)}
+                aria-expanded={showAcross}
+              >
+                <div>
+                  <h3>Same example across A / B / C / D</h3>
+                  <p>Scan how answers change with training configuration.</p>
+                </div>
+                <ChevronDown
+                  size={18}
+                  className={showAcross ? "chev open" : "chev"}
+                />
+              </button>
+              {showAcross ? (
+                <div className="table-wrap">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Config</th>
+                        <th>mT5 answer</th>
+                        <th>Qwen answer</th>
+                        <th>Best</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {configDefs.map((cfg) => {
+                        const row = active.configs[cfg.id];
+                        return (
+                          <tr
+                            key={cfg.id}
+                            className={
+                              cfg.id === configId ? "is-active-row" : undefined
+                            }
+                          >
+                            <td>
+                              <button
+                                type="button"
+                                className="linkish"
+                                onClick={() => setConfigId(cfg.id)}
+                              >
+                                {cfg.label}
+                              </button>
+                            </td>
+                            <td dir="auto">{row?.mt5?.answer ?? "Not logged"}</td>
+                            <td dir="auto">
+                              {row?.qwen?.answer ?? "Not logged"}
+                            </td>
+                            <td>
+                              {!row?.mt5 && !row?.qwen
+                                ? "n/a"
+                                : row.best_model === "tie"
+                                  ? "Tie"
+                                  : row.best_model === "mt5"
+                                    ? "mT5"
+                                    : "Qwen"}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              ) : null}
+            </section>
+          </>
+        ) : (
+          <p className="muted">{error ?? "Loading examples…"}</p>
+        )}
+
+        <section className="fold panel">
+          <button
+            type="button"
+            className="fold-head"
+            onClick={() => setShowMeans((v) => !v)}
+            aria-expanded={showMeans}
+          >
+            <div>
+              <h3>Mean metrics by configuration</h3>
               <p>
-                Quick view of logged answers for this question under A/B/C/D when
-                present.
+                Aggregate experiment scores for {language} (seed 42 / QLoRA when
+                available).
               </p>
             </div>
-            <div className="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Config</th>
-                    <th>mT5 answer</th>
-                    <th>Qwen answer</th>
-                    <th>Best</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {configDefs.map((cfg) => {
-                    const row = active.configs[cfg.id];
-                    return (
-                      <tr
-                        key={cfg.id}
-                        className={cfg.id === configId ? "is-active-row" : undefined}
-                      >
-                        <td>{cfg.label}</td>
-                        <td dir="auto">{row?.mt5?.answer ?? "Not logged"}</td>
-                        <td dir="auto">{row?.qwen?.answer ?? "Not logged"}</td>
-                        <td>
-                          {!row?.mt5 && !row?.qwen
-                            ? "n/a"
-                            : row.best_model === "tie"
-                              ? "Tie"
-                              : row.best_model === "mt5"
-                                ? "mT5"
-                                : "Qwen"}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </section>
-        </>
-      ) : (
-        <p className="muted">{error ?? "Loading examples…"}</p>
-      )}
+            <ChevronDown size={18} className={showMeans ? "chev open" : "chev"} />
+          </button>
+          {showMeans && file ? (
+            <AggregateTable
+              language={language}
+              configDefs={configDefs}
+              aggregates={file.aggregates}
+            />
+          ) : null}
+        </section>
 
-      <footer className="site-footer">
-        <span>
-          {arabicCount} Arabic and {malayCount} Malay examples · static JSON from{" "}
-          <code>experiment_results/</code>
-        </span>
-        <span>mT5 × Qwen RAG faithfulness study</span>
-      </footer>
+        <footer className="footer">
+          <span>
+            {arabicCount} Arabic · {malayCount} Malay · static logs
+          </span>
+          <span>No GPU required</span>
+        </footer>
+      </main>
     </div>
   );
 }
