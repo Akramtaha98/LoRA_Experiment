@@ -1,27 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import {
-  Activity,
-  BrainCircuit,
-  ChevronRight,
-  Clock3,
   ExternalLink,
-  Layers3,
   Moon,
   Play,
-  ShieldCheck,
+  Search,
   Sparkles,
   Sun,
   Trophy,
 } from "lucide-react";
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
 
 import { examples } from "./data/examples";
 import {
@@ -42,147 +28,96 @@ import {
   type Theme,
 } from "./lib/theme";
 
-type ComparisonResponse = {
-  mt5: ModelScores;
-  qwen: ModelScores;
-};
+type TabId = "dataset" | "compare";
 
-type TabId = "compare" | "dataset";
-
-const demoResult: ComparisonResponse = {
-  mt5: {
-    answer: "Lyon",
-    faithfulness: 0.97,
-    exact_match: 1,
-    f1: 1,
-    latency_ms: 713,
-  },
-  qwen: {
-    answer: "Paris",
-    faithfulness: 0.31,
-    exact_match: 0,
-    f1: 0,
-    latency_ms: 482,
-  },
-};
-
-function Score({
-  title,
-  value,
-  suffix = "",
-}: {
-  title: string;
-  value: string | number;
-  suffix?: string;
-}) {
+function MetricBar({ label, value }: { label: string; value: number }) {
+  const pct = Math.max(0, Math.min(100, value * 100));
   return (
-    <div className="metric-card">
-      <span>{title}</span>
-      <strong>
-        {value}
-        {suffix}
-      </strong>
+    <div className="metric-bar">
+      <div className="metric-bar-top">
+        <span>{label}</span>
+        <strong>{value.toFixed(value >= 0.01 || value === 0 ? 2 : 4)}</strong>
+      </div>
+      <div className="metric-bar-track">
+        <div className="metric-bar-fill" style={{ width: `${pct}%` }} />
+      </div>
     </div>
   );
 }
 
-function ModelCard({
-  title,
-  subtitle,
+function ModelPanel({
+  name,
+  kind,
   result,
   isBest,
-  bestLabel,
 }: {
-  title: string;
-  subtitle: string;
+  name: string;
+  kind: string;
   result: ModelScores;
-  isBest?: boolean;
-  bestLabel?: string;
+  isBest: boolean;
 }) {
   return (
-    <section className={isBest ? "model-card is-best" : "model-card"}>
-      <div className="model-title">
+    <article className={isBest ? "model-panel is-best" : "model-panel"}>
+      <header>
         <div>
-          <p>{subtitle}</p>
-          <h2>{title}</h2>
+          <p>{kind}</p>
+          <h3>{name}</h3>
         </div>
-
-        <div className="model-title-right">
-          {isBest ? (
-            <span className="best-badge">
-              <Trophy size={14} />
-              {bestLabel ?? "Best answer"}
-            </span>
-          ) : null}
-          <div className="model-icon">
-            <BrainCircuit size={22} />
-          </div>
-        </div>
+        {isBest ? (
+          <span className="best-pill">
+            <Trophy size={13} /> Best
+          </span>
+        ) : null}
+      </header>
+      <div className="answer" dir="auto">
+        {result.answer || "—"}
       </div>
-
-      <div className="answer-box">
-        <span>Generated answer</span>
-        <p dir="auto">{result.answer || "—"}</p>
-      </div>
-
-      <div className="metric-grid">
-        <Score title="Faithfulness" value={result.faithfulness.toFixed(4)} />
-        <Score title="Exact Match" value={result.exact_match.toFixed(2)} />
-        <Score title="Token F1" value={result.f1.toFixed(4)} />
-        {typeof result.latency_ms === "number" ? (
-          <Score title="Latency" value={result.latency_ms} suffix=" ms" />
-        ) : (
-          <Score title="Latency" value="—" />
-        )}
-      </div>
-    </section>
+      <MetricBar label="Faithfulness" value={result.faithfulness} />
+      <MetricBar label="Exact Match" value={result.exact_match} />
+      <MetricBar label="Token F1" value={result.f1} />
+      {typeof result.latency_ms === "number" ? (
+        <p className="latency">{result.latency_ms} ms</p>
+      ) : null}
+    </article>
   );
 }
 
-function BestBanner({ best }: { best: BestModel }) {
-  const text =
+function BestLine({ best }: { best: BestModel }) {
+  const label =
     best === "tie"
-      ? "Tie — mT5 and Qwen score equally on faithfulness, EM, and F1."
+      ? "Tie on faithfulness → EM → F1"
       : best === "mt5"
-        ? "Best answer: mT5 (by faithfulness → EM → F1)."
-        : "Best answer: Qwen (by faithfulness → EM → F1).";
-
+        ? "Best: mT5"
+        : "Best: Qwen";
   return (
-    <div className={`best-banner best-${best}`}>
-      <Trophy size={18} />
-      <div>
-        <strong>{text}</strong>
-        <p>{SCORING_RULE_LABEL}</p>
-      </div>
+    <div className={`best-line best-${best}`}>
+      <Trophy size={15} />
+      <span>{label}</span>
+      <small>{SCORING_RULE_LABEL}</small>
     </div>
   );
 }
 
-function truncateLabel(text: string, max = 72) {
+function truncate(text: string, max = 64) {
   const cleaned = text.replace(/\s+/g, " ").trim();
-  if (cleaned.length <= max) return cleaned;
-  return `${cleaned.slice(0, max - 1)}…`;
+  return cleaned.length <= max ? cleaned : `${cleaned.slice(0, max - 1)}…`;
 }
 
 export default function App() {
   const [theme, setTheme] = useState<Theme>("dark");
   const [tab, setTab] = useState<TabId>("dataset");
-
-  const [selectedExample, setSelectedExample] = useState(3);
-  const [context, setContext] = useState(examples[3].context);
-  const [question, setQuestion] = useState(examples[3].question);
-  const [reference, setReference] = useState(examples[3].reference);
-  const [result, setResult] = useState<ComparisonResponse>(demoResult);
-  const [loading, setLoading] = useState(false);
-
+  const [query, setQuery] = useState("");
   const [language, setLanguage] = useState<DatasetLanguage | "all">("arabic");
   const [dataset, setDataset] = useState<DatasetExample[]>([]);
   const [datasetError, setDatasetError] = useState<string | null>(null);
-  const [selectedDatasetId, setSelectedDatasetId] = useState<string | null>(
-    null,
-  );
-  const [scoringDescription, setScoringDescription] =
-    useState(SCORING_RULE_LABEL);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [demoIndex, setDemoIndex] = useState(3);
+  const [demoResult, setDemoResult] = useState({
+    mt5: examples[3].mt5,
+    qwen: examples[3].qwen,
+  });
+  const [loading, setLoading] = useState(false);
+  const [contextOpen, setContextOpen] = useState(false);
 
   useEffect(() => {
     const initial = getPreferredTheme();
@@ -196,525 +131,347 @@ export default function App() {
       .then((file) => {
         if (cancelled) return;
         setDataset(file.examples);
-        setScoringDescription(file.scoring_rule.description);
-        const firstArabic = file.examples.find((e) => e.language === "arabic");
-        setSelectedDatasetId(firstArabic?.id ?? file.examples[0]?.id ?? null);
+        const first = file.examples.find((e) => e.language === "arabic");
+        setSelectedId(first?.id ?? file.examples[0]?.id ?? null);
       })
       .catch((error: unknown) => {
-        if (cancelled) return;
-        setDatasetError(
-          error instanceof Error ? error.message : "Failed to load dataset",
-        );
+        if (!cancelled) {
+          setDatasetError(
+            error instanceof Error ? error.message : "Failed to load dataset",
+          );
+        }
       });
     return () => {
       cancelled = true;
     };
   }, []);
 
-  const filteredDataset = useMemo(() => {
-    if (language === "all") return dataset;
-    return dataset.filter((example) => example.language === language);
-  }, [dataset, language]);
-
-  const activeDataset = useMemo(() => {
-    if (!filteredDataset.length) return null;
-    return (
-      filteredDataset.find((example) => example.id === selectedDatasetId) ??
-      filteredDataset[0]
-    );
-  }, [filteredDataset, selectedDatasetId]);
-
-  const datasetBest = useMemo(() => {
-    if (!activeDataset) return "tie" as BestModel;
-    return pickBestModel(activeDataset.mt5, activeDataset.qwen);
-  }, [activeDataset]);
-
-  const compareBest = useMemo(
-    () => pickBestModel(result.mt5, result.qwen),
-    [result],
+  const arabicCount = useMemo(
+    () => dataset.filter((e) => e.language === "arabic").length,
+    [dataset],
+  );
+  const malayCount = useMemo(
+    () => dataset.filter((e) => e.language === "malay").length,
+    [dataset],
   );
 
-  const chartData = useMemo(() => {
-    const mt5 = activeDataset && tab === "dataset" ? activeDataset.mt5 : result.mt5;
-    const qwen =
-      activeDataset && tab === "dataset" ? activeDataset.qwen : result.qwen;
-    return [
-      { metric: "Faith", mT5: mt5.faithfulness, Qwen: qwen.faithfulness },
-      { metric: "EM", mT5: mt5.exact_match, Qwen: qwen.exact_match },
-      { metric: "F1", mT5: mt5.f1, Qwen: qwen.f1 },
-    ];
-  }, [activeDataset, result, tab]);
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return dataset.filter((example) => {
+      if (language !== "all" && example.language !== language) return false;
+      if (!q) return true;
+      return (
+        example.question.toLowerCase().includes(q) ||
+        example.reference.toLowerCase().includes(q) ||
+        example.id.toLowerCase().includes(q) ||
+        String(example.example_index).includes(q)
+      );
+    });
+  }, [dataset, language, query]);
 
-  const arabicCount = dataset.filter((e) => e.language === "arabic").length;
-  const malayCount = dataset.filter((e) => e.language === "malay").length;
+  const active = useMemo(() => {
+    if (!filtered.length) return null;
+    return filtered.find((e) => e.id === selectedId) ?? filtered[0];
+  }, [filtered, selectedId]);
 
-  function onThemeToggle() {
-    setTheme((current) => toggleTheme(current));
+  const datasetBest = useMemo(
+    () => (active ? pickBestModel(active.mt5, active.qwen) : "tie"),
+    [active],
+  );
+
+  const demo = examples[demoIndex];
+  const compareBest = useMemo(
+    () => pickBestModel(demoResult.mt5, demoResult.qwen),
+    [demoResult],
+  );
+
+  function selectDemo(index: number) {
+    setDemoIndex(index);
+    setDemoResult({ mt5: examples[index].mt5, qwen: examples[index].qwen });
+    setContextOpen(false);
   }
 
-  function loadExample(index: number) {
-    const example = examples[index];
-    setSelectedExample(index);
-    setContext(example.context);
-    setQuestion(example.question);
-    setReference(example.reference);
-  }
-
-  async function compareModels() {
+  async function runCompare() {
     setLoading(true);
+    const fallback = { mt5: demo.mt5, qwen: demo.qwen };
     try {
       const response = await fetch("/api/compare", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          context,
-          question,
-          reference,
+          context: demo.context,
+          question: demo.question,
+          reference: demo.reference,
           mt5_configuration: "frozen",
           qwen_configuration: "frozen",
         }),
       });
-
-      if (!response.ok) throw new Error("Backend request failed");
-      const data: ComparisonResponse = await response.json();
-      setResult(data);
-    } catch (error) {
-      console.error(error);
-      setResult(demoResult);
+      if (!response.ok) throw new Error("API unavailable");
+      const data = (await response.json()) as {
+        mt5: ModelScores;
+        qwen: ModelScores;
+      };
+      setDemoResult(data);
+    } catch {
+      // Offline / Vercel: use the per-example mock so the button always updates.
+      setDemoResult(fallback);
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <main>
-      <nav className="navbar">
+    <div className="app-shell">
+      <header className="topbar">
         <div className="brand">
-          <div className="brand-icon">
-            <Sparkles size={20} />
-          </div>
+          <span className="brand-mark">
+            <Sparkles size={16} />
+          </span>
           <div>
             <strong>RAG Faithfulness Lab</strong>
-            <small>mT5 × Qwen</small>
+            <small>mT5 × Qwen · offline results</small>
           </div>
         </div>
 
-        <div className="nav-actions">
+        <nav className="tabs" aria-label="Primary">
           <button
             type="button"
-            className={tab === "dataset" ? "nav-tab active" : "nav-tab"}
+            className={tab === "dataset" ? "tab active" : "tab"}
             onClick={() => setTab("dataset")}
           >
             Dataset
+            <em>{dataset.length || "…"}</em>
           </button>
           <button
             type="button"
-            className={tab === "compare" ? "nav-tab active" : "nav-tab"}
+            className={tab === "compare" ? "tab active" : "tab"}
             onClick={() => setTab("compare")}
           >
-            Compare
+            Demos
+            <em>{examples.length}</em>
           </button>
+        </nav>
 
+        <div className="top-actions">
           <button
             type="button"
-            className="theme-toggle"
-            onClick={onThemeToggle}
-            aria-label={
-              theme === "dark" ? "Switch to light mode" : "Switch to dark mode"
-            }
+            className="ghost-btn"
+            onClick={() => setTheme((t) => toggleTheme(t))}
+            aria-label="Toggle theme"
           >
-            {theme === "dark" ? <Sun size={17} /> : <Moon size={17} />}
-            {theme === "dark" ? "Light" : "Dark"}
+            {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
           </button>
-
           <a
+            className="ghost-btn"
             href="https://github.com/Akramtaha98/LoRA_Experiment"
             target="_blank"
             rel="noreferrer"
-            className="github-button"
           >
-            <ExternalLink size={17} />
-            GitHub
+            <ExternalLink size={16} />
           </a>
-        </div>
-      </nav>
-
-      <header className="hero">
-        <div className="hero-badge">
-          <ShieldCheck size={16} />
-          Retrieval-grounded generation
-        </div>
-
-        <h1>
-          RAG Faithfulness Lab
-          <span> mT5 vs Qwen on real evidence.</span>
-        </h1>
-
-        <p>
-          Browse logged Arabic and Malay evaluation examples, or run the English
-          Compare demo. Scores come from offline experiment results — no GPU
-          required on this site.
-        </p>
-
-        <div className="hero-features">
-          <div>
-            <Activity size={18} />
-            Faithfulness
-          </div>
-          <div>
-            <Layers3 size={18} />
-            EM & F1
-          </div>
-          <div>
-            <Clock3 size={18} />
-            Offline results
-          </div>
         </div>
       </header>
 
       {tab === "dataset" ? (
-        <>
-          <section className="workspace">
-            <aside className="examples-panel">
-              <div className="section-heading">
-                <small>LOGGED EVAL</small>
-                <h2>Dataset examples</h2>
-              </div>
+        <main className="lab-grid">
+          <aside className="picker">
+            <div className="picker-head">
+              <h1>Examples</h1>
+              <p>
+                {arabicCount} Arabic · {malayCount} Malay
+              </p>
+            </div>
 
-              <div className="language-filters">
-                {(
-                  [
-                    ["arabic", `Arabic (${arabicCount})`],
-                    ["malay", `Malay (${malayCount})`],
-                    ["all", `All (${dataset.length})`],
-                  ] as const
-                ).map(([value, label]) => (
-                  <button
-                    key={value}
-                    type="button"
-                    className={
-                      language === value ? "filter-chip active" : "filter-chip"
-                    }
-                    onClick={() => {
-                      setLanguage(value);
-                      const next =
-                        value === "all"
-                          ? dataset[0]
-                          : dataset.find((e) => e.language === value);
-                      if (next) setSelectedDatasetId(next.id);
-                    }}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
+            <div className="lang-row">
+              {(
+                [
+                  ["arabic", `Arabic ${arabicCount}`],
+                  ["malay", `Malay ${malayCount}`],
+                  ["all", `All ${dataset.length}`],
+                ] as const
+              ).map(([value, label]) => (
+                <button
+                  key={value}
+                  type="button"
+                  className={language === value ? "chip active" : "chip"}
+                  onClick={() => {
+                    setLanguage(value);
+                    setQuery("");
+                    const next =
+                      value === "all"
+                        ? dataset[0]
+                        : dataset.find((e) => e.language === value);
+                    if (next) setSelectedId(next.id);
+                  }}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
 
+            <label className="search">
+              <Search size={15} />
+              <input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search question or id…"
+              />
+            </label>
+
+            <div className="pick-list" role="listbox">
               {datasetError ? (
-                <p className="panel-error">{datasetError}</p>
+                <p className="error">{datasetError}</p>
+              ) : filtered.length === 0 ? (
+                <p className="muted">No matches.</p>
               ) : (
-                <div className="example-list">
-                  {filteredDataset.map((example) => (
+                filtered.map((example) => {
+                  const selected = active?.id === example.id;
+                  return (
                     <button
                       key={example.id}
                       type="button"
-                      onClick={() => setSelectedDatasetId(example.id)}
-                      className={
-                        activeDataset?.id === example.id
-                          ? "example active"
-                          : "example"
-                      }
+                      role="option"
+                      aria-selected={selected}
+                      className={selected ? "pick active" : "pick"}
+                      onClick={() => {
+                        setSelectedId(example.id);
+                        setContextOpen(false);
+                      }}
                     >
-                      <div>
-                        <strong>
-                          {example.language === "arabic" ? "AR" : "MS"} · #
-                          {example.example_index}
-                        </strong>
-                        <p dir="auto">{truncateLabel(example.question)}</p>
-                      </div>
-                      <ChevronRight size={18} />
+                      <span className="pick-meta">
+                        {example.language === "arabic" ? "AR" : "MS"} · #
+                        {example.example_index}
+                        <i className={`dot ${example.best_model}`} />
+                      </span>
+                      <strong dir="auto">{truncate(example.question, 70)}</strong>
                     </button>
-                  ))}
-                </div>
+                  );
+                })
               )}
-            </aside>
+            </div>
+          </aside>
 
-            <section className="input-panel">
-              <div className="section-heading">
-                <small>EVIDENCE</small>
-                <h2>Context, question & reference</h2>
-              </div>
-
-              {activeDataset ? (
-                <>
-                  <div className="meta-row">
-                    <span>
-                      Source: mT5 {activeDataset.source.mt5_config}/
-                      {activeDataset.source.mt5_lora_variant} · Qwen{" "}
-                      {activeDataset.source.qwen_config}/
-                      {activeDataset.source.qwen_lora_variant} · seed{" "}
-                      {activeDataset.source.seed}
-                    </span>
-                  </div>
-
-                  <label>
-                    Context
-                    <textarea
-                      rows={8}
-                      value={activeDataset.context}
-                      readOnly
-                      dir="auto"
-                    />
-                  </label>
-
-                  <label>
-                    Question
-                    <input value={activeDataset.question} readOnly dir="auto" />
-                  </label>
-
-                  <label>
-                    Reference / correct answer
-                    <div className="reference-box" dir="auto">
-                      {activeDataset.reference}
+          <section className="stage">
+            {active ? (
+              <>
+                <div className="evidence">
+                  <div className="evidence-top">
+                    <div>
+                      <small>Reference</small>
+                      <h2 dir="auto">{active.reference}</h2>
                     </div>
-                  </label>
-
-                  <p className="scoring-note">{scoringDescription}</p>
-                </>
-              ) : (
-                <p className="panel-error">Loading curated examples…</p>
-              )}
-            </section>
-          </section>
-
-          {activeDataset ? (
-            <section className="results-section">
-              <div className="section-heading">
-                <small>OUTPUT</small>
-                <h2>Side-by-side comparison</h2>
-              </div>
-
-              <BestBanner best={datasetBest} />
-
-              <div className="models-grid">
-                <ModelCard
-                  title="mT5"
-                  subtitle="Encoder–decoder · logged"
-                  result={activeDataset.mt5}
-                  isBest={datasetBest === "mt5"}
-                />
-                <ModelCard
-                  title="Qwen"
-                  subtitle="Decoder-only · logged"
-                  result={activeDataset.qwen}
-                  isBest={datasetBest === "qwen"}
-                />
-              </div>
-
-              <section className="chart-card">
-                <div className="section-heading">
-                  <small>METRICS</small>
-                  <h2>Comparison profile</h2>
-                </div>
-                <div className="chart">
-                  <ResponsiveContainer width="100%" height={290}>
-                    <BarChart data={chartData}>
-                      <CartesianGrid
-                        strokeDasharray="3 3"
-                        vertical={false}
-                        opacity={0.15}
-                      />
-                      <XAxis dataKey="metric" axisLine={false} tickLine={false} />
-                      <YAxis
-                        domain={[0, 1]}
-                        axisLine={false}
-                        tickLine={false}
-                      />
-                      <Tooltip />
-                      <Bar dataKey="mT5" fill="var(--chart-mt5)" radius={[8, 8, 0, 0]} />
-                      <Bar dataKey="Qwen" fill="var(--chart-qwen)" radius={[8, 8, 0, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </section>
-
-              <section className="interpretation-card">
-                <Sparkles size={22} />
-                <div>
-                  <strong>Offline logged predictions</strong>
-                  <p>
-                    Answers and faithfulness/EM/F1 are taken from existing
-                    experiment JSONL files under <code>experiment_results/</code>{" "}
-                    and <code>experiment_results_qwen/</code>. This path works on
-                    static hosting (Vercel) without a FastAPI process.
+                    <button
+                      type="button"
+                      className="text-btn"
+                      onClick={() => setContextOpen((v) => !v)}
+                    >
+                      {contextOpen ? "Hide context" : "Show context"}
+                    </button>
+                  </div>
+                  <p className="question" dir="auto">
+                    {active.question}
+                  </p>
+                  {contextOpen ? (
+                    <div className="context-box" dir="auto">
+                      {active.context}
+                    </div>
+                  ) : null}
+                  <p className="source-line">
+                    Logged QLoRA · seed {active.source.seed} · mT5{" "}
+                    {active.source.mt5_config} · Qwen{" "}
+                    {active.source.qwen_config}
                   </p>
                 </div>
-              </section>
-            </section>
-          ) : null}
-        </>
-      ) : (
-        <>
-          <section className="workspace">
-            <aside className="examples-panel">
-              <div className="section-heading">
-                <small>TEST SUITE</small>
-                <h2>English demos</h2>
-              </div>
 
-              <div className="example-list">
-                {examples.map((example, index) => (
-                  <button
-                    key={example.name}
-                    type="button"
-                    onClick={() => loadExample(index)}
-                    className={
-                      selectedExample === index ? "example active" : "example"
-                    }
-                  >
-                    <div>
-                      <strong>{example.name}</strong>
-                      <p>{example.description}</p>
-                    </div>
-                    <ChevronRight size={18} />
-                  </button>
-                ))}
-              </div>
-            </aside>
+                <BestLine best={datasetBest} />
 
-            <section className="input-panel">
-              <div className="section-heading">
-                <small>INPUT</small>
-                <h2>Evidence & Question</h2>
-              </div>
-
-              <label>
-                Context
-                <textarea
-                  rows={7}
-                  value={context}
-                  onChange={(event) => setContext(event.target.value)}
-                />
-              </label>
-
-              <label>
-                Question
-                <input
-                  value={question}
-                  onChange={(event) => setQuestion(event.target.value)}
-                />
-              </label>
-
-              <label>
-                Reference answer
-                <input
-                  value={reference}
-                  onChange={(event) => setReference(event.target.value)}
-                />
-              </label>
-
-              <div className="configuration-row">
-                <label>
-                  mT5 configuration
-                  <select defaultValue="Frozen">
-                    <option>Frozen</option>
-                    <option>QLoRA — CE</option>
-                    <option>QLoRA — Composite</option>
-                  </select>
-                </label>
-                <label>
-                  Qwen configuration
-                  <select defaultValue="Frozen">
-                    <option>Frozen</option>
-                    <option>QLoRA — CE</option>
-                    <option>QLoRA — Composite</option>
-                  </select>
-                </label>
-              </div>
-
-              <button
-                type="button"
-                className="compare-button"
-                onClick={compareModels}
-                disabled={loading}
-              >
-                <Play size={18} fill="currentColor" />
-                {loading ? "Comparing..." : "Compare models"}
-              </button>
-              <p className="scoring-note">
-                Live compare needs the local FastAPI mock/API. On Vercel this
-                demo falls back to the built-in Knowledge Conflict sample.
-              </p>
-            </section>
+                <div className="panels">
+                  <ModelPanel
+                    name="mT5"
+                    kind="Encoder–decoder"
+                    result={active.mt5}
+                    isBest={datasetBest === "mt5"}
+                  />
+                  <ModelPanel
+                    name="Qwen"
+                    kind="Decoder-only"
+                    result={active.qwen}
+                    isBest={datasetBest === "qwen"}
+                  />
+                </div>
+              </>
+            ) : (
+              <p className="muted">Loading examples…</p>
+            )}
           </section>
+        </main>
+      ) : (
+        <main className="lab-grid">
+          <aside className="picker">
+            <div className="picker-head">
+              <h1>English demos</h1>
+              <p>Offline mock results update instantly</p>
+            </div>
+            <div className="pick-list">
+              {examples.map((example, index) => (
+                <button
+                  key={example.name}
+                  type="button"
+                  className={demoIndex === index ? "pick active" : "pick"}
+                  onClick={() => selectDemo(index)}
+                >
+                  <span className="pick-meta">Demo</span>
+                  <strong>{example.name}</strong>
+                  <em>{example.description}</em>
+                </button>
+              ))}
+            </div>
+          </aside>
 
-          <section className="results-section">
-            <div className="section-heading">
-              <small>OUTPUT</small>
-              <h2>Side-by-side comparison</h2>
+          <section className="stage">
+            <div className="evidence">
+              <div className="evidence-top">
+                <div>
+                  <small>Reference</small>
+                  <h2>{demo.reference}</h2>
+                </div>
+                <button
+                  type="button"
+                  className="compare-btn"
+                  onClick={runCompare}
+                  disabled={loading}
+                >
+                  <Play size={15} fill="currentColor" />
+                  {loading ? "Running…" : "Compare"}
+                </button>
+              </div>
+              <p className="question">{demo.question}</p>
+              <div className="context-box">{demo.context}</div>
+              <p className="source-line">
+                Selecting a demo updates answers below. On Vercel, Compare uses
+                built-in mocks (no GPU API).
+              </p>
             </div>
 
-            <BestBanner best={compareBest} />
+            <BestLine best={compareBest} />
 
-            <div className="models-grid">
-              <ModelCard
-                title="mT5"
-                subtitle="Encoder–decoder"
-                result={result.mt5}
+            <div className="panels">
+              <ModelPanel
+                name="mT5"
+                kind="Encoder–decoder"
+                result={demoResult.mt5}
                 isBest={compareBest === "mt5"}
               />
-              <ModelCard
-                title="Qwen"
-                subtitle="Decoder-only"
-                result={result.qwen}
+              <ModelPanel
+                name="Qwen"
+                kind="Decoder-only"
+                result={demoResult.qwen}
                 isBest={compareBest === "qwen"}
               />
             </div>
-
-            <section className="chart-card">
-              <div className="section-heading">
-                <small>METRICS</small>
-                <h2>Comparison profile</h2>
-              </div>
-              <div className="chart">
-                <ResponsiveContainer width="100%" height={290}>
-                  <BarChart data={chartData}>
-                    <CartesianGrid
-                      strokeDasharray="3 3"
-                      vertical={false}
-                      opacity={0.15}
-                    />
-                    <XAxis dataKey="metric" axisLine={false} tickLine={false} />
-                    <YAxis domain={[0, 1]} axisLine={false} tickLine={false} />
-                    <Tooltip />
-                    <Bar dataKey="mT5" fill="var(--chart-mt5)" radius={[8, 8, 0, 0]} />
-                    <Bar dataKey="Qwen" fill="var(--chart-qwen)" radius={[8, 8, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-            </section>
-
-            <section className="interpretation-card">
-              <Sparkles size={22} />
-              <div>
-                <strong>How to interpret this example</strong>
-                <p>
-                  The models receive identical evidence. A high faithfulness
-                  score indicates that the generated answer is supported by the
-                  supplied context. Exact Match and token F1 separately describe
-                  agreement with the reference answer.
-                </p>
-              </div>
-            </section>
           </section>
-        </>
+        </main>
       )}
-
-      <footer>
-        <span>LoRA RAG Faithfulness Experiment</span>
-        <span>
-          Dataset: {arabicCount} Arabic · {malayCount} Malay
-        </span>
-      </footer>
-    </main>
+    </div>
   );
 }

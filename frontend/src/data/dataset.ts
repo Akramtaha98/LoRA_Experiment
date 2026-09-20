@@ -6,7 +6,7 @@ export type DatasetExample = {
   id: string;
   language: DatasetLanguage;
   example_index: number;
-  curation_tag: string;
+  curation_tag?: string;
   context: string;
   question: string;
   reference: string;

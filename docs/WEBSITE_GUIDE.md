@@ -111,9 +111,10 @@ LoRA_Experiment/
 Curated paired examples from logged experiment JSONL (no GPU, works on static Vercel hosting):
 
 - Source files: `experiment_results/checkpoint_full_qlora_{arabic,malay}.jsonl` (mT5 `B_ce_lora` / QLoRA) and `experiment_results_qwen/checkpoint_full_qwen_qlora_{arabic,malay}.jsonl` (Qwen `C_composite_lora` / QLoRA), seed 42.
-- Static asset: `frontend/public/data/dataset-examples.json` (12 Arabic + 12 Malay).
-- UI: language filter → example picker → context / question / **reference** → side-by-side mT5 vs Qwen answers + faithfulness / EM / F1.
+- Static asset: `frontend/public/data/dataset-examples.json` (**110** examples: 60 Arabic + 50 Malay).
+- UI: language filter + search → example picker → reference + mT5/Qwen answers + metrics (compact lab layout).
 - **Best model rule:** higher faithfulness first, then Exact Match, then Token F1; equal on all three → **tie**. Implemented in `frontend/src/lib/scoring.ts`.
+- English **Demos** tab uses per-example offline mocks so Compare always updates on Vercel (optional FastAPI if present).
 
 ### Compare
 

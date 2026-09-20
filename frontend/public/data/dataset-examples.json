@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "description": "Curated paired mT5 vs Qwen evaluation samples from logged experiment results (QLoRA, seed 42). Offline — no GPU required.",
   "scoring_rule": {
     "order": [
@@ -16,20 +16,14 @@
         "lora_variant": "qlora",
         "language": "arabic",
         "seed": 42,
-        "lambda1": 0.3,
-        "mean_f_faith": 0.1317,
-        "mean_em": 0.0097,
-        "mean_f1": 0.0468
+        "lambda1": 0.3
       },
       "qwen": {
         "config": "C_composite_lora",
         "lora_variant": "qlora",
         "language": "arabic",
         "seed": 42,
-        "backbone": "qwen3-0.6b-base",
-        "mean_f_faith": 0.1331,
-        "mean_em": 0.3931,
-        "mean_f1": 0.5568
+        "backbone": "qwen3-0.6b-base"
       }
     },
     "malay": {
@@ -38,60 +32,22 @@
         "lora_variant": "qlora",
         "language": "malay",
         "seed": 42,
-        "lambda1": 0.3,
-        "mean_f_faith": 0.2717,
-        "mean_em": 0.1326,
-        "mean_f1": 0.3032
+        "lambda1": 0.3
       },
       "qwen": {
         "config": "C_composite_lora",
         "lora_variant": "qlora",
         "language": "malay",
         "seed": 42,
-        "backbone": "qwen3-0.6b-base",
-        "mean_f_faith": 0.2906,
-        "mean_em": 0.5465,
-        "mean_f1": 0.614
+        "backbone": "qwen3-0.6b-base"
       }
     }
   },
   "examples": [
     {
-      "id": "arabic-482",
-      "language": "arabic",
-      "example_index": 482,
-      "curation_tag": "qwen_wins_em",
-      "context": "تحتل كينيا مرتبة منخفضة في مؤشر مدركات الفساد في منظمة الشفافية الدولية، وهو مقياس يحاول قياس مدى انتشار الفساد في القطاع العام في بلدان مختلفة. في عام 2012، وضعت الأمة 139 من أصل 176 دولة في مؤشر مؤشر مدركات الفساد، برصيد 27/100. ومع ذلك، هناك العديد من التطورات المهمة إلى حد ما فيما يتعلق بكبح الفساد من الحكومة الكينية، على سبيل المثال، إنشاء لجنة جديدة ومستقلة للأخلاقيات ومكافحة الفساد.",
-      "question": "كيف تكبح كينيا الفساد؟",
-      "reference": "إنشاء لجنة جديدة ومستقلة للأخلاقيات ومكافحة الفساد",
-      "mt5": {
-        "answer": "روسيد 27/100",
-        "faithfulness": 0.7412,
-        "exact_match": 0.0,
-        "f1": 0.0
-      },
-      "qwen": {
-        "answer": "إنشاء لجنة جديدة ومستقلة للأخلاقيات ومكافحة الفساد",
-        "faithfulness": 0.9917,
-        "exact_match": 1.0,
-        "f1": 1.0
-      },
-      "best_model": "qwen",
-      "source": {
-        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
-        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
-        "mt5_config": "B_ce_lora",
-        "mt5_lora_variant": "qlora",
-        "qwen_config": "C_composite_lora",
-        "qwen_lora_variant": "qlora",
-        "seed": 42
-      }
-    },
-    {
       "id": "arabic-109",
       "language": "arabic",
       "example_index": 109,
-      "curation_tag": "qwen_wins_em",
       "context": "غالباً ما يُرى جيمس هوتون كأول عالم جيولوجي حديث. قدّم في عام 1785 أطروحةً بعنوان نظرية الأرض إلى الجمعية الملكية في إدنبرة. شرح في أطروحته نظريته بأن الأرض لا بد من أن تكون أقدم بكثير مما كان يُفترض سابقاً لإتاحة الوقت الكافي لتآكل الجبال ولتكوِّن الرواسب صخوراً جديدة في قاع المحيط والتي ترتفع بدورها لتصبح أرضاً يابسة. نشر هوتون نسخةً مكونة من مجلدين من أفكاره في 1795 (مجلد 1، مجلد 2).",
       "question": "ما الأطروحة التي قدمها جيمس هوتون لجمعية إدنبرة الملكية في عام 1785؟",
       "reference": "نظرية الأرض",
@@ -119,10 +75,99 @@
       }
     },
     {
+      "id": "arabic-108",
+      "language": "arabic",
+      "example_index": 108,
+      "context": "غالباً ما يُرى جيمس هوتون كأول عالم جيولوجي حديث. قدّم في عام 1785 أطروحةً بعنوان نظرية الأرض إلى الجمعية الملكية في إدنبرة. شرح في أطروحته نظريته بأن الأرض لا بد من أن تكون أقدم بكثير مما كان يُفترض سابقاً لإتاحة الوقت الكافي لتآكل الجبال ولتكوِّن الرواسب صخوراً جديدة في قاع المحيط والتي ترتفع بدورها لتصبح أرضاً يابسة. نشر هوتون نسخةً مكونة من مجلدين من أفكاره في 1795 (مجلد 1، مجلد 2).",
+      "question": "من الذي يعتبر أول عالم جيولوجي حديث؟",
+      "reference": "جيمس هوتون",
+      "mt5": {
+        "answer": "1795",
+        "faithfulness": 0.003,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "جيمس هوتون",
+        "faithfulness": 0.0025,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "best_model": "mt5",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "arabic-482",
+      "language": "arabic",
+      "example_index": 482,
+      "context": "تحتل كينيا مرتبة منخفضة في مؤشر مدركات الفساد في منظمة الشفافية الدولية، وهو مقياس يحاول قياس مدى انتشار الفساد في القطاع العام في بلدان مختلفة. في عام 2012، وضعت الأمة 139 من أصل 176 دولة في مؤشر مؤشر مدركات الفساد، برصيد 27/100. ومع ذلك، هناك العديد من التطورات المهمة إلى حد ما فيما يتعلق بكبح الفساد من الحكومة الكينية، على سبيل المثال، إنشاء لجنة جديدة ومستقلة للأخلاقيات ومكافحة الفساد.",
+      "question": "كيف تكبح كينيا الفساد؟",
+      "reference": "إنشاء لجنة جديدة ومستقلة للأخلاقيات ومكافحة الفساد",
+      "mt5": {
+        "answer": "روسيد 27/100",
+        "faithfulness": 0.7412,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "إنشاء لجنة جديدة ومستقلة للأخلاقيات ومكافحة الفساد",
+        "faithfulness": 0.9917,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "best_model": "qwen",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "arabic-298",
+      "language": "arabic",
+      "example_index": 298,
+      "context": "البناء هو عملية بناء المباني أو البنى التحتية. يختلف البناء عن التصنيع في أن التصنيع يشتمل عادةً على الإنتاج الضخم للعناصر المتشابهة دون وجود مشتر معين، في حين أن البناء يتم عادةً في الموقع لصالح عميل معروف. يشكل البناء كصناعة ما نسبته من ستة إلى تسعة في المئة من الناتج المحلي الإجمالي للبلدان المتقدمة. يبدأ البناء بالتخطيط [بحاجة لمصدر]، ثم التصميم، ثم التمويل ويستمر حتى يتم بناء المشروع ويصبح جاهزًا للاستخدام.",
+      "question": "‏لصالح من يكون البناء في موقع محدد؟",
+      "reference": "عميل معروف",
+      "mt5": {
+        "answer": "كريات",
+        "faithfulness": 0.0071,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "عميل معروف",
+        "faithfulness": 0.0024,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "best_model": "mt5",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
       "id": "arabic-294",
       "language": "arabic",
       "example_index": 294,
-      "curation_tag": "qwen_wins_em",
       "context": "البناء هو عملية بناء المباني أو البنى التحتية. يختلف البناء عن التصنيع في أن التصنيع يشتمل عادةً على الإنتاج الضخم للعناصر المتشابهة دون وجود مشتر معين، في حين أن البناء يتم عادةً في الموقع لصالح عميل معروف. يشكل البناء كصناعة ما نسبته من ستة إلى تسعة في المئة من الناتج المحلي الإجمالي للبلدان المتقدمة. يبدأ البناء بالتخطيط [بحاجة لمصدر]، ثم التصميم، ثم التمويل ويستمر حتى يتم بناء المشروع ويصبح جاهزًا للاستخدام.",
       "question": "‏ماذا تسمى عملية بناء المباني أو البنى التحتية؟",
       "reference": "البناء",
@@ -150,10 +195,459 @@
       }
     },
     {
+      "id": "arabic-714",
+      "language": "arabic",
+      "example_index": 714,
+      "context": "من خلال الجمع بين تعريف التيار الكهربائي كمعدل زمني لتغير الشحنة الكهربائية، تصف قاعدة جداء الأشعة المسماة قانون لورنتز القوة المحمولة على شحنة تتحرك في مجال مغناطيسي. ويسمح الاتصال بين الكهرباء والمغناطيسية بوصف قوة كهرومغناطيسية موحدة تؤثر على الشحنة. ويمكن كتابة هذه القوة كمجموع للقوة الكهروستاتيكية القوة الكهروستاتيكية (بسبب الحقل الكهربائي) والقوة المغناطيسية (بسبب المجال المغناطيسي). هذا هو القانون مذكوراً بالكامل:",
+      "question": "ماذا يسمى القانون الذي يحدد شحنة تتحرك خلال مجال مغناطيسي؟",
+      "reference": "قانون لورنتز",
+      "mt5": {
+        "answer": "معدل زمني",
+        "faithfulness": 0.2539,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "قانون لورنتز",
+        "faithfulness": 0.1604,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "best_model": "mt5",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "arabic-684",
+      "language": "arabic",
+      "example_index": 684,
+      "context": "في أوروبا، لا يُطلق عادةً اسم منفصل على مسرح أمريكا الشمالية لحرب السنوات السبع. يعرف الصراع الدولي برمته بحرب السنوات السبع. فتشير \"السنوات السبع\" إلى الأحداث في أوروبا، من الإعلان الرسمي للحرب في 1756 إلى توقيع معاهدة السلام في 1763. وهذه التواريخ لا تتوافق مع القتال على الأراضي شمال الأمريكية، حيث اختتم القتال بين القوتين الاستعماريتين بشكل كبير في ست سنوات، من معركة جومونفيل غلين في 1754 إلى الاستيلاء على مونتريال في 1760.",
+      "question": "كم دام القتال في حرب السنوات السبع؟",
+      "reference": "ست سنوات",
+      "mt5": {
+        "answer": "أوروبا",
+        "faithfulness": 0.0218,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "ست سنوات",
+        "faithfulness": 0.1516,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "best_model": "qwen",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "arabic-491",
+      "language": "arabic",
+      "example_index": 491,
+      "context": "مع التواريخ التجريبية للمحكمة الجنائية الدولية في عام 2013 لكل من الرئيس كينياتا ونائب الرئيس ويليام روتو فيما يتعلق بنتائج انتخابات عام 2007، اختار الرئيس الأمريكي باراك أوباما عدم زيارة البلاد خلال منتصف 2013 رحلته الأفريقية. في وقت لاحق من الصيف، زار كينياتا الصين بدعوة من الرئيس شي جين بينغ بعد توقف في روسيا وعدم زيارة الولايات المتحدة كرئيس. في يوليو 2015 زار أوباما كينيا، كأول رئيس أمريكي يزور البلاد أثناء وجوده في منصبه.",
+      "question": "متى قام أوباما أخيراً بزيارة كينيا؟",
+      "reference": "يوليو 2015",
+      "mt5": {
+        "answer": "ويليام روتو",
+        "faithfulness": 0.0002,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "يوليو 2015",
+        "faithfulness": 0.0202,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "best_model": "qwen",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "arabic-634",
+      "language": "arabic",
+      "example_index": 634,
+      "context": "لسنوات عديدة، كان للسودان نظام إسلامي تحت قيادة حسن الترابي. اكتسبت جبهته الإسلامية الوطنية أولاً نفوذاً عندما دعا الرجل القوي الجنرال جعفر النميري أعضاء للخدمة في حكومته في عام 1979. بنى ترابي قاعدة اقتصادية قوية بأموالٍ من أنظمة مصرفية إسلامية أجنبية، خاصة تلك المرتبطة بالسعودية العربية. كما قام بتجنيد وبناء كادر من الموالين المُؤَثِّرِين من خلال تعيين الطلاب المتعاطفين في الجامعة والأكاديمية العسكرية بينما كان وزيراً للتعليم.",
+      "question": "كيف بنى ترابي قاعدة اقتصادية قوية؟",
+      "reference": "بأموالٍ من أنظمة مصرفية إسلامية أجنبية",
+      "mt5": {
+        "answer": "أصولٍ من أنظمة مصرفية إسلامية أجنبية",
+        "faithfulness": 0.981,
+        "exact_match": 0.0,
+        "f1": 0.8333
+      },
+      "qwen": {
+        "answer": "بأموالٍ من أنظمة مصرفية إسلامية أجنبية",
+        "faithfulness": 0.1733,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "best_model": "mt5",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "arabic-631",
+      "language": "arabic",
+      "example_index": 631,
+      "context": "لسنوات عديدة، كان للسودان نظام إسلامي تحت قيادة حسن الترابي. اكتسبت جبهته الإسلامية الوطنية أولاً نفوذاً عندما دعا الرجل القوي الجنرال جعفر النميري أعضاء للخدمة في حكومته في عام 1979. بنى ترابي قاعدة اقتصادية قوية بأموالٍ من أنظمة مصرفية إسلامية أجنبية، خاصة تلك المرتبطة بالسعودية العربية. كما قام بتجنيد وبناء كادر من الموالين المُؤَثِّرِين من خلال تعيين الطلاب المتعاطفين في الجامعة والأكاديمية العسكرية بينما كان وزيراً للتعليم.",
+      "question": "ما نوع النظام الذي حكم السودان لسنوات عديدة؟",
+      "reference": "إسلامي",
+      "mt5": {
+        "answer": "سنة لسنوات عديدة",
+        "faithfulness": 0.0095,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "إسلامي",
+        "faithfulness": 0.002,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "best_model": "mt5",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "arabic-632",
+      "language": "arabic",
+      "example_index": 632,
+      "context": "لسنوات عديدة، كان للسودان نظام إسلامي تحت قيادة حسن الترابي. اكتسبت جبهته الإسلامية الوطنية أولاً نفوذاً عندما دعا الرجل القوي الجنرال جعفر النميري أعضاء للخدمة في حكومته في عام 1979. بنى ترابي قاعدة اقتصادية قوية بأموالٍ من أنظمة مصرفية إسلامية أجنبية، خاصة تلك المرتبطة بالسعودية العربية. كما قام بتجنيد وبناء كادر من الموالين المُؤَثِّرِين من خلال تعيين الطلاب المتعاطفين في الجامعة والأكاديمية العسكرية بينما كان وزيراً للتعليم.",
+      "question": "من كان قائد النظام الإسلامي في السودان؟",
+      "reference": "حسن الترابي",
+      "mt5": {
+        "answer": "لسنوات عديدة",
+        "faithfulness": 0.0006,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "حسن الترابي",
+        "faithfulness": 0.0339,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "best_model": "qwen",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "arabic-483",
+      "language": "arabic",
+      "example_index": 483,
+      "context": "في 28 فبراير 2008، وقّع كيباكي وأودينغا اتفاقاً لتشكيل حكومة ائتلافية يصبح فيه أودينغا ثاني رئيس وزراء في كينيا. بموجب الاتفاق، سيعين الرئيس وزراء في كل من حزب الوحدة الوطنية  والمنتدى الديمقراطي المتحد اعتماداً على قوة كل حزب في البرلمان. نص الاتفاق على أن يشمل مجلس الوزراء نائب الرئيس ونائبين لرئيس الوزراء. بعد المناقشات، أقره البرلمان، وسيحتفظ الائتلاف حتى نهاية البرلمان الحالي أو إذا انسحب أحد الطرفين من الصفقة قبل ذلك الحين.",
+      "question": "متى قام كيباكي وأودينغا بتوقيع اتفاق حول تشكيل الحكومة؟",
+      "reference": "28 فبراير 2008",
+      "mt5": {
+        "answer": "أمتي",
+        "faithfulness": 0.0053,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "28 فبراير 2008",
+        "faithfulness": 0.0031,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "best_model": "mt5",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "arabic-486",
+      "language": "arabic",
+      "example_index": 486,
+      "context": "في 28 فبراير 2008، وقّع كيباكي وأودينغا اتفاقاً لتشكيل حكومة ائتلافية يصبح فيه أودينغا ثاني رئيس وزراء في كينيا. بموجب الاتفاق، سيعين الرئيس وزراء في كل من حزب الوحدة الوطنية  والمنتدى الديمقراطي المتحد اعتماداً على قوة كل حزب في البرلمان. نص الاتفاق على أن يشمل مجلس الوزراء نائب الرئيس ونائبين لرئيس الوزراء. بعد المناقشات، أقره البرلمان، وسيحتفظ الائتلاف حتى نهاية البرلمان الحالي أو إذا انسحب أحد الطرفين من الصفقة قبل ذلك الحين.",
+      "question": "كيف تم تحديد عدد الذين سيتم تعيينهم من كل معسكر؟",
+      "reference": "قوة كل حزب في البرلمان",
+      "mt5": {
+        "answer": "حزب الوحدة الوطنية والمنتدى الديمقراطي المتحد",
+        "faithfulness": 0.0006,
+        "exact_match": 0.0,
+        "f1": 0.1818
+      },
+      "qwen": {
+        "answer": "قوة كل حزب في البرلمان",
+        "faithfulness": 0.0046,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "best_model": "qwen",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "arabic-325",
+      "language": "arabic",
+      "example_index": 325,
+      "context": "إن بعض أقدم المدارس في جنوب إفريقيا هي مدارس كنسية خاصة أنشأها المبشرون في أوائل القرن التاسع عشر. ومنذ ذلك الحين، بدأ القطاع الخاص بالنمو. بعد إلغاء نظام الفصل العنصري، تغيرت القوانين التي تحكم التعليم الخاص في جنوب إفريقيا بشكل كبير. يعترف قانون المدارس في جنوب أفريقيا لعام 1996 بفئتين من المدارس هما: \"الحكومية\" (التي تديرها الدولة) و \"المستقلة\" (والتي تشمل المدارس الخاصة التقليدية والمدارس التي تخضع للقطاع الخاص [التوضيح مطلوب].)",
+      "question": "في أي عام تم إقرار قانون مدارس جنوب إفريقيا؟",
+      "reference": "1996",
+      "mt5": {
+        "answer": "جنوب إفريقيا",
+        "faithfulness": 0.0016,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "1996",
+        "faithfulness": 0.0358,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "best_model": "qwen",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "arabic-569",
+      "language": "arabic",
+      "example_index": 569,
+      "context": "بين بينجن  وبون، يتدفق الراين الأوسط عبر مضيق رهين، وهو تكوين تم إنشاؤه بواسطة التعرية. عادل معدل التعرية الارتفاع في المنطقة، بحيث بقي النهر عند مستواه الأصلي بينما ارتفعت الأراضي المحيطة. المضيق عميق للغاية ويمتد على طول النهر المعروف بالعديد من القلاع وكرومات العنب. إنه أحد مواقع التراث العالمي لليونسكو (2002) والمعروف باسم \"نهر الراين الرومانسي\" ، مع أكثر من 40 قلعة وحصن من العصور الوسطى والعديد من القرى الريفية الطريفة والجميلة.",
+      "question": "كيف تم تشكيل مضيق الراين؟",
+      "reference": "التعرية",
+      "mt5": {
+        "answer": "شهين",
+        "faithfulness": 0.0009,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "التعرية",
+        "faithfulness": 0.0006,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "best_model": "mt5",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "arabic-572",
+      "language": "arabic",
+      "example_index": 572,
+      "context": "بين بينجن  وبون، يتدفق الراين الأوسط عبر مضيق رهين، وهو تكوين تم إنشاؤه بواسطة التعرية. عادل معدل التعرية الارتفاع في المنطقة، بحيث بقي النهر عند مستواه الأصلي بينما ارتفعت الأراضي المحيطة. المضيق عميق للغاية ويمتد على طول النهر المعروف بالعديد من القلاع وكرومات العنب. إنه أحد مواقع التراث العالمي لليونسكو (2002) والمعروف باسم \"نهر الراين الرومانسي\" ، مع أكثر من 40 قلعة وحصن من العصور الوسطى والعديد من القرى الريفية الطريفة والجميلة.",
+      "question": "أين يتدفق نهر الراين الأوسط بين بنجن وبون؟",
+      "reference": "مضيق رهين",
+      "mt5": {
+        "answer": "عبر طول النهر المعروف بالعديد من القلاع وكرومات العنب",
+        "faithfulness": 0.9785,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "مضيق رهين",
+        "faithfulness": 0.0004,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "best_model": "mt5",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "arabic-571",
+      "language": "arabic",
+      "example_index": 571,
+      "context": "بين بينجن  وبون، يتدفق الراين الأوسط عبر مضيق رهين، وهو تكوين تم إنشاؤه بواسطة التعرية. عادل معدل التعرية الارتفاع في المنطقة، بحيث بقي النهر عند مستواه الأصلي بينما ارتفعت الأراضي المحيطة. المضيق عميق للغاية ويمتد على طول النهر المعروف بالعديد من القلاع وكرومات العنب. إنه أحد مواقع التراث العالمي لليونسكو (2002) والمعروف باسم \"نهر الراين الرومانسي\" ، مع أكثر من 40 قلعة وحصن من العصور الوسطى والعديد من القرى الريفية الطريفة والجميلة.",
+      "question": "ما يتدفق بين بنجن وبون؟",
+      "reference": "الراين الأوسط",
+      "mt5": {
+        "answer": "عبر مضيق رهين",
+        "faithfulness": 0.0006,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "الراين الأوسط",
+        "faithfulness": 0.0005,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "best_model": "mt5",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "arabic-567",
+      "language": "arabic",
+      "example_index": 567,
+      "context": "بين بينجن  وبون، يتدفق الراين الأوسط عبر مضيق رهين، وهو تكوين تم إنشاؤه بواسطة التعرية. عادل معدل التعرية الارتفاع في المنطقة، بحيث بقي النهر عند مستواه الأصلي بينما ارتفعت الأراضي المحيطة. المضيق عميق للغاية ويمتد على طول النهر المعروف بالعديد من القلاع وكرومات العنب. إنه أحد مواقع التراث العالمي لليونسكو (2002) والمعروف باسم \"نهر الراين الرومانسي\" ، مع أكثر من 40 قلعة وحصن من العصور الوسطى والعديد من القرى الريفية الطريفة والجميلة.",
+      "question": "ما يتدفق بين بونجن وبون؟",
+      "reference": "الراين الأوسط",
+      "mt5": {
+        "answer": "40",
+        "faithfulness": 0.0007,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "الراين الأوسط",
+        "faithfulness": 0.0005,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "best_model": "mt5",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "arabic-348",
+      "language": "arabic",
+      "example_index": 348,
+      "context": "وصفت مؤسسة كارنيجي قبول الطلاب الجامعيين في جامعة هارفارد على أنه \"أكثر انتقائية وأقل قبولًا\". قبلت كلية هارفارد 5% من المتقدمين للعام الدراسي 2019، وهو رقم قياسي منخفض وثاني أدنى معدل قبول بين جميع الجامعات الوطنية. أنهت كلية هارفارد برنامج القبول المبكر في عام 2007 لأنه كان يعتقد أنه يضر بالمتقدمين من الأقليات ذوي الدخل المنخفض والممثلين تمثيلا ناقصا عند التقدم إلى جامعات انتقائية، ولكن بالنسبة للعام الدراسي 2016 أعيد تقديم برنامج التقديم المبكر.",
+      "question": "ما هو معدل قبول المتقدمين للعام الدراسي 2019؟",
+      "reference": "5%",
+      "mt5": {
+        "answer": "شهق",
+        "faithfulness": 0.0005,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "5%",
+        "faithfulness": 0.0007,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "best_model": "qwen",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "arabic-349",
+      "language": "arabic",
+      "example_index": 349,
+      "context": "وصفت مؤسسة كارنيجي قبول الطلاب الجامعيين في جامعة هارفارد على أنه \"أكثر انتقائية وأقل قبولًا\". قبلت كلية هارفارد 5% من المتقدمين للعام الدراسي 2019، وهو رقم قياسي منخفض وثاني أدنى معدل قبول بين جميع الجامعات الوطنية. أنهت كلية هارفارد برنامج القبول المبكر في عام 2007 لأنه كان يعتقد أنه يضر بالمتقدمين من الأقليات ذوي الدخل المنخفض والممثلين تمثيلا ناقصا عند التقدم إلى جامعات انتقائية، ولكن بالنسبة للعام الدراسي 2016 أعيد تقديم برنامج التقديم المبكر.",
+      "question": "في أي عام أنهت جامعة هارفارد برنامج القبول المبكر؟",
+      "reference": "2007",
+      "mt5": {
+        "answer": "5%",
+        "faithfulness": 0.0007,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "2007",
+        "faithfulness": 0.0004,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "best_model": "mt5",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
       "id": "arabic-110",
       "language": "arabic",
       "example_index": 110,
-      "curation_tag": "tie_correct",
       "context": "غالباً ما يُرى جيمس هوتون كأول عالم جيولوجي حديث. قدّم في عام 1785 أطروحةً بعنوان نظرية الأرض إلى الجمعية الملكية في إدنبرة. شرح في أطروحته نظريته بأن الأرض لا بد من أن تكون أقدم بكثير مما كان يُفترض سابقاً لإتاحة الوقت الكافي لتآكل الجبال ولتكوِّن الرواسب صخوراً جديدة في قاع المحيط والتي ترتفع بدورها لتصبح أرضاً يابسة. نشر هوتون نسخةً مكونة من مجلدين من أفكاره في 1795 (مجلد 1، مجلد 2).",
       "question": "في أي عام نشر جيمس هوتون نسخة مكونة من مجلدين لنظرياته؟",
       "reference": "1795",
@@ -184,7 +678,6 @@
       "id": "arabic-685",
       "language": "arabic",
       "example_index": 685,
-      "curation_tag": "tie_correct",
       "context": "في أوروبا، لا يُطلق عادةً اسم منفصل على مسرح أمريكا الشمالية لحرب السنوات السبع. يعرف الصراع الدولي برمته بحرب السنوات السبع. فتشير \"السنوات السبع\" إلى الأحداث في أوروبا، من الإعلان الرسمي للحرب في 1756 إلى توقيع معاهدة السلام في 1763. وهذه التواريخ لا تتوافق مع القتال على الأراضي شمال الأمريكية، حيث اختتم القتال بين القوتين الاستعماريتين بشكل كبير في ست سنوات، من معركة جومونفيل غلين في 1754 إلى الاستيلاء على مونتريال في 1760.",
       "question": "متى تم الاستيلاء على مونتريال؟",
       "reference": "1760",
@@ -212,24 +705,113 @@
       }
     },
     {
-      "id": "arabic-479",
+      "id": "arabic-162",
       "language": "arabic",
-      "example_index": 479,
-      "curation_tag": "tie_wrong",
-      "context": "تحتل كينيا مرتبة منخفضة في مؤشر مدركات الفساد في منظمة الشفافية الدولية، وهو مقياس يحاول قياس مدى انتشار الفساد في القطاع العام في بلدان مختلفة. في عام 2012، وضعت الأمة 139 من أصل 176 دولة في مؤشر مؤشر مدركات الفساد، برصيد 27/100. ومع ذلك، هناك العديد من التطورات المهمة إلى حد ما فيما يتعلق بكبح الفساد من الحكومة الكينية، على سبيل المثال، إنشاء لجنة جديدة ومستقلة للأخلاقيات ومكافحة الفساد.",
-      "question": "أين موقع كينيا على مقياس مؤشر مدركات الفساد؟",
-      "reference": "منخفضة",
+      "example_index": 162,
+      "context": "في عام 2000 أطلقت شبكة أيه بي سي حملة ترويجية على شبكة الإنترنت تتمحور حول شعارها الدائري الذي يُطلق عليه أيضًا \"النقطة، حيث حثت شخصية الكتب المصورة ليتل دوت الزوار على \"تنزيل النقطة\" أي برنامج من شأنه أن يجعل شعار أيه بي سي يطير عبر الشاشة ويستقر في الركن الأيمن السفلي. استأجرت الشبكة مجموعة ترويكا للتصميم لتصميم وإنتاج هويتها للفترة 2001–2002، والتي واصلت استخدام اللونين الأسود والأصفر في الشعار وعرضت نقاطاً وخطوطاً في مختلف العروض الترويجية والعلامات التمييزية.",
+      "question": "في عام 2000 بدأت شبكة أيه بي سي حملةً على الإنترنت تتمحور حول ماذا؟",
+      "reference": "شعارها الدائري",
       "mt5": {
-        "answer": "أكني وزير الشفافية الدولية",
-        "faithfulness": 0.0006,
-        "exact_match": 0.0,
-        "f1": 0.0
+        "answer": "شعارها الدائري",
+        "faithfulness": 0.0362,
+        "exact_match": 1.0,
+        "f1": 1.0
       },
       "qwen": {
-        "answer": "منظمة الشفافية الدولية",
-        "faithfulness": 0.0006,
-        "exact_match": 0.0,
-        "f1": 0.0
+        "answer": "شعارها الدائري",
+        "faithfulness": 0.0377,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "best_model": "qwen",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "arabic-464",
+      "language": "arabic",
+      "example_index": 464,
+      "context": "حكم الإمبراطور جيجين خان، نجل أيورباروادا وخَلَفُه، لمدة عامين فقط، من 1321 إلى 1323. واصل سياسات والده لإصلاح الحكومة على أساس المبادئ الكونفوشيوسية، بمساعدة مستشاره الكبير المُعَيَّن حديثاً باجيو. خلال فترة حكمه، دا يوان تونغ زهي (الصينية: å¤§å… €é € šåˆ¶، \" المؤسسات الشاملة ليوان العظيم\") ،مجموعة ضخمة من رموز وأنظمة أسرة يوان بدأت من قِبَل والده، تم إصدارها رسميا. اغتيل جيجين في انقلاب شارك فيه خمسة من الأمراء من فصيل منافس، وربما نخبة من السهوب عارضت الإصلاحات الكونفوشيوسية. وضعوا YesÃ¼n TemÃ¼r (أو تايدنجدي) على العرش، و، بعد محاولة فاشلة لتهدئة الأمراء، فقد استسلم أيضاً لقتله.",
+      "question": "كم عدد الأمراء المنافسين الذين شاركوا في اغتيال جيجين؟",
+      "reference": "خمسة",
+      "mt5": {
+        "answer": "خمسة",
+        "faithfulness": 0.0156,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "qwen": {
+        "answer": "خمسة",
+        "faithfulness": 0.0154,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "best_model": "mt5",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "arabic-100",
+      "language": "arabic",
+      "example_index": 100,
+      "context": "يحلل علماء طبقات الأرض في المختبر عينات من المقاطع الطبقية التي يمكن الحصول عليها من الميدان كتلك الموجودة في القضبان المركزية لآلات الحفر. كما يقوم علماء طبقات الأرض بتحليل البيانات من عمليات المسح الجيوفيزيائية التي تبين مواقع الوحدات الطبقية في باطن الأرض. يمكن الجمع بين البيانات الجيوفيزيائية و سجلات الآبار لتحقيق رؤية أفضل للطبقة السفلية، وغالبًا ما يستخدم علماء الطبقات برامج الحاسوب لإجراء ذلك في ثلاثة أبعاد. يمكن للعلماء بعد ذلك استخدام هذه البيانات لإعادة تكوين العمليات القديمة التي تحدث على سطح الأرض وتفسير البيئات الماضية وتحديد مواقع المياه والفحم و استخراج الهيدروكربون.",
+      "question": "ما الذي يمكن جمعه مع البيانات الجيوفيزيائية لتحقيق رؤية أفضل للطبقات السفلية؟",
+      "reference": "سجلات الآبار",
+      "mt5": {
+        "answer": "سجلات الآبار",
+        "faithfulness": 0.0004,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "qwen": {
+        "answer": "سجلات الآبار",
+        "faithfulness": 0.0003,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "best_model": "mt5",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "arabic-586",
+      "language": "arabic",
+      "example_index": 586,
+      "context": "كما بدأت شمال غرب أوروبا ببطء في الاحترار من 22،000 سنة مضت  فصاعداً، بدأ ما تحت التربة المتجمد والأنهار الجليدية الممتدة في جبال الألب بالذوبان وأغطية ثلوج فصل الشتاء الذائبة في الربيع. تم توجيه الكثير من مياه التصريف إلى الراين وامتداده في اتجاه المصب. الاحترار السريع والتغيرات في الغطاء النباتي، للغابة المفتوحة، بدأ حوالي 13000 BP. بحلول 9000 BP ،كانت أوروبا عبارة عن غابات بالكامل. مع تقلص الغطاء الجليدي على مستوى العالم  ارتفعت مستويات مياه المحيطات وغمرت القناة الإنجليزية والبحر الشمالي. غمرت المياه الذائبة، بالإضافة إلى المحيط وما تحت الأرض، السواحل السابقة لأوروبا عبر الحدود.",
+      "question": "متى بدأ الاحترار السريع وساعد بالغطاء النباتي؟",
+      "reference": "13000 BP",
+      "mt5": {
+        "answer": "13000 BP",
+        "faithfulness": 0.0009,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "qwen": {
+        "answer": "13000 BP",
+        "faithfulness": 0.0009,
+        "exact_match": 1.0,
+        "f1": 1.0
       },
       "best_model": "tie",
       "source": {
@@ -246,7 +828,6 @@
       "id": "arabic-111",
       "language": "arabic",
       "example_index": 111,
-      "curation_tag": "tie_wrong",
       "context": "غالباً ما يُرى جيمس هوتون كأول عالم جيولوجي حديث. قدّم في عام 1785 أطروحةً بعنوان نظرية الأرض إلى الجمعية الملكية في إدنبرة. شرح في أطروحته نظريته بأن الأرض لا بد من أن تكون أقدم بكثير مما كان يُفترض سابقاً لإتاحة الوقت الكافي لتآكل الجبال ولتكوِّن الرواسب صخوراً جديدة في قاع المحيط والتي ترتفع بدورها لتصبح أرضاً يابسة. نشر هوتون نسخةً مكونة من مجلدين من أفكاره في 1795 (مجلد 1، مجلد 2).",
       "question": "ما هي الفكرة الرئيسية لأطروحة جيمس هوتون؟",
       "reference": "لا بد من أن تكون أقدم بكثير مما كان يُفترض سابقاً",
@@ -274,57 +855,25 @@
       }
     },
     {
-      "id": "arabic-716",
+      "id": "arabic-479",
       "language": "arabic",
-      "example_index": 716,
-      "curation_tag": "mt5_faith",
-      "context": "حيث هي منطقة المقطع العرضي ذات الصلة للحجم الذي من أجله يتم حساب موتر الإجهاد. وتتضمن هذه الشكلية شروط الضغط المرتبطة بالقوى التي تعمل بشكل طبيعي في منطقة المقطع العرضي (أقطار المصفوفة الخاصة بالموتر) وكذلك مصطلحات المرتبطة بالقوى التي تعمل بالتوازي مع منطقة المقطع العرضي (العناصر الخارج-قطرية). ويفسر موتر الإجهاد القوى التي تسبب كل الشدود (التشوهات) بما في ذلك أيضاً الإجهادات التوترية والضغطات.:133â€“134:38-1â€“38-11",
-      "question": "ما الذي يسبب الإجهاد في البنيات؟",
-      "reference": "موتر الإجهاد",
+      "example_index": 479,
+      "context": "تحتل كينيا مرتبة منخفضة في مؤشر مدركات الفساد في منظمة الشفافية الدولية، وهو مقياس يحاول قياس مدى انتشار الفساد في القطاع العام في بلدان مختلفة. في عام 2012، وضعت الأمة 139 من أصل 176 دولة في مؤشر مؤشر مدركات الفساد، برصيد 27/100. ومع ذلك، هناك العديد من التطورات المهمة إلى حد ما فيما يتعلق بكبح الفساد من الحكومة الكينية، على سبيل المثال، إنشاء لجنة جديدة ومستقلة للأخلاقيات ومكافحة الفساد.",
+      "question": "أين موقع كينيا على مقياس مؤشر مدركات الفساد؟",
+      "reference": "منخفضة",
       "mt5": {
-        "answer": "منطقة المقطع العرضي ذات الصلة للحجمالذي يربط طبيعي",
-        "faithfulness": 0.9971,
+        "answer": "أكني وزير الشفافية الدولية",
+        "faithfulness": 0.0006,
         "exact_match": 0.0,
         "f1": 0.0
       },
       "qwen": {
-        "answer": "الشدود",
-        "faithfulness": 0.0173,
+        "answer": "منظمة الشفافية الدولية",
+        "faithfulness": 0.0006,
         "exact_match": 0.0,
         "f1": 0.0
       },
-      "best_model": "mt5",
-      "source": {
-        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
-        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
-        "mt5_config": "B_ce_lora",
-        "mt5_lora_variant": "qlora",
-        "qwen_config": "C_composite_lora",
-        "qwen_lora_variant": "qlora",
-        "seed": 42
-      }
-    },
-    {
-      "id": "arabic-717",
-      "language": "arabic",
-      "example_index": 717,
-      "curation_tag": "mt5_faith",
-      "context": "حيث هي منطقة المقطع العرضي ذات الصلة للحجم الذي من أجله يتم حساب موتر الإجهاد. وتتضمن هذه الشكلية شروط الضغط المرتبطة بالقوى التي تعمل بشكل طبيعي في منطقة المقطع العرضي (أقطار المصفوفة الخاصة بالموتر) وكذلك مصطلحات المرتبطة بالقوى التي تعمل بالتوازي مع منطقة المقطع العرضي (العناصر الخارج-قطرية). ويفسر موتر الإجهاد القوى التي تسبب كل الشدود (التشوهات) بما في ذلك أيضاً الإجهادات التوترية والضغطات.:133â€“134:38-1â€“38-11",
-      "question": "ما الذي يتم استخدامه لحساب مساحة المقطع العرضي في حجم جسم ما؟",
-      "reference": "شروط الضغط",
-      "mt5": {
-        "answer": "منطقة المقطع العرضي",
-        "faithfulness": 0.6021,
-        "exact_match": 0.0,
-        "f1": 0.0
-      },
-      "qwen": {
-        "answer": "موتر الإجهاد",
-        "faithfulness": 0.3008,
-        "exact_match": 0.0,
-        "f1": 0.0
-      },
-      "best_model": "mt5",
+      "best_model": "tie",
       "source": {
         "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
         "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
@@ -339,7 +888,6 @@
       "id": "arabic-480",
       "language": "arabic",
       "example_index": 480,
-      "curation_tag": "fill",
       "context": "تحتل كينيا مرتبة منخفضة في مؤشر مدركات الفساد في منظمة الشفافية الدولية، وهو مقياس يحاول قياس مدى انتشار الفساد في القطاع العام في بلدان مختلفة. في عام 2012، وضعت الأمة 139 من أصل 176 دولة في مؤشر مؤشر مدركات الفساد، برصيد 27/100. ومع ذلك، هناك العديد من التطورات المهمة إلى حد ما فيما يتعلق بكبح الفساد من الحكومة الكينية، على سبيل المثال، إنشاء لجنة جديدة ومستقلة للأخلاقيات ومكافحة الفساد.",
       "question": "ماذا قياس مؤشر مدركات الفساد؟",
       "reference": "الفساد في القطاع العام",
@@ -370,7 +918,6 @@
       "id": "arabic-481",
       "language": "arabic",
       "example_index": 481,
-      "curation_tag": "fill",
       "context": "تحتل كينيا مرتبة منخفضة في مؤشر مدركات الفساد في منظمة الشفافية الدولية، وهو مقياس يحاول قياس مدى انتشار الفساد في القطاع العام في بلدان مختلفة. في عام 2012، وضعت الأمة 139 من أصل 176 دولة في مؤشر مؤشر مدركات الفساد، برصيد 27/100. ومع ذلك، هناك العديد من التطورات المهمة إلى حد ما فيما يتعلق بكبح الفساد من الحكومة الكينية، على سبيل المثال، إنشاء لجنة جديدة ومستقلة للأخلاقيات ومكافحة الفساد.",
       "question": "أين تقع كينيا على المقياس في عام 2012؟",
       "reference": "139",
@@ -398,24 +945,143 @@
       }
     },
     {
-      "id": "arabic-108",
+      "id": "arabic-296",
       "language": "arabic",
-      "example_index": 108,
-      "curation_tag": "qwen_wins_em",
-      "context": "غالباً ما يُرى جيمس هوتون كأول عالم جيولوجي حديث. قدّم في عام 1785 أطروحةً بعنوان نظرية الأرض إلى الجمعية الملكية في إدنبرة. شرح في أطروحته نظريته بأن الأرض لا بد من أن تكون أقدم بكثير مما كان يُفترض سابقاً لإتاحة الوقت الكافي لتآكل الجبال ولتكوِّن الرواسب صخوراً جديدة في قاع المحيط والتي ترتفع بدورها لتصبح أرضاً يابسة. نشر هوتون نسخةً مكونة من مجلدين من أفكاره في 1795 (مجلد 1، مجلد 2).",
-      "question": "من الذي يعتبر أول عالم جيولوجي حديث؟",
-      "reference": "جيمس هوتون",
+      "example_index": 296,
+      "context": "البناء هو عملية بناء المباني أو البنى التحتية. يختلف البناء عن التصنيع في أن التصنيع يشتمل عادةً على الإنتاج الضخم للعناصر المتشابهة دون وجود مشتر معين، في حين أن البناء يتم عادةً في الموقع لصالح عميل معروف. يشكل البناء كصناعة ما نسبته من ستة إلى تسعة في المئة من الناتج المحلي الإجمالي للبلدان المتقدمة. يبدأ البناء بالتخطيط [بحاجة لمصدر]، ثم التصميم، ثم التمويل ويستمر حتى يتم بناء المشروع ويصبح جاهزًا للاستخدام.",
+      "question": "‏ما هي النسبة المئوية التي يشكلها البناء من إجمالي الناتج المحلي؟",
+      "reference": "من ستة إلى تسعة في المئة",
       "mt5": {
-        "answer": "1795",
-        "faithfulness": 0.003,
+        "answer": "إجمالي",
+        "faithfulness": 0.0006,
         "exact_match": 0.0,
         "f1": 0.0
       },
       "qwen": {
-        "answer": "جيمس هوتون",
-        "faithfulness": 0.0025,
-        "exact_match": 1.0,
-        "f1": 1.0
+        "answer": "ستة إلى تسعة في المئة",
+        "faithfulness": 0.4319,
+        "exact_match": 0.0,
+        "f1": 0.9091
+      },
+      "best_model": "qwen",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "arabic-295",
+      "language": "arabic",
+      "example_index": 295,
+      "context": "البناء هو عملية بناء المباني أو البنى التحتية. يختلف البناء عن التصنيع في أن التصنيع يشتمل عادةً على الإنتاج الضخم للعناصر المتشابهة دون وجود مشتر معين، في حين أن البناء يتم عادةً في الموقع لصالح عميل معروف. يشكل البناء كصناعة ما نسبته من ستة إلى تسعة في المئة من الناتج المحلي الإجمالي للبلدان المتقدمة. يبدأ البناء بالتخطيط [بحاجة لمصدر]، ثم التصميم، ثم التمويل ويستمر حتى يتم بناء المشروع ويصبح جاهزًا للاستخدام.",
+      "question": "‏ما هي العملية التي تشمل عادة على الإنتاج الضخم للسلع المتماثلة دون وجود مشتر معين؟",
+      "reference": "التصنيع",
+      "mt5": {
+        "answer": "البناء",
+        "faithfulness": 0.0006,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "الإنتاج الضخم للعناصر المتشابهة دون وجود مشتر معين",
+        "faithfulness": 0.9175,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "best_model": "qwen",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "arabic-297",
+      "language": "arabic",
+      "example_index": 297,
+      "context": "البناء هو عملية بناء المباني أو البنى التحتية. يختلف البناء عن التصنيع في أن التصنيع يشتمل عادةً على الإنتاج الضخم للعناصر المتشابهة دون وجود مشتر معين، في حين أن البناء يتم عادةً في الموقع لصالح عميل معروف. يشكل البناء كصناعة ما نسبته من ستة إلى تسعة في المئة من الناتج المحلي الإجمالي للبلدان المتقدمة. يبدأ البناء بالتخطيط [بحاجة لمصدر]، ثم التصميم، ثم التمويل ويستمر حتى يتم بناء المشروع ويصبح جاهزًا للاستخدام.",
+      "question": "‏ما هي العناصر الثلاثة اللازمة لعملية البناء؟",
+      "reference": "بالتخطيط [بحاجة لمصدر]، ثم التصميم، ثم التمويل",
+      "mt5": {
+        "answer": "ثلاثة إل",
+        "faithfulness": 0.0067,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "الإنتاج الضخم، المشتر معين، التصميم",
+        "faithfulness": 0.9194,
+        "exact_match": 0.0,
+        "f1": 0.1667
+      },
+      "best_model": "qwen",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "arabic-719",
+      "language": "arabic",
+      "example_index": 719,
+      "context": "حيث هي منطقة المقطع العرضي ذات الصلة للحجم الذي من أجله يتم حساب موتر الإجهاد. وتتضمن هذه الشكلية شروط الضغط المرتبطة بالقوى التي تعمل بشكل طبيعي في منطقة المقطع العرضي (أقطار المصفوفة الخاصة بالموتر) وكذلك مصطلحات المرتبطة بالقوى التي تعمل بالتوازي مع منطقة المقطع العرضي (العناصر الخارج-قطرية). ويفسر موتر الإجهاد القوى التي تسبب كل الشدود (التشوهات) بما في ذلك أيضاً الإجهادات التوترية والضغطات.:133â€“134:38-1â€“38-11",
+      "question": "ما الذي يتضمن شروط الضغط عند حساب المساحة في الحجم؟",
+      "reference": "الشكلية",
+      "mt5": {
+        "answer": "الكود",
+        "faithfulness": 0.0263,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "شروط الضغط المرتبطة بالقوى التي تعمل بشكل طبيعي في منطقة المقطع العرضي",
+        "faithfulness": 0.9858,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "best_model": "qwen",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "arabic-716",
+      "language": "arabic",
+      "example_index": 716,
+      "context": "حيث هي منطقة المقطع العرضي ذات الصلة للحجم الذي من أجله يتم حساب موتر الإجهاد. وتتضمن هذه الشكلية شروط الضغط المرتبطة بالقوى التي تعمل بشكل طبيعي في منطقة المقطع العرضي (أقطار المصفوفة الخاصة بالموتر) وكذلك مصطلحات المرتبطة بالقوى التي تعمل بالتوازي مع منطقة المقطع العرضي (العناصر الخارج-قطرية). ويفسر موتر الإجهاد القوى التي تسبب كل الشدود (التشوهات) بما في ذلك أيضاً الإجهادات التوترية والضغطات.:133â€“134:38-1â€“38-11",
+      "question": "ما الذي يسبب الإجهاد في البنيات؟",
+      "reference": "موتر الإجهاد",
+      "mt5": {
+        "answer": "منطقة المقطع العرضي ذات الصلة للحجمالذي يربط طبيعي",
+        "faithfulness": 0.9971,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "الشدود",
+        "faithfulness": 0.0173,
+        "exact_match": 0.0,
+        "f1": 0.0
       },
       "best_model": "mt5",
       "source": {
@@ -429,29 +1095,28 @@
       }
     },
     {
-      "id": "malay-223",
-      "language": "malay",
-      "example_index": 223,
-      "curation_tag": "qwen_wins_em",
-      "context": "Binatang moose (juga dikenali sebagai elk) sebenarnya tidak agresif, namun akan mempertahankan diri sekiranya merasakan ancaman. Apabila orang tidak menganggap moose berpotensi berbahaya, mereka mungkin menghampirinya dengan terlalu dekat dan membahayakan diri sendiri.",
-      "question": "Manakah antara berikut perkara yang orang patut elak lakukan dengan moose?",
-      "reference": "Mengurangkan tahap ancaman berpotensinya",
+      "id": "arabic-717",
+      "language": "arabic",
+      "example_index": 717,
+      "context": "حيث هي منطقة المقطع العرضي ذات الصلة للحجم الذي من أجله يتم حساب موتر الإجهاد. وتتضمن هذه الشكلية شروط الضغط المرتبطة بالقوى التي تعمل بشكل طبيعي في منطقة المقطع العرضي (أقطار المصفوفة الخاصة بالموتر) وكذلك مصطلحات المرتبطة بالقوى التي تعمل بالتوازي مع منطقة المقطع العرضي (العناصر الخارج-قطرية). ويفسر موتر الإجهاد القوى التي تسبب كل الشدود (التشوهات) بما في ذلك أيضاً الإجهادات التوترية والضغطات.:133â€“134:38-1â€“38-11",
+      "question": "ما الذي يتم استخدامه لحساب مساحة المقطع العرضي في حجم جسم ما؟",
+      "reference": "شروط الضغط",
       "mt5": {
-        "answer": "Tidak mengendahkan diri sendiri",
-        "faithfulness": 0.177,
+        "answer": "منطقة المقطع العرضي",
+        "faithfulness": 0.6021,
         "exact_match": 0.0,
         "f1": 0.0
       },
       "qwen": {
-        "answer": "Mengurangkan tahap ancaman berpotensinya",
-        "faithfulness": 0.8232,
-        "exact_match": 1.0,
-        "f1": 1.0
+        "answer": "موتر الإجهاد",
+        "faithfulness": 0.3008,
+        "exact_match": 0.0,
+        "f1": 0.0
       },
-      "best_model": "qwen",
+      "best_model": "mt5",
       "source": {
-        "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
-        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
+        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
         "mt5_config": "B_ce_lora",
         "mt5_lora_variant": "qlora",
         "qwen_config": "C_composite_lora",
@@ -460,29 +1125,718 @@
       }
     },
     {
-      "id": "malay-50",
-      "language": "malay",
-      "example_index": 50,
-      "curation_tag": "qwen_wins_em",
-      "context": "Dalam puncak Siklon Tropika Gonu, yang mendapat nama daripada sebeg daun palma dalam Bahasa Maldives, telah mencapai angin berterusan selaju 240 kilometer sejam (149 batu sejam) . Menjelang awal hari ini, angin sekitar 83 km sejam, dan dijangka terus melemah.",
-      "question": "Menurut petikan, bilakan Siklon Tropika Gonu dijangka untuk terus melemah?",
-      "reference": "Apabila kelajuan angin turun ke kira-kira 83 kilometer sejam",
+      "id": "arabic-718",
+      "language": "arabic",
+      "example_index": 718,
+      "context": "حيث هي منطقة المقطع العرضي ذات الصلة للحجم الذي من أجله يتم حساب موتر الإجهاد. وتتضمن هذه الشكلية شروط الضغط المرتبطة بالقوى التي تعمل بشكل طبيعي في منطقة المقطع العرضي (أقطار المصفوفة الخاصة بالموتر) وكذلك مصطلحات المرتبطة بالقوى التي تعمل بالتوازي مع منطقة المقطع العرضي (العناصر الخارج-قطرية). ويفسر موتر الإجهاد القوى التي تسبب كل الشدود (التشوهات) بما في ذلك أيضاً الإجهادات التوترية والضغطات.:133â€“134:38-1â€“38-11",
+      "question": "ما الذي يرتبط مع القوى الطبيعية؟",
+      "reference": "شروط الضغط",
       "mt5": {
-        "answer": "Sebelum mencapai puncak",
-        "faithfulness": 0.1204,
+        "answer": "الصعوبات",
+        "faithfulness": 0.013,
         "exact_match": 0.0,
         "f1": 0.0
       },
       "qwen": {
-        "answer": "Apabila kelajuan angin turun ke kira-kira 83 kilometer sejam",
-        "faithfulness": 0.7529,
-        "exact_match": 1.0,
-        "f1": 1.0
+        "answer": "الصلة للحجم الذي من أجله",
+        "faithfulness": 0.9741,
+        "exact_match": 0.0,
+        "f1": 0.0
       },
       "best_model": "qwen",
       "source": {
-        "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
-        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
+        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "arabic-713",
+      "language": "arabic",
+      "example_index": 713,
+      "context": "من خلال الجمع بين تعريف التيار الكهربائي كمعدل زمني لتغير الشحنة الكهربائية، تصف قاعدة جداء الأشعة المسماة قانون لورنتز القوة المحمولة على شحنة تتحرك في مجال مغناطيسي. ويسمح الاتصال بين الكهرباء والمغناطيسية بوصف قوة كهرومغناطيسية موحدة تؤثر على الشحنة. ويمكن كتابة هذه القوة كمجموع للقوة الكهروستاتيكية القوة الكهروستاتيكية (بسبب الحقل الكهربائي) والقوة المغناطيسية (بسبب المجال المغناطيسي). هذا هو القانون مذكوراً بالكامل:",
+      "question": "ما هي القوة المغناطيسية والكهربائية التي تؤثر على الشحنة؟",
+      "reference": "قوة كهرومغناطيسية موحدة",
+      "mt5": {
+        "answer": "تصف القوة كهسورانغيسية",
+        "faithfulness": 0.125,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "القوة الكهروستاتيكية",
+        "faithfulness": 0.0493,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "best_model": "mt5",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "arabic-712",
+      "language": "arabic",
+      "example_index": 712,
+      "context": "من خلال الجمع بين تعريف التيار الكهربائي كمعدل زمني لتغير الشحنة الكهربائية، تصف قاعدة جداء الأشعة المسماة قانون لورنتز القوة المحمولة على شحنة تتحرك في مجال مغناطيسي. ويسمح الاتصال بين الكهرباء والمغناطيسية بوصف قوة كهرومغناطيسية موحدة تؤثر على الشحنة. ويمكن كتابة هذه القوة كمجموع للقوة الكهروستاتيكية القوة الكهروستاتيكية (بسبب الحقل الكهربائي) والقوة المغناطيسية (بسبب المجال المغناطيسي). هذا هو القانون مذكوراً بالكامل:",
+      "question": "ما هو معدل الوقت لتغير الشحنة الكهربائية؟",
+      "reference": "التيار الكهربائي",
+      "mt5": {
+        "answer": "هذا هو القانون مذكوراق بالكامل:",
+        "faithfulness": 0.9985,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "لتغير الشحنة الكهربائية",
+        "faithfulness": 0.0375,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "best_model": "mt5",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "arabic-715",
+      "language": "arabic",
+      "example_index": 715,
+      "context": "من خلال الجمع بين تعريف التيار الكهربائي كمعدل زمني لتغير الشحنة الكهربائية، تصف قاعدة جداء الأشعة المسماة قانون لورنتز القوة المحمولة على شحنة تتحرك في مجال مغناطيسي. ويسمح الاتصال بين الكهرباء والمغناطيسية بوصف قوة كهرومغناطيسية موحدة تؤثر على الشحنة. ويمكن كتابة هذه القوة كمجموع للقوة الكهروستاتيكية القوة الكهروستاتيكية (بسبب الحقل الكهربائي) والقوة المغناطيسية (بسبب المجال المغناطيسي). هذا هو القانون مذكوراً بالكامل:",
+      "question": "القوة الكهرستاتيكية والمغناطيسية مكتوبتان كمجموع ماذا؟",
+      "reference": "القوة الكهروستاتيكية",
+      "mt5": {
+        "answer": "القانون مذكوراً بالكامل",
+        "faithfulness": 0.9976,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "للقوة الكهروستاتيكية",
+        "faithfulness": 0.0443,
+        "exact_match": 0.0,
+        "f1": 0.5
+      },
+      "best_model": "mt5",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "arabic-683",
+      "language": "arabic",
+      "example_index": 683,
+      "context": "في أوروبا، لا يُطلق عادةً اسم منفصل على مسرح أمريكا الشمالية لحرب السنوات السبع. يعرف الصراع الدولي برمته بحرب السنوات السبع. فتشير \"السنوات السبع\" إلى الأحداث في أوروبا، من الإعلان الرسمي للحرب في 1756 إلى توقيع معاهدة السلام في 1763. وهذه التواريخ لا تتوافق مع القتال على الأراضي شمال الأمريكية، حيث اختتم القتال بين القوتين الاستعماريتين بشكل كبير في ست سنوات، من معركة جومونفيل غلين في 1754 إلى الاستيلاء على مونتريال في 1760.",
+      "question": "ما الإطار الزمني الذي تغطيه حرب السنوات السبع؟",
+      "reference": "1756 إلى توقيع معاهدة السلام في 1763",
+      "mt5": {
+        "answer": "1756",
+        "faithfulness": 0.0304,
+        "exact_match": 0.0,
+        "f1": 0.25
+      },
+      "qwen": {
+        "answer": "\"السنوات السبع\"",
+        "faithfulness": 0.005,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "best_model": "mt5",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "arabic-686",
+      "language": "arabic",
+      "example_index": 686,
+      "context": "في أوروبا، لا يُطلق عادةً اسم منفصل على مسرح أمريكا الشمالية لحرب السنوات السبع. يعرف الصراع الدولي برمته بحرب السنوات السبع. فتشير \"السنوات السبع\" إلى الأحداث في أوروبا، من الإعلان الرسمي للحرب في 1756 إلى توقيع معاهدة السلام في 1763. وهذه التواريخ لا تتوافق مع القتال على الأراضي شمال الأمريكية، حيث اختتم القتال بين القوتين الاستعماريتين بشكل كبير في ست سنوات، من معركة جومونفيل غلين في 1754 إلى الاستيلاء على مونتريال في 1760.",
+      "question": "ما هي أول معركة في 1754؟",
+      "reference": "معركة جومونفيل غلين",
+      "mt5": {
+        "answer": "1756",
+        "faithfulness": 0.0304,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "جومونفيل غلين",
+        "faithfulness": 0.0411,
+        "exact_match": 0.0,
+        "f1": 0.8
+      },
+      "best_model": "qwen",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "arabic-488",
+      "language": "arabic",
+      "example_index": 488,
+      "context": "مع التواريخ التجريبية للمحكمة الجنائية الدولية في عام 2013 لكل من الرئيس كينياتا ونائب الرئيس ويليام روتو فيما يتعلق بنتائج انتخابات عام 2007، اختار الرئيس الأمريكي باراك أوباما عدم زيارة البلاد خلال منتصف 2013 رحلته الأفريقية. في وقت لاحق من الصيف، زار كينياتا الصين بدعوة من الرئيس شي جين بينغ بعد توقف في روسيا وعدم زيارة الولايات المتحدة كرئيس. في يوليو 2015 زار أوباما كينيا، كأول رئيس أمريكي يزور البلاد أثناء وجوده في منصبه.",
+      "question": "ماذا كانت نتيجة انتخابات 2007؟",
+      "reference": "للمحكمة الجنائية الدولية",
+      "mt5": {
+        "answer": "روسيا وعدم زيارة الولايات المتحدة الدولية",
+        "faithfulness": 0.0306,
+        "exact_match": 0.0,
+        "f1": 0.2222
+      },
+      "qwen": {
+        "answer": "عدم زيارة البلاد",
+        "faithfulness": 0.001,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "best_model": "mt5",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "arabic-489",
+      "language": "arabic",
+      "example_index": 489,
+      "context": "مع التواريخ التجريبية للمحكمة الجنائية الدولية في عام 2013 لكل من الرئيس كينياتا ونائب الرئيس ويليام روتو فيما يتعلق بنتائج انتخابات عام 2007، اختار الرئيس الأمريكي باراك أوباما عدم زيارة البلاد خلال منتصف 2013 رحلته الأفريقية. في وقت لاحق من الصيف، زار كينياتا الصين بدعوة من الرئيس شي جين بينغ بعد توقف في روسيا وعدم زيارة الولايات المتحدة كرئيس. في يوليو 2015 زار أوباما كينيا، كأول رئيس أمريكي يزور البلاد أثناء وجوده في منصبه.",
+      "question": "من الذي قرر عدم المجيء لزيارة البلاد في عام 2013؟",
+      "reference": "اختار الرئيس الأمريكي باراك أوباما",
+      "mt5": {
+        "answer": "الحين زار أوباما كينيا",
+        "faithfulness": 0.0034,
+        "exact_match": 0.0,
+        "f1": 0.2222
+      },
+      "qwen": {
+        "answer": "باراك أوباما",
+        "faithfulness": 0.0002,
+        "exact_match": 0.0,
+        "f1": 0.5714
+      },
+      "best_model": "mt5",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "arabic-490",
+      "language": "arabic",
+      "example_index": 490,
+      "context": "مع التواريخ التجريبية للمحكمة الجنائية الدولية في عام 2013 لكل من الرئيس كينياتا ونائب الرئيس ويليام روتو فيما يتعلق بنتائج انتخابات عام 2007، اختار الرئيس الأمريكي باراك أوباما عدم زيارة البلاد خلال منتصف 2013 رحلته الأفريقية. في وقت لاحق من الصيف، زار كينياتا الصين بدعوة من الرئيس شي جين بينغ بعد توقف في روسيا وعدم زيارة الولايات المتحدة كرئيس. في يوليو 2015 زار أوباما كينيا، كأول رئيس أمريكي يزور البلاد أثناء وجوده في منصبه.",
+      "question": "أين زار كينياتا بدعوة من الرئيس؟",
+      "reference": "الصين",
+      "mt5": {
+        "answer": "أكل انتخابات",
+        "faithfulness": 0.0004,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "شي جين بينغ",
+        "faithfulness": 0.0007,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "best_model": "qwen",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "arabic-633",
+      "language": "arabic",
+      "example_index": 633,
+      "context": "لسنوات عديدة، كان للسودان نظام إسلامي تحت قيادة حسن الترابي. اكتسبت جبهته الإسلامية الوطنية أولاً نفوذاً عندما دعا الرجل القوي الجنرال جعفر النميري أعضاء للخدمة في حكومته في عام 1979. بنى ترابي قاعدة اقتصادية قوية بأموالٍ من أنظمة مصرفية إسلامية أجنبية، خاصة تلك المرتبطة بالسعودية العربية. كما قام بتجنيد وبناء كادر من الموالين المُؤَثِّرِين من خلال تعيين الطلاب المتعاطفين في الجامعة والأكاديمية العسكرية بينما كان وزيراً للتعليم.",
+      "question": "ما هي المنظمة التي دعا منها الجنرال جعفر النميري أعضاءً للخدمة في حكومته؟",
+      "reference": "جبهته الإسلامية الوطنية",
+      "mt5": {
+        "answer": "المال والمصال",
+        "faithfulness": 0.3579,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "حكومته",
+        "faithfulness": 0.0017,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "best_model": "mt5",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "arabic-599",
+      "language": "arabic",
+      "example_index": 599,
+      "context": "تتم معظم أعمال البرلمان الاسكتلندي في لجنة. دور اللجان أقوى في البرلمان الاسكتلندي من دوره في النظم البرلمانية الأخرى، جزئياً كوسيلة لتعزيز دور أصحاب الأعمال الخلفية في تدقيقهم للحكومة وجزئياً للتعويض عن حقيقة عدم وجود لا غرفة مراجعة. الدور الرئيسي للجان في البرلمان الاسكتلندي هو الحصول على أدلة من الشهود وإجراء تحقيقات وفحص التشريعات. تعقد اجتماعات اللجنة يومي الثلاثاء والأربعاء وصباح الخميس عندما يجلس البرلمان. يمكن للجان أيضاً أن تجتمع في مواقع أخرى في جميع أنحاء اسكتلندا.",
+      "question": "ما هي اللجان في البرلمان الاسكتلندي مقارنةً بالأنظمة الأخرى؟",
+      "reference": "أقوى",
+      "mt5": {
+        "answer": "لجنة",
+        "faithfulness": 0.0002,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "لجنة",
+        "faithfulness": 0.0002,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "best_model": "tie",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "arabic-587",
+      "language": "arabic",
+      "example_index": 587,
+      "context": "كما بدأت شمال غرب أوروبا ببطء في الاحترار من 22،000 سنة مضت  فصاعداً، بدأ ما تحت التربة المتجمد والأنهار الجليدية الممتدة في جبال الألب بالذوبان وأغطية ثلوج فصل الشتاء الذائبة في الربيع. تم توجيه الكثير من مياه التصريف إلى الراين وامتداده في اتجاه المصب. الاحترار السريع والتغيرات في الغطاء النباتي، للغابة المفتوحة، بدأ حوالي 13000 BP. بحلول 9000 BP ،كانت أوروبا عبارة عن غابات بالكامل. مع تقلص الغطاء الجليدي على مستوى العالم  ارتفعت مستويات مياه المحيطات وغمرت القناة الإنجليزية والبحر الشمالي. غمرت المياه الذائبة، بالإضافة إلى المحيط وما تحت الأرض، السواحل السابقة لأوروبا عبر الحدود.",
+      "question": "متى كانت أوروبا غابات بالكامل وانتعشت من العصر الجليدي الأخير؟",
+      "reference": "9000 BP",
+      "mt5": {
+        "answer": "13000 BP",
+        "faithfulness": 0.0009,
+        "exact_match": 0.0,
+        "f1": 0.5
+      },
+      "qwen": {
+        "answer": "13000 BP",
+        "faithfulness": 0.0009,
+        "exact_match": 0.0,
+        "f1": 0.5
+      },
+      "best_model": "tie",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "arabic-453",
+      "language": "arabic",
+      "example_index": 453,
+      "context": "في الاقتصاد، الفائزون بجائزة نوبل التذكارية في العلوم الاقتصادية ميلتون فريدمان، مستشار رئيسي للرئيس الأمريكي الجمهوري رونالد ريغان ورئيسة الوزراء البريطانية المحافظة مارغريت تاتشر وجورج ستيجلر، الحائز على جائزة نوبل والمؤيد لنظرية الالتقاط التنظيمي وغاري بيكر، أحد المُساهِمِين المهمين في فرع الاقتصاد الأسري للاقتصاد وهربرت أ.سيمون، المسؤول عن التفسير الحديث لمفهوم صنع القرار التنظيمي وبول سامويلسون، أول أمريكي يفوز بجائزة نوبل التذكارية في العلوم الاقتصادية ويوجين فاما، والمعروف عن عمله في نظرية المحفظة، تسعير الأصول وسلوك سوق الأسهم، وجميعهم من الخريجين. الاقتصادي الأمريكي والنظري الاجتماعي والفيلسوف السياسي والمؤلف توماس سويل هو أيضا من الخريجين.",
+      "question": "من كان أول أمريكي يفوز بجائزة نوبل التذكارية في العلوم الاقتصادية؟",
+      "reference": "بول سامويلسون",
+      "mt5": {
+        "answer": "يوجين فاما",
+        "faithfulness": 0.0032,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "يوجين فاما",
+        "faithfulness": 0.0031,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "best_model": "mt5",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "arabic-635",
+      "language": "arabic",
+      "example_index": 635,
+      "context": "لسنوات عديدة، كان للسودان نظام إسلامي تحت قيادة حسن الترابي. اكتسبت جبهته الإسلامية الوطنية أولاً نفوذاً عندما دعا الرجل القوي الجنرال جعفر النميري أعضاء للخدمة في حكومته في عام 1979. بنى ترابي قاعدة اقتصادية قوية بأموالٍ من أنظمة مصرفية إسلامية أجنبية، خاصة تلك المرتبطة بالسعودية العربية. كما قام بتجنيد وبناء كادر من الموالين المُؤَثِّرِين من خلال تعيين الطلاب المتعاطفين في الجامعة والأكاديمية العسكرية بينما كان وزيراً للتعليم.",
+      "question": "أين وضع ترابي الطلاب المُتَعَاطِفِين مع آرائه؟",
+      "reference": "والأكاديمية العسكرية",
+      "mt5": {
+        "answer": "حكومته في حكومة",
+        "faithfulness": 0.7534,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "الجامعة والأكاديمية العسكرية",
+        "faithfulness": 0.0009,
+        "exact_match": 0.0,
+        "f1": 0.8
+      },
+      "best_model": "mt5",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "arabic-484",
+      "language": "arabic",
+      "example_index": 484,
+      "context": "في 28 فبراير 2008، وقّع كيباكي وأودينغا اتفاقاً لتشكيل حكومة ائتلافية يصبح فيه أودينغا ثاني رئيس وزراء في كينيا. بموجب الاتفاق، سيعين الرئيس وزراء في كل من حزب الوحدة الوطنية  والمنتدى الديمقراطي المتحد اعتماداً على قوة كل حزب في البرلمان. نص الاتفاق على أن يشمل مجلس الوزراء نائب الرئيس ونائبين لرئيس الوزراء. بعد المناقشات، أقره البرلمان، وسيحتفظ الائتلاف حتى نهاية البرلمان الحالي أو إذا انسحب أحد الطرفين من الصفقة قبل ذلك الحين.",
+      "question": "ماذا سيكون دور أودينغا في الحكومة؟",
+      "reference": "رئيس وزراء في كينيا",
+      "mt5": {
+        "answer": "الائتلاف",
+        "faithfulness": 0.0004,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "ثاني رئيس وزراء في كينيا",
+        "faithfulness": 0.0117,
+        "exact_match": 0.0,
+        "f1": 0.8889
+      },
+      "best_model": "qwen",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "arabic-485",
+      "language": "arabic",
+      "example_index": 485,
+      "context": "في 28 فبراير 2008، وقّع كيباكي وأودينغا اتفاقاً لتشكيل حكومة ائتلافية يصبح فيه أودينغا ثاني رئيس وزراء في كينيا. بموجب الاتفاق، سيعين الرئيس وزراء في كل من حزب الوحدة الوطنية  والمنتدى الديمقراطي المتحد اعتماداً على قوة كل حزب في البرلمان. نص الاتفاق على أن يشمل مجلس الوزراء نائب الرئيس ونائبين لرئيس الوزراء. بعد المناقشات، أقره البرلمان، وسيحتفظ الائتلاف حتى نهاية البرلمان الحالي أو إذا انسحب أحد الطرفين من الصفقة قبل ذلك الحين.",
+      "question": "من أين عيّن الرئيس أعضاء مجلس الوزراء؟",
+      "reference": "حزب الوحدة الوطنية  والمنتدى الديمقراطي المتحد",
+      "mt5": {
+        "answer": "مجلس وزراء",
+        "faithfulness": 0.0007,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "حزب الوحدة الوطنية",
+        "faithfulness": 0.0005,
+        "exact_match": 0.0,
+        "f1": 0.6667
+      },
+      "best_model": "mt5",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "arabic-487",
+      "language": "arabic",
+      "example_index": 487,
+      "context": "في 28 فبراير 2008، وقّع كيباكي وأودينغا اتفاقاً لتشكيل حكومة ائتلافية يصبح فيه أودينغا ثاني رئيس وزراء في كينيا. بموجب الاتفاق، سيعين الرئيس وزراء في كل من حزب الوحدة الوطنية  والمنتدى الديمقراطي المتحد اعتماداً على قوة كل حزب في البرلمان. نص الاتفاق على أن يشمل مجلس الوزراء نائب الرئيس ونائبين لرئيس الوزراء. بعد المناقشات، أقره البرلمان، وسيحتفظ الائتلاف حتى نهاية البرلمان الحالي أو إذا انسحب أحد الطرفين من الصفقة قبل ذلك الحين.",
+      "question": "كم من الوقت سيستمر هذا التحالف؟",
+      "reference": "حتى نهاية البرلمان الحالي أو إذا انسحب أحد الطرفين من الصفقة قبل ذلك الحين",
+      "mt5": {
+        "answer": "أمدينغا",
+        "faithfulness": 0.0008,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "نهاية البرلمان الحالي",
+        "faithfulness": 0.0006,
+        "exact_match": 0.0,
+        "f1": 0.3529
+      },
+      "best_model": "mt5",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "arabic-324",
+      "language": "arabic",
+      "example_index": 324,
+      "context": "إن بعض أقدم المدارس في جنوب إفريقيا هي مدارس كنسية خاصة أنشأها المبشرون في أوائل القرن التاسع عشر. ومنذ ذلك الحين، بدأ القطاع الخاص بالنمو. بعد إلغاء نظام الفصل العنصري، تغيرت القوانين التي تحكم التعليم الخاص في جنوب إفريقيا بشكل كبير. يعترف قانون المدارس في جنوب أفريقيا لعام 1996 بفئتين من المدارس هما: \"الحكومية\" (التي تديرها الدولة) و \"المستقلة\" (والتي تشمل المدارس الخاصة التقليدية والمدارس التي تخضع للقطاع الخاص [التوضيح مطلوب].)",
+      "question": "ما هو قانون جنوب إفريقيا الذي يعترف بنوعين من المدارس؟",
+      "reference": "قانون المدارس في جنوب أفريقيا",
+      "mt5": {
+        "answer": "المستقلة",
+        "faithfulness": 0.0005,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "قانون المدارس في جنوب أفريقيا لعام 1996",
+        "faithfulness": 0.8418,
+        "exact_match": 0.0,
+        "f1": 0.8333
+      },
+      "best_model": "qwen",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "arabic-326",
+      "language": "arabic",
+      "example_index": 326,
+      "context": "إن بعض أقدم المدارس في جنوب إفريقيا هي مدارس كنسية خاصة أنشأها المبشرون في أوائل القرن التاسع عشر. ومنذ ذلك الحين، بدأ القطاع الخاص بالنمو. بعد إلغاء نظام الفصل العنصري، تغيرت القوانين التي تحكم التعليم الخاص في جنوب إفريقيا بشكل كبير. يعترف قانون المدارس في جنوب أفريقيا لعام 1996 بفئتين من المدارس هما: \"الحكومية\" (التي تديرها الدولة) و \"المستقلة\" (والتي تشمل المدارس الخاصة التقليدية والمدارس التي تخضع للقطاع الخاص [التوضيح مطلوب].)",
+      "question": "إلى جانب المدارس الحكومية، ما نوع المدارس المعترف بها بموجب قانون مدارس جنوب إفريقيا؟",
+      "reference": "المستقلة",
+      "mt5": {
+        "answer": "سنة 1996",
+        "faithfulness": 0.5996,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "المدارس الخاصة التقليدية",
+        "faithfulness": 0.0004,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "best_model": "mt5",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "arabic-327",
+      "language": "arabic",
+      "example_index": 327,
+      "context": "إن بعض أقدم المدارس في جنوب إفريقيا هي مدارس كنسية خاصة أنشأها المبشرون في أوائل القرن التاسع عشر. ومنذ ذلك الحين، بدأ القطاع الخاص بالنمو. بعد إلغاء نظام الفصل العنصري، تغيرت القوانين التي تحكم التعليم الخاص في جنوب إفريقيا بشكل كبير. يعترف قانون المدارس في جنوب أفريقيا لعام 1996 بفئتين من المدارس هما: \"الحكومية\" (التي تديرها الدولة) و \"المستقلة\" (والتي تشمل المدارس الخاصة التقليدية والمدارس التي تخضع للقطاع الخاص [التوضيح مطلوب].)",
+      "question": "ما المدارس التي تصنف على أنها مستقلة إلى جانب المدارس التي يحكمها القطاع الخاص في جنوب إفريقيا؟",
+      "reference": "المدارس الخاصة التقليدية",
+      "mt5": {
+        "answer": "الاستقرار الخاص",
+        "faithfulness": 0.0071,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "المدارس التي تخضع للقطاع الخاص",
+        "faithfulness": 0.001,
+        "exact_match": 0.0,
+        "f1": 0.25
+      },
+      "best_model": "mt5",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "arabic-328",
+      "language": "arabic",
+      "example_index": 328,
+      "context": "إن بعض أقدم المدارس في جنوب إفريقيا هي مدارس كنسية خاصة أنشأها المبشرون في أوائل القرن التاسع عشر. ومنذ ذلك الحين، بدأ القطاع الخاص بالنمو. بعد إلغاء نظام الفصل العنصري، تغيرت القوانين التي تحكم التعليم الخاص في جنوب إفريقيا بشكل كبير. يعترف قانون المدارس في جنوب أفريقيا لعام 1996 بفئتين من المدارس هما: \"الحكومية\" (التي تديرها الدولة) و \"المستقلة\" (والتي تشمل المدارس الخاصة التقليدية والمدارس التي تخضع للقطاع الخاص [التوضيح مطلوب].)",
+      "question": "في أي قرن أنشأ المبشرون مدارس كنسية في جنوب إفريقيا؟",
+      "reference": "التاسع عشر",
+      "mt5": {
+        "answer": "السنة",
+        "faithfulness": 0.0016,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "أوائل القرن التاسع عشر",
+        "faithfulness": 0.0189,
+        "exact_match": 0.0,
+        "f1": 0.6667
+      },
+      "best_model": "qwen",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "arabic-316",
+      "language": "arabic",
+      "example_index": 316,
+      "context": "﻿إيرغانزونغشولين هي مدارس ثانوية أو ما بعد الثانوية (غير جامعية) يديرها أفراد عاديون أو مؤسسات خاصة أو نادرًا مجموعات مجموعات دينية وتقدم نوعًا من التعليم غير متوفر في المدارس العامة. إن معظم هذه المدارس عبارة عن مدارس مهنية. ومع ذلك، فإن هذه المدارس المهنية ليست جزءًا من نظام التعليم المزدوج الألماني. تتمتع مدارس إيرغانزونغشولين بحرّية العمل خارج التنظيم الحكومي ويتم تمويلها بالكامل من خلال فرض رسوم على الطلاب، رسوم الرسوم الدراسية.",
+      "question": "ماذا تسمى المدارس الثانوية الخاصة في ألمانيا؟",
+      "reference": "إيرغانزونغشولين",
+      "mt5": {
+        "answer": "مجموعات مجموعة دينية",
+        "faithfulness": 0.0006,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "مدارس مهنية",
+        "faithfulness": 0.0012,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "best_model": "qwen",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "arabic-317",
+      "language": "arabic",
+      "example_index": 317,
+      "context": "﻿إيرغانزونغشولين هي مدارس ثانوية أو ما بعد الثانوية (غير جامعية) يديرها أفراد عاديون أو مؤسسات خاصة أو نادرًا مجموعات مجموعات دينية وتقدم نوعًا من التعليم غير متوفر في المدارس العامة. إن معظم هذه المدارس عبارة عن مدارس مهنية. ومع ذلك، فإن هذه المدارس المهنية ليست جزءًا من نظام التعليم المزدوج الألماني. تتمتع مدارس إيرغانزونغشولين بحرّية العمل خارج التنظيم الحكومي ويتم تمويلها بالكامل من خلال فرض رسوم على الطلاب، رسوم الرسوم الدراسية.",
+      "question": "أي نوع من المدارس تكون عليه مدارس إيرغانزونغشولين في الغالب؟",
+      "reference": "مهنية",
+      "mt5": {
+        "answer": "نظام التعليم المزدوج المزدوج",
+        "faithfulness": 0.0017,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "مدارس مهنية",
+        "faithfulness": 0.0012,
+        "exact_match": 0.0,
+        "f1": 0.6667
+      },
+      "best_model": "mt5",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "arabic-318",
+      "language": "arabic",
+      "example_index": 318,
+      "context": "﻿إيرغانزونغشولين هي مدارس ثانوية أو ما بعد الثانوية (غير جامعية) يديرها أفراد عاديون أو مؤسسات خاصة أو نادرًا مجموعات مجموعات دينية وتقدم نوعًا من التعليم غير متوفر في المدارس العامة. إن معظم هذه المدارس عبارة عن مدارس مهنية. ومع ذلك، فإن هذه المدارس المهنية ليست جزءًا من نظام التعليم المزدوج الألماني. تتمتع مدارس إيرغانزونغشولين بحرّية العمل خارج التنظيم الحكومي ويتم تمويلها بالكامل من خلال فرض رسوم على الطلاب، رسوم الرسوم الدراسية.",
+      "question": "كيف يتم تمويل مدارس إيرغانزونغشولين؟",
+      "reference": "الرسوم الدراسية",
+      "mt5": {
+        "answer": "نظام التعليم الألماني",
+        "faithfulness": 0.0227,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "بالكامل من خلال فرض رسوم على الطلاب",
+        "faithfulness": 0.9927,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "best_model": "qwen",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_arabic.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_arabic.jsonl",
         "mt5_config": "B_ce_lora",
         "mt5_lora_variant": "qlora",
         "qwen_config": "C_composite_lora",
@@ -494,7 +1848,6 @@
       "id": "malay-36",
       "language": "malay",
       "example_index": 36,
-      "curation_tag": "qwen_wins_em",
       "context": "Presiden A.S. George W. Bush mengalu-alukan pengumuman itu dengan baik. Jurucakap Bush, Gordon Johndroe memanggil Korea Utara ikrar “Langkah utama bergerak untuk mencapai matlamat dapat nyah-penukleusan ditentusahkan di wilayah rakyat Korea.”",
       "question": "Siapakah yang berpendapat ikrar tersebut “langkah utama”?",
       "reference": "Gordon Johndroe",
@@ -522,26 +1875,475 @@
       }
     },
     {
-      "id": "malay-41",
+      "id": "malay-51",
       "language": "malay",
-      "example_index": 41,
-      "curation_tag": "mt5_wins_em",
-      "context": "Syarikat Jurutera A.S. menganggarkan bahawa 6 inci daripada hujan boleh melanggar benteng yang sebelumnya rosak. Kawasan perumahan Ninth Ward yang mengalami banjir setinggi 20 kaki semasa Taufan Katrina kini berada pada paras pinggang ketika tanggul yang berdekatan telah melebihi batas. Air melimpah ke tetambak seluas 100 kaki.",
-      "question": "Apakah yang berlaku The Ninth Ward semasa Taufan Katrina?",
-      "reference": "Banjir ialah 20 kaki tinggi",
+      "example_index": 51,
+      "context": "Dalam puncak Siklon Tropika Gonu, yang mendapat nama daripada sebeg daun palma dalam Bahasa Maldives, telah mencapai angin berterusan selaju 240 kilometer sejam (149 batu sejam) . Menjelang awal hari ini, angin sekitar 83 km sejam, dan dijangka terus melemah.",
+      "question": "Berapakah kelajuan angin pada puncak Siklon Tropika Gonu?",
+      "reference": "149 batu sejam",
       "mt5": {
-        "answer": "Banjir ialah 20 kaki tinggi",
-        "faithfulness": 0.9912,
+        "answer": "141 batu sejam",
+        "faithfulness": 0.0059,
+        "exact_match": 0.0,
+        "f1": 0.6667
+      },
+      "qwen": {
+        "answer": "149 batu sejam",
+        "faithfulness": 0.0028,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "best_model": "mt5",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "malay-50",
+      "language": "malay",
+      "example_index": 50,
+      "context": "Dalam puncak Siklon Tropika Gonu, yang mendapat nama daripada sebeg daun palma dalam Bahasa Maldives, telah mencapai angin berterusan selaju 240 kilometer sejam (149 batu sejam) . Menjelang awal hari ini, angin sekitar 83 km sejam, dan dijangka terus melemah.",
+      "question": "Menurut petikan, bilakan Siklon Tropika Gonu dijangka untuk terus melemah?",
+      "reference": "Apabila kelajuan angin turun ke kira-kira 83 kilometer sejam",
+      "mt5": {
+        "answer": "Sebelum mencapai puncak",
+        "faithfulness": 0.1204,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "Apabila kelajuan angin turun ke kira-kira 83 kilometer sejam",
+        "faithfulness": 0.7529,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "best_model": "qwen",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "malay-224",
+      "language": "malay",
+      "example_index": 224,
+      "context": "Binatang moose (juga dikenali sebagai elk) sebenarnya tidak agresif, namun akan mempertahankan diri sekiranya merasakan ancaman. Apabila orang tidak menganggap moose berpotensi berbahaya, mereka mungkin menghampirinya dengan terlalu dekat dan membahayakan diri sendiri.",
+      "question": "Berdasarkan petikan, manakah antara pernyataan berikut tidak benar tentang moose?",
+      "reference": "Ia merupakan haiwan yang agresif secara semula jadi",
+      "mt5": {
+        "answer": "Ia mungkin terasa terancam secara semula jadi",
+        "faithfulness": 0.8833,
+        "exact_match": 0.0,
+        "f1": 0.5333
+      },
+      "qwen": {
+        "answer": "Ia merupakan haiwan yang agresif secara semula jadi",
+        "faithfulness": 0.0004,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "best_model": "mt5",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "malay-223",
+      "language": "malay",
+      "example_index": 223,
+      "context": "Binatang moose (juga dikenali sebagai elk) sebenarnya tidak agresif, namun akan mempertahankan diri sekiranya merasakan ancaman. Apabila orang tidak menganggap moose berpotensi berbahaya, mereka mungkin menghampirinya dengan terlalu dekat dan membahayakan diri sendiri.",
+      "question": "Manakah antara berikut perkara yang orang patut elak lakukan dengan moose?",
+      "reference": "Mengurangkan tahap ancaman berpotensinya",
+      "mt5": {
+        "answer": "Tidak mengendahkan diri sendiri",
+        "faithfulness": 0.177,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "Mengurangkan tahap ancaman berpotensinya",
+        "faithfulness": 0.8232,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "best_model": "qwen",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "malay-43",
+      "language": "malay",
+      "example_index": 43,
+      "context": "Komet mungkin sumber penghantaran air ke bumi beserta bahan organik yang dapat membentuk protein dan menyokong kehidupan. Saintis berharap untuk memahami bagaimana planet terbentuk, terutamanya bagaimana Bumi terbentuk, sejak komet bertembung dengan Bumi suatu ketika dahulu.",
+      "question": "Apakah sesuatu yang sainitis berharap untuk memahami?",
+      "reference": "Cara Bumi terbentuk",
+      "mt5": {
+        "answer": "Bilakah komet bertembung dengan Bumi",
+        "faithfulness": 0.9907,
+        "exact_match": 0.0,
+        "f1": 0.25
+      },
+      "qwen": {
+        "answer": "Cara Bumi terbentuk",
+        "faithfulness": 0.8984,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "best_model": "mt5",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "malay-99",
+      "language": "malay",
+      "example_index": 99,
+      "context": "Tiada amaran tsunami telah dikeluarkan dan menurut agensi geofizik Jakarta, tiada amaran tsunami akan dikeluarkan kerana gempa bumi tidak memenuhi syarat magnitud 6.5. Meskipun tidak ada ancaman tsunami, para penghuni telah mula panik dan mula meninggalkan perniagaan dan kediaman mereka.",
+      "question": "Menurut petikan, apakah yang ditimbulkan oleh gempa tersebut?",
+      "reference": "Penduduk setempat panik",
+      "mt5": {
+        "answer": "Amaran dikeluarkan",
+        "faithfulness": 0.0004,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "Penduduk setempat panik",
+        "faithfulness": 0.9985,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "best_model": "qwen",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "malay-96",
+      "language": "malay",
+      "example_index": 96,
+      "context": "Jarque telah menjalankan latihan pra-musim di Coverciano di Itali pada awal hari. Beliau telah menginap di hotel pasukan sebelum perlawanan yang dirancang untuk hari Ahad menentang Bolonia. Beliau tinggal di hotel pasukan sebelum perlawanan yang dirancang untuk Hari Ahad menentang Bolonia.",
+      "question": "Siapakah pasukan lawan dalam perlawanan?",
+      "reference": "Bolonia",
+      "mt5": {
+        "answer": "Curque",
+        "faithfulness": 0.9976,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "Bolonia",
+        "faithfulness": 0.9971,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "best_model": "mt5",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "malay-97",
+      "language": "malay",
+      "example_index": 97,
+      "context": "Jarque telah menjalankan latihan pra-musim di Coverciano di Itali pada awal hari. Beliau telah menginap di hotel pasukan sebelum perlawanan yang dirancang untuk hari Ahad menentang Bolonia. Beliau tinggal di hotel pasukan sebelum perlawanan yang dirancang untuk Hari Ahad menentang Bolonia.",
+      "question": "Mengapakah Jarque menginap di hotel?",
+      "reference": "Beliau mempunyai perlawanan pada hari Ahad",
+      "mt5": {
+        "answer": "Beliau telah berlatih",
+        "faithfulness": 0.999,
+        "exact_match": 0.0,
+        "f1": 0.2222
+      },
+      "qwen": {
+        "answer": "Beliau mempunyai perlawanan pada hari Ahad",
+        "faithfulness": 0.999,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "best_model": "qwen",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "malay-178",
+      "language": "malay",
+      "example_index": 178,
+      "context": "Sekiranya melintasi Utara Baltik pada musim sejuk, periksa lokasi kabin, kerana pelayaran menyusuri ais menghasilkan bunyi yang kuat kepada mereka yang terlibat. Pelayaran Saint Petersburg termasuk masa di bandar. Penumpang pelayaran dikecualikan daripada keperluan visa (periksa syarat-syaratnya)",
+      "question": "Menurut petikan, apakah yang patut diperiksa oleh penumpang jika pelayaran mereka pada musim sejuk?",
+      "reference": "Lokasi kabin",
+      "mt5": {
+        "answer": "Syarat-syarat",
+        "faithfulness": 0.0011,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "Lokasi kabin",
+        "faithfulness": 0.0059,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "best_model": "qwen",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "malay-78",
+      "language": "malay",
+      "example_index": 78,
+      "context": "Selain daripada ais yang tebal, keadaan cuaca ekstrim juga telah menggangu usaha menyelamat. Pittman mengesyorkan keadaan tidak akan bertambah baik sehingga minggu depan. Jumlah dan ketebalan ais yang dibungkus, menurut Pittman, adalah yang paling teruk untuk pengedap dalam 15 tahun kebelakangan ini.",
+      "question": "Menurut petikan, apakah yang bukan merupakan masalah semasa untuk pengedap?",
+      "reference": "Ais yang mencair",
+      "mt5": {
+        "answer": "",
+        "faithfulness": 0.0,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "Ais yang mencair",
+        "faithfulness": 0.0267,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "best_model": "qwen",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "malay-79",
+      "language": "malay",
+      "example_index": 79,
+      "context": "Selain daripada ais yang tebal, keadaan cuaca ekstrim juga telah menggangu usaha menyelamat. Pittman mengesyorkan keadaan tidak akan bertambah baik sehingga minggu depan. Jumlah dan ketebalan ais yang dibungkus, menurut Pittman, adalah yang paling teruk untuk pengedap dalam 15 tahun kebelakangan ini.",
+      "question": "Selain daripada ais, apakah perkara lain yang menjejaskan usaha menyelamat?",
+      "reference": "Keadaan cuaca",
+      "mt5": {
+        "answer": "Kekurangan bekalan",
+        "faithfulness": 0.0003,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "Keadaan cuaca",
+        "faithfulness": 0.8989,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "best_model": "qwen",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "malay-153",
+      "language": "malay",
+      "example_index": 153,
+      "context": "Tidak semua menyokong untuk memasukkan taraf wanita. Pemenang pingat perak Olimpik 2004, Amir Khan berkata, “Saya benar-benar percaya wanita tidak patut berlawan. Itu pendapat saya.” Walaupun dengan ulasannya, beliau berkata beliau akan menyokong pesaing British pada Olimpik 2012 yang diadakan di London.",
+      "question": "Menurut petikan, manakah antara berikut yang tidak disokong oleh Amir Khan?",
+      "reference": "Penyertaan petarung wanita dalam Sukan Olimpik",
+      "mt5": {
+        "answer": "Penyaraan peta dalam Sukan Olimpik",
+        "faithfulness": 0.0765,
+        "exact_match": 0.0,
+        "f1": 0.5455
+      },
+      "qwen": {
+        "answer": "Penyertaan petarung wanita dalam Sukan Olimpik",
+        "faithfulness": 0.9805,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "best_model": "qwen",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "malay-300",
+      "language": "malay",
+      "example_index": 300,
+      "context": "Pemandangan ceri berkembang, dikenali sebagai hanami, adalah sebahagian dari budaya Jepun sejak kurun ke8. Konsep ini berasal dari China iaitu bunga plum ialah bunga pilihan. Di Jepun, pesta bunga sakura pertama dianjurkan oleh maharaja hanya untuk dirinya dan ahli bangsawan lain sekitar Mahkamah Empayar.",
+      "question": "Siapakah yang menganjurkan keraian pertama untuk melihat bunga sakura?",
+      "reference": "Maharaja Jepun",
+      "mt5": {
+        "answer": "Aristokrat China",
+        "faithfulness": 0.122,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "Maharaja Jepun",
+        "faithfulness": 0.245,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "best_model": "qwen",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "malay-141",
+      "language": "malay",
+      "example_index": 141,
+      "context": "Askar sekutu dan Afghanistan masuk ke kawasan terbabit untuk mengawal tapak tersebut dan pesawat sekutu lain telah dihantar untuk membantu. Kemalangan itu berlaku di kawasan pergunungan tinggi, dan dipercayai akibat api. Usaha untuk mencari lokasi nahas ditentang cuaca buruk dan permukaan yang sukar dicapai.",
+      "question": "Apakah yang dipercayai menjadi punca nahas?",
+      "reference": "Api marak",
+      "mt5": {
+        "answer": "Rupa bumi yang buruk",
+        "faithfulness": 0.5864,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "Api marak",
+        "faithfulness": 0.0014,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "best_model": "mt5",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "malay-367",
+      "language": "malay",
+      "example_index": 367,
+      "context": "Perkampungan Haldarsvík menawarkan pemandangan pulau Eysturoy yang berdekatan dan mempunyai gereja berbentuk oktagon yang lain daripada biasa. Di gereja, terdapat ukiran marmar menarik burung merpati di atas beberapa makam. Berbaloi mengambil masa setengah jam untuk bersiar-siar keliling kampung yang menarik.",
+      "question": "Dimanakah ukiran burung merpati tersebut berada?",
+      "reference": "Di kawasan gereja",
+      "mt5": {
+        "answer": "Di pulau Eysturoy",
+        "faithfulness": 0.8667,
+        "exact_match": 0.0,
+        "f1": 0.3333
+      },
+      "qwen": {
+        "answer": "Di kawasan gereja",
+        "faithfulness": 0.9961,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "best_model": "qwen",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "malay-396",
+      "language": "malay",
+      "example_index": 396,
+      "context": "Cara yang paling mudah untuk memulakan bisnes penulisan mengenai pelancongan adalah dengan mengasah kemahiran anda di laman web blog pelancongan yang dikenali. Apabila anda telah selesa dengan pemformatan dan penyuntingan di web, kemudian, anda mungkin membina laman web sendiri.",
+      "question": "Semasa memulakan perniagaan penulisan mengenai pelancongan, manakah antara kebolehan berikut perlu diperhalusi terlebih dahulu?",
+      "reference": "Penulisan blog",
+      "mt5": {
+        "answer": "Penulisan blog",
+        "faithfulness": 0.9204,
         "exact_match": 1.0,
         "f1": 1.0
       },
       "qwen": {
-        "answer": "Air paras pinggang telah melebihi tambak",
-        "faithfulness": 0.9888,
+        "answer": "Pemformatan web",
+        "faithfulness": 0.978,
         "exact_match": 0.0,
         "f1": 0.0
       },
-      "best_model": "mt5",
+      "best_model": "qwen",
       "source": {
         "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
         "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
@@ -556,7 +2358,6 @@
       "id": "malay-142",
       "language": "malay",
       "example_index": 142,
-      "curation_tag": "mt5_wins_em",
       "context": "Askar sekutu dan Afghanistan masuk ke kawasan terbabit untuk mengawal tapak tersebut dan pesawat sekutu lain telah dihantar untuk membantu. Kemalangan itu berlaku di kawasan pergunungan tinggi, dan dipercayai akibat api. Usaha untuk mencari lokasi nahas ditentang cuaca buruk dan permukaan yang sukar dicapai.",
       "question": "Pada jenis rupa bumi apakah yang nahas berlaku?",
       "reference": "Bergunung ",
@@ -584,10 +2385,129 @@
       }
     },
     {
+      "id": "malay-41",
+      "language": "malay",
+      "example_index": 41,
+      "context": "Syarikat Jurutera A.S. menganggarkan bahawa 6 inci daripada hujan boleh melanggar benteng yang sebelumnya rosak. Kawasan perumahan Ninth Ward yang mengalami banjir setinggi 20 kaki semasa Taufan Katrina kini berada pada paras pinggang ketika tanggul yang berdekatan telah melebihi batas. Air melimpah ke tetambak seluas 100 kaki.",
+      "question": "Apakah yang berlaku The Ninth Ward semasa Taufan Katrina?",
+      "reference": "Banjir ialah 20 kaki tinggi",
+      "mt5": {
+        "answer": "Banjir ialah 20 kaki tinggi",
+        "faithfulness": 0.9912,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "qwen": {
+        "answer": "Air paras pinggang telah melebihi tambak",
+        "faithfulness": 0.9888,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "best_model": "mt5",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "malay-68",
+      "language": "malay",
+      "example_index": 68,
+      "context": "“Ia akan berkelakuan seperti air. Ia telus seperti air. Jika anda berdiri di garisan pantai, anda akan dapat melihat ke dalam sehingga ke apa-apa batu kerikil atau bahan melekit di bawah. Sejauh yang kita ketahui, hanya terdapat satu badan planet yang mempamerkan dinamisme yang lebih dari Titan, dan namanya adalah Bumi,” ujar Stofan.",
+      "question": "Sungai dan tasik yang terdiri daripada cecair lutsinar telah dikenal pasti pada badan planet manakah?",
+      "reference": "Titan",
+      "mt5": {
+        "answer": "Titan",
+        "faithfulness": 0.0008,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "qwen": {
+        "answer": "Matahari",
+        "faithfulness": 0.0025,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "best_model": "qwen",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "malay-3",
+      "language": "malay",
+      "example_index": 3,
+      "context": "Sebuah bom kereta meletup di ibu pejabat polis di Gaziantep, Turki pagi semalam yang membunuh dua pegawai polis dan mencederakan lebih dari dua puluh mangsa yang lain. Pejabat gabenor berkata sembilan belas daripada yang tercedera adalah pegawai polis. Polis menyatakan bahawa mereka mengesyaki seorang yang disangka militan Daesh (ISIL) bertanggungjawab untuk serangan tersebut.",
+      "question": "Siapakah yang melaporkan suspek yang disyaki dalam serangan?",
+      "reference": "Polis",
+      "mt5": {
+        "answer": "Polis",
+        "faithfulness": 0.0006,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "qwen": {
+        "answer": "Wartawan",
+        "faithfulness": 0.0005,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "best_model": "mt5",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "malay-292",
+      "language": "malay",
+      "example_index": 292,
+      "context": "Penyedia VPN peribadi (rangkaian persendirian maya) adalah kaedah terbaik untuk mengelakkan penapisan politik dan penapisan geo IP komersial. Mereka adalah bagus pada proksi jaringan untuk beberapa sebab: Mereka mengalih semua laluan Internet, bukan hanya http. Mereka biasanya menawarkan lebar jalur yang lebih tinggi dan kualiti perkhidmatan lebih baik. Ia tidak boleh digodam lalu menjadi lebih susah untuk diintip.",
+      "question": "Dalam senario manakah memilih proksi jaringan berbanding penyedia VPN peribadi mencukupi buat pengguna?",
+      "reference": "Pengguna secara utamanya menghalakan semula trafik http",
+      "mt5": {
+        "answer": "Pengguna secara utamanya menghalakan semula trafik http",
+        "faithfulness": 0.0001,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "qwen": {
+        "answer": "Pengguna bimbang dengan pengelakkan penapisan dan pengintipan sebanyak mungkin",
+        "faithfulness": 0.0006,
+        "exact_match": 0.0,
+        "f1": 0.125
+      },
+      "best_model": "qwen",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
       "id": "malay-95",
       "language": "malay",
       "example_index": 95,
-      "curation_tag": "tie_correct",
       "context": "Vidal yang berusia 28 tahun telah menyertai pasukan Barça tiga musim yang lalu, dari Sevilla. Sejak berpindah ke ibu negeri Catalan, Vidal telah bermain 49 perlawanan untuk kelab itu.",
       "question": "Berapakah jumlah perlawanan yang Vidal telah bermain untuk Barça?",
       "reference": "49",
@@ -618,7 +2538,6 @@
       "id": "malay-130",
       "language": "malay",
       "example_index": 130,
-      "curation_tag": "tie_correct",
       "context": "Pengumuman hari ini juga telah melanjutkan komitmen kerajaan yang dibuat pada bulan Mac tahun ini untuk membiayai gerabak tambahan. 300 unit tambahan membawa jumlah keseluruhan kepada 1,300 gerabak yang akan diperoleh untuk mengurangkan kesesakan.",
       "question": "Menurut petikan, manakah antara berikut ialah matlamat keseluruhan kerajaan?",
       "reference": "Mengurangkan kesesakan dalam gerabak",
@@ -646,57 +2565,25 @@
       }
     },
     {
-      "id": "malay-224",
+      "id": "malay-18",
       "language": "malay",
-      "example_index": 224,
-      "curation_tag": "mt5_faith",
-      "context": "Binatang moose (juga dikenali sebagai elk) sebenarnya tidak agresif, namun akan mempertahankan diri sekiranya merasakan ancaman. Apabila orang tidak menganggap moose berpotensi berbahaya, mereka mungkin menghampirinya dengan terlalu dekat dan membahayakan diri sendiri.",
-      "question": "Berdasarkan petikan, manakah antara pernyataan berikut tidak benar tentang moose?",
-      "reference": "Ia merupakan haiwan yang agresif secara semula jadi",
+      "example_index": 18,
+      "context": "Pada hari Rabu, Persatuan Bola Keranjang Kebangsaan Amerika Syarikat (NBA) telah menangguhkan musim bola keranjang profesional kerana kebimbangan berkenaan COVID-19. Keputusan NBA adalah berikutan pemain Utah Jazz yang diuji positif untuk virus COVID-19.",
+      "question": "Manakah antara berikut yang NBA memutuskan untuk tangguh?",
+      "reference": "Musim bola keranjang",
       "mt5": {
-        "answer": "Ia mungkin terasa terancam secara semula jadi",
-        "faithfulness": 0.8833,
-        "exact_match": 0.0,
-        "f1": 0.5333
-      },
-      "qwen": {
-        "answer": "Ia merupakan haiwan yang agresif secara semula jadi",
-        "faithfulness": 0.0004,
+        "answer": "Musim bola keranjang",
+        "faithfulness": 0.0006,
         "exact_match": 1.0,
         "f1": 1.0
       },
-      "best_model": "mt5",
-      "source": {
-        "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
-        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
-        "mt5_config": "B_ce_lora",
-        "mt5_lora_variant": "qlora",
-        "qwen_config": "C_composite_lora",
-        "qwen_lora_variant": "qlora",
-        "seed": 42
-      }
-    },
-    {
-      "id": "malay-132",
-      "language": "malay",
-      "example_index": 132,
-      "curation_tag": "tie_wrong",
-      "context": "Beliau berkata, “Tidak ada kepintaran untuk mencadangkan bahawa serangan dijangka tidak lama lagi. Namun,pengurangan tahap ancaman kepada teruk tidak bermakna keseluruhan ancaman telah hilang.",
-      "question": "Menurut petikan, apakah maklumat yang diketahui?",
-      "reference": "Tahap ancaman telah dikurangkan",
-      "mt5": {
-        "answer": "Serangan dijangka",
-        "faithfulness": 0.5171,
-        "exact_match": 0.0,
-        "f1": 0.0
-      },
       "qwen": {
-        "answer": "Tiada lagi sebarang ancaman",
-        "faithfulness": 0.0003,
-        "exact_match": 0.0,
-        "f1": 0.25
+        "answer": "Musim bola keranjang",
+        "faithfulness": 0.0006,
+        "exact_match": 1.0,
+        "f1": 1.0
       },
-      "best_model": "mt5",
+      "best_model": "tie",
       "source": {
         "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
         "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
@@ -708,26 +2595,55 @@
       }
     },
     {
-      "id": "malay-396",
+      "id": "malay-395",
       "language": "malay",
-      "example_index": 396,
-      "curation_tag": "mt5_wins_em",
+      "example_index": 395,
       "context": "Cara yang paling mudah untuk memulakan bisnes penulisan mengenai pelancongan adalah dengan mengasah kemahiran anda di laman web blog pelancongan yang dikenali. Apabila anda telah selesa dengan pemformatan dan penyuntingan di web, kemudian, anda mungkin membina laman web sendiri.",
-      "question": "Semasa memulakan perniagaan penulisan mengenai pelancongan, manakah antara kebolehan berikut perlu diperhalusi terlebih dahulu?",
-      "reference": "Penulisan blog",
+      "question": "Berdasarkan petikan, manakah antara berikut akan menjadi langkah terakhir untuk memulakan perniagaan penulisan mengenai pelancongan?",
+      "reference": "Membina laman web anda sendiri",
       "mt5": {
-        "answer": "Penulisan blog",
-        "faithfulness": 0.9204,
+        "answer": "Membina laman web anda sendiri",
+        "faithfulness": 0.9946,
         "exact_match": 1.0,
         "f1": 1.0
       },
       "qwen": {
-        "answer": "Pemformatan web",
-        "faithfulness": 0.978,
-        "exact_match": 0.0,
-        "f1": 0.0
+        "answer": "Membina laman web anda sendiri",
+        "faithfulness": 0.9946,
+        "exact_match": 1.0,
+        "f1": 1.0
       },
-      "best_model": "qwen",
+      "best_model": "tie",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "malay-179",
+      "language": "malay",
+      "example_index": 179,
+      "context": "Sekiranya melintasi Utara Baltik pada musim sejuk, periksa lokasi kabin, kerana pelayaran menyusuri ais menghasilkan bunyi yang kuat kepada mereka yang terlibat. Pelayaran Saint Petersburg termasuk masa di bandar. Penumpang pelayaran dikecualikan daripada keperluan visa (periksa syarat-syaratnya)",
+      "question": "Menurut petikan, jika pelayaran penumpang pada musim panas, apakah yang mereka mungkin boleh elakkan?",
+      "reference": "Berlayar menyusuri ais",
+      "mt5": {
+        "answer": "Berlayar menyusuri ais",
+        "faithfulness": 0.2224,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "qwen": {
+        "answer": "Berlayar menyusuri ais",
+        "faithfulness": 0.1532,
+        "exact_match": 1.0,
+        "f1": 1.0
+      },
+      "best_model": "mt5",
       "source": {
         "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
         "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
@@ -742,7 +2658,6 @@
       "id": "malay-127",
       "language": "malay",
       "example_index": 127,
-      "curation_tag": "tie_wrong",
       "context": "Pada malam 9hb Ogos, taufan Eye of Morakot berada kira-kira tujuh puluh kilometer dari wilayah China Fujian. Taufan dijangka bergerak ke negara China pada kelajuan sebelas kmj.",
       "question": "Menurut petikan, berapa jauhkah Fujian daripada taufan?",
       "reference": "70 kilometer",
@@ -770,26 +2685,655 @@
       }
     },
     {
-      "id": "malay-51",
+      "id": "malay-132",
       "language": "malay",
-      "example_index": 51,
-      "curation_tag": "qwen_wins_em",
-      "context": "Dalam puncak Siklon Tropika Gonu, yang mendapat nama daripada sebeg daun palma dalam Bahasa Maldives, telah mencapai angin berterusan selaju 240 kilometer sejam (149 batu sejam) . Menjelang awal hari ini, angin sekitar 83 km sejam, dan dijangka terus melemah.",
-      "question": "Berapakah kelajuan angin pada puncak Siklon Tropika Gonu?",
-      "reference": "149 batu sejam",
+      "example_index": 132,
+      "context": "Beliau berkata, “Tidak ada kepintaran untuk mencadangkan bahawa serangan dijangka tidak lama lagi. Namun,pengurangan tahap ancaman kepada teruk tidak bermakna keseluruhan ancaman telah hilang.",
+      "question": "Menurut petikan, apakah maklumat yang diketahui?",
+      "reference": "Tahap ancaman telah dikurangkan",
       "mt5": {
-        "answer": "141 batu sejam",
-        "faithfulness": 0.0059,
+        "answer": "Serangan dijangka",
+        "faithfulness": 0.5171,
         "exact_match": 0.0,
-        "f1": 0.6667
+        "f1": 0.0
       },
       "qwen": {
-        "answer": "149 batu sejam",
-        "faithfulness": 0.0028,
-        "exact_match": 1.0,
-        "f1": 1.0
+        "answer": "Tiada lagi sebarang ancaman",
+        "faithfulness": 0.0003,
+        "exact_match": 0.0,
+        "f1": 0.25
       },
       "best_model": "mt5",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "malay-131",
+      "language": "malay",
+      "example_index": 131,
+      "context": "Pengumuman hari ini juga telah melanjutkan komitmen kerajaan yang dibuat pada bulan Mac tahun ini untuk membiayai gerabak tambahan. 300 unit tambahan membawa jumlah keseluruhan kepada 1,300 gerabak yang akan diperoleh untuk mengurangkan kesesakan.",
+      "question": "Apakah yang diumumkan oleh kerajaan?",
+      "reference": "Mereka merancang untuk membiayai 300 gerabak tambahan",
+      "mt5": {
+        "answer": "Mereka juga komited untuk mengurangkan masalah gerabak tambahan",
+        "faithfulness": 0.6387,
+        "exact_match": 0.0,
+        "f1": 0.5333
+      },
+      "qwen": {
+        "answer": "Mereka juga komited untuk mengurangkan masalah gerabak",
+        "faithfulness": 0.896,
+        "exact_match": 0.0,
+        "f1": 0.4286
+      },
+      "best_model": "qwen",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "malay-338",
+      "language": "malay",
+      "example_index": 338,
+      "context": "Sementara pemeriksaan imigresen selalu tidak ada atau untuk formaliti semasa anda tiba di tana air, kawalan kastam pula boleh menjadi satu kerumitan. Pastikan anda mengetahui apa yang boleh dan tidak boleh dibawa dan isytiharkan apa-apa yang berada di luar batas perundangan.",
+      "question": "Ketika sampai di tanah air anda, apakah proses yang biasanya tidak formal?",
+      "reference": "Pemeriksaan imigresen",
+      "mt5": {
+        "answer": "",
+        "faithfulness": 0.0,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "Kawalan kastam",
+        "faithfulness": 0.0076,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "best_model": "qwen",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "malay-370",
+      "language": "malay",
+      "example_index": 370,
+      "context": "Terutamanya pada musim panas, anda perlu berjaga-jaga untuk nyamuk jika ingin menjejak hutan. Walaupun anda memandu melalui hutan hujan subtropika, membuka pintu beberapa saat semasa ingin masuk ke dalam kenderaan adalah masa yang cukup untuk nyamuk masuk ke dalam kenderaan dengan anda.",
+      "question": "Bilakah anda perlu lebih berjaga-jaga dengan nyamuk?",
+      "reference": "Semasa bulan-bulan musim panas",
+      "mt5": {
+        "answer": "Semasa kembara berjalan kaki",
+        "faithfulness": 0.8462,
+        "exact_match": 0.0,
+        "f1": 0.25
+      },
+      "qwen": {
+        "answer": "Di hutan hujan",
+        "faithfulness": 0.9316,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "best_model": "qwen",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "malay-98",
+      "language": "malay",
+      "example_index": 98,
+      "context": "Tiada amaran tsunami telah dikeluarkan dan menurut agensi geofizik Jakarta, tiada amaran tsunami akan dikeluarkan kerana gempa bumi tidak memenuhi syarat magnitud 6.5. Meskipun tidak ada ancaman tsunami, para penghuni telah mula panik dan mula meninggalkan perniagaan dan kediaman mereka.",
+      "question": "Mengapakah agensi geofizik Jakarta tidak mahu mengeluarkan amaran?",
+      "reference": "Ia tidak memenuhi keperluan magnitud untuk gempa",
+      "mt5": {
+        "answer": "Tiada ancaman tsunami",
+        "faithfulness": 0.6416,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "Untuk mengelakkan panik di kalangan penduduk",
+        "faithfulness": 0.0008,
+        "exact_match": 0.0,
+        "f1": 0.1538
+      },
+      "best_model": "mt5",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "malay-287",
+      "language": "malay",
+      "example_index": 287,
+      "context": "Asrama biasanya disasarkan kepada golongan muda–tetamu biasa berusia dalam lingkungan dua puluhan–tetapi anda juga dapat menemui pelancong yang lebih tua di sana. Keluarga dengan anak-anak jarang terlihat di sini, namun sesetengah asrama membenarkan mereka untuk tinggal dalam bilik peribadi.",
+      "question": "Berdasarkan petikan, siapakah yang paling berkemungkinan untuk tinggal di hostel?",
+      "reference": "Tiga orang yang berumur 22 tahun melancong bersama-sama",
+      "mt5": {
+        "answer": "Pasangan yang berumur 22 tahun",
+        "faithfulness": 0.0006,
+        "exact_match": 0.0,
+        "f1": 0.6154
+      },
+      "qwen": {
+        "answer": "Pasangan yang berumur 70 tahun",
+        "faithfulness": 0.0012,
+        "exact_match": 0.0,
+        "f1": 0.4615
+      },
+      "best_model": "qwen",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "malay-286",
+      "language": "malay",
+      "example_index": 286,
+      "context": "Asrama biasanya disasarkan kepada golongan muda–tetamu biasa berusia dalam lingkungan dua puluhan–tetapi anda juga dapat menemui pelancong yang lebih tua di sana. Keluarga dengan anak-anak jarang terlihat di sini, namun sesetengah asrama membenarkan mereka untuk tinggal dalam bilik peribadi.",
+      "question": "Berdasarkan petikan, apakah jenis tetamu yang paling berkemungkinan tidak ditemui dalam bilik asrama?",
+      "reference": "Tetamu yang melancong dengan anak kecil",
+      "mt5": {
+        "answer": "Tetamu yang berusia awal tiga  puluhan",
+        "faithfulness": 0.0029,
+        "exact_match": 0.0,
+        "f1": 0.3333
+      },
+      "qwen": {
+        "answer": "Tetamu yang melancong bersendirian",
+        "faithfulness": 0.6772,
+        "exact_match": 0.0,
+        "f1": 0.6
+      },
+      "best_model": "qwen",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "malay-154",
+      "language": "malay",
+      "example_index": 154,
+      "context": "Tidak semua menyokong untuk memasukkan taraf wanita. Pemenang pingat perak Olimpik 2004, Amir Khan berkata, “Saya benar-benar percaya wanita tidak patut berlawan. Itu pendapat saya.” Walaupun dengan ulasannya, beliau berkata beliau akan menyokong pesaing British pada Olimpik 2012 yang diadakan di London.",
+      "question": "Menurut petikan, manakah antara berikut yang akan disokong oleh Amir Khan walaupun mempunyai pendapat peribadi sendiri?",
+      "reference": "Petarung wanita",
+      "mt5": {
+        "answer": "Teraman pesaing beliau daripada Sukan Olimpik 2012",
+        "faithfulness": 0.0113,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "Sukan Olimpik 2012",
+        "faithfulness": 0.8735,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "best_model": "qwen",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "malay-299",
+      "language": "malay",
+      "example_index": 299,
+      "context": "Pemandangan ceri berkembang, dikenali sebagai hanami, adalah sebahagian dari budaya Jepun sejak kurun ke8. Konsep ini berasal dari China iaitu bunga plum ialah bunga pilihan. Di Jepun, pesta bunga sakura pertama dianjurkan oleh maharaja hanya untuk dirinya dan ahli bangsawan lain sekitar Mahkamah Empayar.",
+      "question": "Perkataan hanami merujuk kepada melihat perkara apa?",
+      "reference": "Bunga sakura",
+      "mt5": {
+        "answer": "Harian",
+        "faithfulness": 0.0038,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "Bunga ume",
+        "faithfulness": 0.0027,
+        "exact_match": 0.0,
+        "f1": 0.5
+      },
+      "best_model": "mt5",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "malay-29",
+      "language": "malay",
+      "example_index": 29,
+      "context": "“Berdasarkan pada fosil ini, itu bermakna pecahan ini adalah lebih awal daripada tindak balas dari penunjuk molekul. Ia bermakna kesemuanya harus dihentikan seketika, menurut Berhanne Asfaw, iaitu pengarang bersama bagi kajian ini serta turut bertugas di Rift Valley Research Service yang terletak di Ethiopia.",
+      "question": "Menurut petikan, apakah yang berlaku lebih cepat daripada dijangka?",
+      "reference": "Pecahan",
+      "mt5": {
+        "answer": "Analisis penunjuk molekul",
+        "faithfulness": 0.0859,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "Penemuan fosil",
+        "faithfulness": 0.605,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "best_model": "qwen",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "malay-418",
+      "language": "malay",
+      "example_index": 418,
+      "context": "Jalan air dalam negeri mungkin merupakan tema yang baik untuk memulakan percutian. Sebagai contoh melawat istana-istana di Lembah Loire, Lembah Rhine atau menaiki kapal persiaran ke kota-kota menarik di Danube atau berperahu di sepanjang Terusan Erie. Mereka juga menyatakan laluan untuk denai pendakian dan berbasikal.",
+      "question": "Berdasarkan petikan, di lokasi manakah melawati istana menjadikan rombongan percutian berbaloi?",
+      "reference": "Lembah Rhine",
+      "mt5": {
+        "answer": "Bersesebelahan Terusan Erie",
+        "faithfulness": 0.9932,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "Berdekatan jalan air dalam negeri",
+        "faithfulness": 0.916,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "best_model": "mt5",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "malay-33",
+      "language": "malay",
+      "example_index": 33,
+      "context": "Sebelum ini agensi berita Cina Xinhua melaporkan sebuah kapal terbang akan dirampas. Laporan kemudian menyatakan pesawat itu menerima ancaman bom dan ditukar kembali ke Afghanistan mendarat di Kandahar. Laporan awal mengatakan pesawat itu dialihkan kembali ke Afghanistan selepas menafikan mendarat kecemasan di Ürümqi.",
+      "question": "Apakah yang tidak dinyatakan dalam laporan terawal agensi berita Xinhua?",
+      "reference": "Pesawat menerima ancaman bom",
+      "mt5": {
+        "answer": "Pesawat telah dirampas",
+        "faithfulness": 0.9712,
+        "exact_match": 0.0,
+        "f1": 0.2857
+      },
+      "qwen": {
+        "answer": "Pesawat tidak dibenarkan melakukan pendaratan kecemasan",
+        "faithfulness": 0.9976,
+        "exact_match": 0.0,
+        "f1": 0.2
+      },
+      "best_model": "qwen",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "malay-1",
+      "language": "malay",
+      "example_index": 1,
+      "context": "Sehingga kini, AOL telah berjaya menggerakkan dan membangunkan pasaran IM dengan rentaknya sendiri, disebabkan penggunaannya yang meluas di Amerika Syarikat. Dengan pengaturan yang ada, kebabasan ini mungkin berakhir. Gabungan jumlah pengguna perkhidmatan Yahoo! dan Microsoft dapat bersaing dengan jumlah pelanggan AOL.",
+      "question": "Manakah antara berikut mungkin tamat kerana pengaturan baharu?",
+      "reference": "Kebebasan AOL untuk membangunkan pasaran dengan rentaknya sendiri",
+      "mt5": {
+        "answer": "Penggunaan internet yang meluas di Amerika Syarikat",
+        "faithfulness": 0.9463,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "Penggunaan pasaran IM",
+        "faithfulness": 0.0253,
+        "exact_match": 0.0,
+        "f1": 0.1818
+      },
+      "best_model": "mt5",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "malay-40",
+      "language": "malay",
+      "example_index": 40,
+      "context": "Syarikat Jurutera A.S. menganggarkan bahawa 6 inci daripada hujan boleh melanggar benteng yang sebelumnya rosak. Kawasan perumahan Ninth Ward yang mengalami banjir setinggi 20 kaki semasa Taufan Katrina kini berada pada paras pinggang ketika tanggul yang berdekatan telah melebihi batas. Air melimpah ke tetambak seluas 100 kaki.",
+      "question": "Ketika ini, berapakah ketinggian air di The Ninth Ward?",
+      "reference": "Paras pinggang",
+      "mt5": {
+        "answer": "3 cali",
+        "faithfulness": 0.0003,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "20 kaki",
+        "faithfulness": 0.0009,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "best_model": "qwen",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "malay-198",
+      "language": "malay",
+      "example_index": 198,
+      "context": "“Canyoning” (atau: canyoneering) adalah tentang menurun ke dasar gaung, sama ada yang kering atau penuh dengan air. Ngarai menggabungkan unsur berenang, mendaki dan melompat--tetapi memerlukan sedikit latihan atau bentuk fizikal untuk bermula (berbanding dengan pendakian batu, menyelam skuba atau ski Gunung Alp, sebagai contoh).",
+      "question": "Manakah antara berikut tidak diperlukan untuk bermula canyoneering?",
+      "reference": "Keadaan fizikal yang optimum",
+      "mt5": {
+        "answer": "Kebolehan berenang",
+        "faithfulness": 0.0351,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "Keupayaan melompat",
+        "faithfulness": 0.0021,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "best_model": "mt5",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "malay-94",
+      "language": "malay",
+      "example_index": 94,
+      "context": "Vidal yang berusia 28 tahun telah menyertai pasukan Barça tiga musim yang lalu, dari Sevilla. Sejak berpindah ke ibu negeri Catalan, Vidal telah bermain 49 perlawanan untuk kelab itu.",
+      "question": "Menurut petikan, kelab manakah yang Vidal mula bermain tiga musim lalu?",
+      "reference": "Barça",
+      "mt5": {
+        "answer": "Sevilla",
+        "faithfulness": 0.0004,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "Sevilla",
+        "faithfulness": 0.0004,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "best_model": "tie",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "malay-19",
+      "language": "malay",
+      "example_index": 19,
+      "context": "Pada hari Rabu, Persatuan Bola Keranjang Kebangsaan Amerika Syarikat (NBA) telah menangguhkan musim bola keranjang profesional kerana kebimbangan berkenaan COVID-19. Keputusan NBA adalah berikutan pemain Utah Jazz yang diuji positif untuk virus COVID-19.",
+      "question": "Menurut petikan, apakah yang menyebabkan kebimbangan NBA berkaitan dengan virus tersebut?",
+      "reference": "Pemain Utah Jazz telah diuji positif",
+      "mt5": {
+        "answer": "Pemain Utah Jazz tidak bermain dengan baik selepas diuji positif",
+        "faithfulness": 0.0015,
+        "exact_match": 0.0,
+        "f1": 0.625
+      },
+      "qwen": {
+        "answer": "Pemain Utah Jazz tidak bermain dengan baik selepas diuji positif",
+        "faithfulness": 0.0014,
+        "exact_match": 0.0,
+        "f1": 0.625
+      },
+      "best_model": "mt5",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "malay-339",
+      "language": "malay",
+      "example_index": 339,
+      "context": "Sementara pemeriksaan imigresen selalu tidak ada atau untuk formaliti semasa anda tiba di tana air, kawalan kastam pula boleh menjadi satu kerumitan. Pastikan anda mengetahui apa yang boleh dan tidak boleh dibawa dan isytiharkan apa-apa yang berada di luar batas perundangan.",
+      "question": "Manakah antara berikut patut anda tahu sebelum anda sampai ke tanah air?",
+      "reference": "Jika mana-mana barang yang anda bawa tidak dibenarkan",
+      "mt5": {
+        "answer": "Jika terdapat kawalan kastam",
+        "faithfulness": 0.0019,
+        "exact_match": 0.0,
+        "f1": 0.1667
+      },
+      "qwen": {
+        "answer": "Jika terdapat kawalan kastam",
+        "faithfulness": 0.0019,
+        "exact_match": 0.0,
+        "f1": 0.1667
+      },
+      "best_model": "tie",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "malay-371",
+      "language": "malay",
+      "example_index": 371,
+      "context": "Terutamanya pada musim panas, anda perlu berjaga-jaga untuk nyamuk jika ingin menjejak hutan. Walaupun anda memandu melalui hutan hujan subtropika, membuka pintu beberapa saat semasa ingin masuk ke dalam kenderaan adalah masa yang cukup untuk nyamuk masuk ke dalam kenderaan dengan anda.",
+      "question": "Berdasarkan petikan, apakah yang anda patut tahan diri daripada lakukan untuk mengelakkan nyamuk semasa memandu melalui hutan hujan?",
+      "reference": "Meninggalkan pintu kenderaan terbuka terlalu lama",
+      "mt5": {
+        "answer": "Memandu semasa musim panas",
+        "faithfulness": 0.9976,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "Memandu semasa musim panas",
+        "faithfulness": 0.9976,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "best_model": "tie",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "malay-91",
+      "language": "malay",
+      "example_index": 91,
+      "context": "Stesen tersebut kekal dengan pendiriannya, walaupun kehilangan giroskop sebelum ini dalam misi stesen angkasa lepas, hingga hujung jalan angkasa. Chiao dan Sharipov dilaporkan menjadi jarak yang selamat daripada pendorong penyesuaian sikap. Kawalan darat Rusia mengaktifkan jet dan mengembalikan kedudukan normal stesen.",
+      "question": "Menurut petikan, apakah matlamat misi stesen angkasa?",
+      "reference": "Melengkapkan perjalanan angkasa",
+      "mt5": {
+        "answer": "Menghampiri penujah pelarasan",
+        "faithfulness": 0.2393,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "Menghampiri penujah pelarasan",
+        "faithfulness": 0.2408,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "best_model": "qwen",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "malay-108",
+      "language": "malay",
+      "example_index": 108,
+      "context": "ASUS Eee PC, sebelumnya melancarkan penjimatan kos seluruh dunia dan faktor-faktor fungsi, menjadi topik hangat dalam 2007 Bulan Tapei IT Tetapi pasaran pengguna komputer riba akan bervariasi dan berubah secara radikal selepas ASUS dianugerahkan dalam Anugerah Lestari Taiwan 2007 oleh Eksekutif Yuan dari Republik China.",
+      "question": "Apakah ASUS Eee PC?",
+      "reference": "Komputer riba",
+      "mt5": {
+        "answer": "Tablet",
+        "faithfulness": 0.0596,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "Tablet",
+        "faithfulness": 0.0621,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "best_model": "qwen",
+      "source": {
+        "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
+        "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
+        "mt5_config": "B_ce_lora",
+        "mt5_lora_variant": "qlora",
+        "qwen_config": "C_composite_lora",
+        "qwen_lora_variant": "qlora",
+        "seed": 42
+      }
+    },
+    {
+      "id": "malay-15",
+      "language": "malay",
+      "example_index": 15,
+      "context": "Minggu lepas, Naked News mengumumkan yang ia akan meningkat mandat bahasa antarabangsanya secra mendadak kepada laporan berita, dengan tiga siaran terbaru. Sudah melaporkan dalam bahasa Inggeris dan Jepun, organisasi global melancarkan program bahasa Sepanyol, Itali, dan program Korea untuk televisyen, web, dan peranti mudah alih.",
+      "question": "Menurut petikan tersebut, di manakah siaran Naked News baharu tidak akan tersedia?",
+      "reference": "Pawagam",
+      "mt5": {
+        "answer": "Telefon bimbit",
+        "faithfulness": 0.3608,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "qwen": {
+        "answer": "Telefon bimbit",
+        "faithfulness": 0.3774,
+        "exact_match": 0.0,
+        "f1": 0.0
+      },
+      "best_model": "qwen",
       "source": {
         "mt5_file": "experiment_results/checkpoint_full_qlora_malay.jsonl",
         "qwen_file": "experiment_results_qwen/checkpoint_full_qwen_qlora_malay.jsonl",
