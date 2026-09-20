@@ -106,21 +106,26 @@ LoRA_Experiment/
 
 ## 4. Website Pages
 
+### Dataset (Arabic / Malay) — primary offline path
+
+Curated paired examples from logged experiment JSONL (no GPU, works on static Vercel hosting):
+
+- Source files: `experiment_results/checkpoint_full_qlora_{arabic,malay}.jsonl` (mT5 `B_ce_lora` / QLoRA) and `experiment_results_qwen/checkpoint_full_qwen_qlora_{arabic,malay}.jsonl` (Qwen `C_composite_lora` / QLoRA), seed 42.
+- Static asset: `frontend/public/data/dataset-examples.json` (12 Arabic + 12 Malay).
+- UI: language filter → example picker → context / question / **reference** → side-by-side mT5 vs Qwen answers + faithfulness / EM / F1.
+- **Best model rule:** higher faithfulness first, then Exact Match, then Token F1; equal on all three → **tie**. Implemented in `frontend/src/lib/scoring.ts`.
+
 ### Compare
 
-Main interactive page. User provides Context, Question, Reference Answer. Same input goes to mT5 and Qwen. Side-by-side answers with Faithfulness, Exact Match, Token F1, Latency.
+English interactive demos (Simple Fact, Distractor, Hallucination Trap, Knowledge Conflict). Optional FastAPI `/api/compare`; without a backend the UI falls back to the built-in Knowledge Conflict sample. Kept for local lab use; Dataset path does not need the API.
 
-### Examples
+### Theme
 
-Predefined demos: Simple Fact, Distractor Information, Missing Information, Hallucination Trap, Knowledge Conflict, Unsupported Detail, Long Context.
+Dark and light modes via `data-theme` on `<html>`, toggle in the nav, preference stored in `localStorage` (`rag-lab-theme`), default from `prefers-color-scheme`.
 
-### Results
+### Results / About
 
-Visualize existing files under `experiment_results/` and `experiment_results_qwen/` (no retraining).
-
-### About
-
-Research motivation, architectures, RAG faithfulness, EM, Token F1, NLI scoring, QLoRA / AdaLoRA / DoRA / VeRA.
+Still planned for later phases (full CSV dashboards, research write-up).
 
 ---
 
@@ -230,9 +235,23 @@ Dark research-dashboard design: Compare / Examples / Results / About; context/qu
 
 ---
 
-## 16. Production Deployment
+## 16. Production Deployment (Vercel)
 
-React on Vercel/Cloudflare Pages; FastAPI inference on a GPU host. Do not run model inference in the frontend-only host.
+Deploy the **frontend** as a static SPA (Root Directory = `frontend`).
+
+```bash
+cd frontend
+npm install
+npm run build
+# Vercel: import the GitHub repo, set Root Directory to frontend,
+# Framework Preset = Vite, Build = npm run build, Output = dist
+```
+
+- `frontend/vercel.json` rewrites unknown paths to `index.html` for SPA routing.
+- Dataset comparison loads `/data/dataset-examples.json` from `public/` — **no FastAPI required** on Vercel.
+- Live Compare still needs a separate GPU/API host when you wire real models; until then the Compare tab uses the mock/fallback only.
+
+Do not run model inference in the frontend-only host.
 
 ---
 

@@ -1,6 +1,12 @@
 # RAG Faithfulness Lab — Frontend
 
-Phase 1 static demo UI for comparing mT5 and Qwen on retrieval-grounded QA.
+Interactive UI for comparing **mT5** and **Qwen** on retrieval-grounded QA.
+
+## Features
+
+- **Dataset** tab: curated Arabic (12) + Malay (12) logged examples with side-by-side answers, metrics, and best-model highlight (faithfulness → EM → F1).
+- **Compare** tab: English demos + optional FastAPI `/api/compare` (falls back to mock metrics).
+- **Dark / light** theme toggle (persisted in `localStorage`).
 
 ## Stack
 
@@ -11,26 +17,29 @@ Phase 1 static demo UI for comparing mT5 and Qwen on retrieval-grounded QA.
 ## Run locally
 
 ```bash
-# from repo root — start the mock API first
-pip install fastapi "uvicorn[standard]"
-uvicorn backend.api:app --reload --port 8000
-
-# then the UI
 cd frontend
 npm install
 npm run dev
 ```
 
+Optional mock API (Compare tab only):
+
+```bash
+# from repo root
+pip install fastapi "uvicorn[standard]"
+uvicorn backend.api:app --reload --port 8000
+```
+
 - UI: http://localhost:5173
-- API: http://localhost:8000
-- Swagger: http://localhost:8000/docs
+- Dataset JSON: http://localhost:5173/data/dataset-examples.json
+- Vite proxies `/api` → `http://localhost:8000`
 
-Vite proxies `/api` to `http://localhost:8000`. The Compare button currently calls `http://localhost:8000/api/compare` directly (CORS allows localhost:5173). If the API is down, the UI falls back to built-in demo metrics.
-
-## Build
+## Build / Vercel
 
 ```bash
 npm run build
 ```
 
-Architecture and phases: [`docs/WEBSITE_GUIDE.md`](../docs/WEBSITE_GUIDE.md).
+Set Vercel **Root Directory** to `frontend`. Output directory: `dist`. SPA rewrites are in `vercel.json`. Dataset compare works without a backend.
+
+Architecture: [`docs/WEBSITE_GUIDE.md`](../docs/WEBSITE_GUIDE.md).

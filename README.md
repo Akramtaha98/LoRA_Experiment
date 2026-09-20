@@ -58,21 +58,22 @@ No inflated claims. This project reports what the data actually shows, including
 └── README.md
 ```
 
-## Website (Phase 1 demo)
+## Website (RAG Faithfulness Lab)
 
-Interactive mT5 vs Qwen comparison UI with static demos and a mock API. No model loading or training from the website.
+Interactive mT5 vs Qwen UI with **Dataset** examples (Arabic / Malay logged predictions, offline) and an English **Compare** demo. Dark/light theme. No training from the website.
 
 ```bash
-# API (repo root)
+# UI only (Dataset tab works without an API)
+cd frontend && npm install && npm run dev
+
+# Optional mock API for the Compare tab
 pip install fastapi "uvicorn[standard]"
 uvicorn backend.api:app --reload --port 8000
-
-# UI
-cd frontend && npm install && npm run dev
 ```
 
 - Frontend: http://localhost:5173
-- Backend: http://localhost:8000 — Swagger at `/docs`
+- Static data: `frontend/public/data/dataset-examples.json` (12 Arabic + 12 Malay)
+- Vercel: set Root Directory to `frontend` (see `frontend/vercel.json`)
 - Details: [`docs/WEBSITE_GUIDE.md`](docs/WEBSITE_GUIDE.md) and [`frontend/README.md`](frontend/README.md)
 
 ## Setup
