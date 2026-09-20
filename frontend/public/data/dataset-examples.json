@@ -12,7 +12,7 @@
       "f1",
       "faithfulness"
     ],
-    "description": "Best answer = higher Exact Match vs reference, then Token F1, then faithfulness. Only awarded when both mT5 and Qwen predictions are logged for that example/config."
+    "description": "Best vs gold = higher Exact Match, then Token F1. Faithfulness only breaks ties when F1 > 0 for the tied score. If both have EM=0 and F1=0, result is a tie (neither matched gold). Requires both models logged."
   },
   "config_defs": [
     {
@@ -562,7 +562,7 @@
             "f1": 0.0,
             "lora_variant": "qlora"
           },
-          "best_model": "qwen"
+          "best_model": "tie"
         },
         "D_full_ft": {
           "mt5": null,
@@ -610,7 +610,7 @@
             "f1": 0.0,
             "lora_variant": "qlora"
           },
-          "best_model": "mt5"
+          "best_model": "tie"
         },
         "D_full_ft": {
           "mt5": null,
@@ -658,7 +658,7 @@
             "f1": 0.0,
             "lora_variant": "qlora"
           },
-          "best_model": "mt5"
+          "best_model": "tie"
         },
         "D_full_ft": {
           "mt5": null,
@@ -706,7 +706,7 @@
             "f1": 0.0,
             "lora_variant": "qlora"
           },
-          "best_model": "mt5"
+          "best_model": "tie"
         },
         "D_full_ft": {
           "mt5": null,
@@ -946,7 +946,7 @@
             "f1": 0.0,
             "lora_variant": "qlora"
           },
-          "best_model": "mt5"
+          "best_model": "tie"
         },
         "D_full_ft": {
           "mt5": null,
@@ -994,7 +994,7 @@
             "f1": 0.0,
             "lora_variant": "qlora"
           },
-          "best_model": "mt5"
+          "best_model": "tie"
         },
         "D_full_ft": {
           "mt5": null,
@@ -1138,7 +1138,7 @@
             "f1": 0.0,
             "lora_variant": "qlora"
           },
-          "best_model": "mt5"
+          "best_model": "tie"
         },
         "D_full_ft": {
           "mt5": null,
@@ -1234,7 +1234,7 @@
             "f1": 0.0,
             "lora_variant": "qlora"
           },
-          "best_model": "mt5"
+          "best_model": "tie"
         },
         "D_full_ft": {
           "mt5": null,
@@ -1378,7 +1378,7 @@
             "f1": 0.0,
             "lora_variant": "qlora"
           },
-          "best_model": "qwen"
+          "best_model": "tie"
         },
         "D_full_ft": {
           "mt5": null,
@@ -2050,7 +2050,7 @@
             "f1": 0.0,
             "lora_variant": "qlora"
           },
-          "best_model": "qwen"
+          "best_model": "tie"
         },
         "D_full_ft": {
           "mt5": null,
@@ -2290,7 +2290,7 @@
             "f1": 0.0,
             "lora_variant": "qlora"
           },
-          "best_model": "qwen"
+          "best_model": "tie"
         },
         "D_full_ft": {
           "mt5": null,
@@ -2434,7 +2434,7 @@
             "f1": 0.0,
             "lora_variant": "qlora"
           },
-          "best_model": "mt5"
+          "best_model": "tie"
         },
         "D_full_ft": {
           "mt5": null,
@@ -2530,7 +2530,7 @@
             "f1": 0.0,
             "lora_variant": "qlora"
           },
-          "best_model": "qwen"
+          "best_model": "tie"
         },
         "D_full_ft": {
           "mt5": null,
@@ -2722,7 +2722,7 @@
             "f1": 0.0,
             "lora_variant": "qlora"
           },
-          "best_model": "qwen"
+          "best_model": "tie"
         },
         "D_full_ft": {
           "mt5": null,
@@ -2818,7 +2818,7 @@
             "f1": 0.0,
             "lora_variant": "qlora"
           },
-          "best_model": "mt5"
+          "best_model": "tie"
         },
         "D_full_ft": {
           "mt5": null,
@@ -3442,7 +3442,7 @@
             "f1": 0.0,
             "lora_variant": "qlora"
           },
-          "best_model": "mt5"
+          "best_model": "tie"
         },
         "D_full_ft": {
           "mt5": null,
@@ -3730,7 +3730,7 @@
             "f1": 0.0,
             "lora_variant": "qlora"
           },
-          "best_model": "mt5"
+          "best_model": "tie"
         },
         "D_full_ft": {
           "mt5": null,
@@ -4066,7 +4066,7 @@
             "f1": 0.0,
             "lora_variant": "qlora"
           },
-          "best_model": "mt5"
+          "best_model": "tie"
         },
         "D_full_ft": {
           "mt5": null,
@@ -4594,7 +4594,7 @@
             "f1": 0.0,
             "lora_variant": "qlora"
           },
-          "best_model": "mt5"
+          "best_model": "tie"
         },
         "D_full_ft": {
           "mt5": null,
@@ -4642,7 +4642,7 @@
             "f1": 0.0,
             "lora_variant": "qlora"
           },
-          "best_model": "mt5"
+          "best_model": "tie"
         },
         "D_full_ft": {
           "mt5": null,
@@ -4882,7 +4882,7 @@
             "f1": 0.0,
             "lora_variant": "qlora"
           },
-          "best_model": "mt5"
+          "best_model": "tie"
         },
         "D_full_ft": {
           "mt5": null,
@@ -4930,7 +4930,7 @@
             "f1": 0.0,
             "lora_variant": "qlora"
           },
-          "best_model": "qwen"
+          "best_model": "tie"
         },
         "D_full_ft": {
           "mt5": null,
@@ -5074,7 +5074,7 @@
             "f1": 0.0,
             "lora_variant": "qlora"
           },
-          "best_model": "qwen"
+          "best_model": "tie"
         },
         "D_full_ft": {
           "mt5": null,
