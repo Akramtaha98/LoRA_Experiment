@@ -1,18 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
-import {
-  ExternalLink,
-  Moon,
-  Play,
-  Search,
-  Sparkles,
-  Sun,
-  Trophy,
-} from "lucide-react";
+import { ExternalLink, Moon, Sun } from "lucide-react";
 
-import { examples } from "./data/examples";
 import {
   loadDatasetExamples,
+  type AggregateMetrics,
+  type ConfigDef,
+  type ConfigId,
   type DatasetExample,
+  type DatasetFile,
   type DatasetLanguage,
 } from "./data/dataset";
 import {
@@ -28,116 +23,121 @@ import {
   type Theme,
 } from "./lib/theme";
 
-type TabId = "dataset" | "compare";
-
-function MetricBar({ label, value }: { label: string; value: number }) {
-  const pct = Math.max(0, Math.min(100, value * 100));
-  return (
-    <div className="metric-bar">
-      <div className="metric-bar-top">
-        <span>{label}</span>
-        <strong>{value.toFixed(value >= 0.01 || value === 0 ? 2 : 4)}</strong>
-      </div>
-      <div className="metric-bar-track">
-        <div className="metric-bar-fill" style={{ width: `${pct}%` }} />
-      </div>
-    </div>
-  );
+function fmt(value: number | null | undefined, digits = 3) {
+  if (value === null || value === undefined || Number.isNaN(value)) return "n/a";
+  return Number(value).toFixed(digits);
 }
 
-function ModelPanel({
-  name,
-  kind,
-  result,
-  isBest,
+function AnswerCard({
+  title,
+  subtitle,
+  answer,
+  metrics,
+  badge,
+  variant = "model",
 }: {
-  name: string;
-  kind: string;
-  result: ModelScores;
-  isBest: boolean;
+  title: string;
+  subtitle: string;
+  answer: string;
+  metrics?: ModelScores | null;
+  badge?: string;
+  variant?: "gold" | "model";
 }) {
   return (
-    <article className={isBest ? "model-panel is-best" : "model-panel"}>
+    <article className={`answer-card ${variant}`}>
       <header>
         <div>
-          <p>{kind}</p>
-          <h3>{name}</h3>
+          <p>{subtitle}</p>
+          <h3>{title}</h3>
         </div>
-        {isBest ? (
-          <span className="best-pill">
-            <Trophy size={13} /> Best
-          </span>
-        ) : null}
+        {badge ? <span className="badge">{badge}</span> : null}
       </header>
-      <div className="answer" dir="auto">
-        {result.answer || "(empty)"}
+      <div className="answer-body" dir="auto">
+        {answer}
       </div>
-      <MetricBar label="Faithfulness" value={result.faithfulness} />
-      <MetricBar label="Exact Match" value={result.exact_match} />
-      <MetricBar label="Token F1" value={result.f1} />
-      {typeof result.latency_ms === "number" ? (
-        <p className="latency">{result.latency_ms} ms</p>
-      ) : null}
+      {metrics ? (
+        <dl className="metric-dl">
+          <div>
+            <dt>EM</dt>
+            <dd>{fmt(metrics.exact_match, 2)}</dd>
+          </div>
+          <div>
+            <dt>F1</dt>
+            <dd>{fmt(metrics.f1, 3)}</dd>
+          </div>
+          <div>
+            <dt>Faith</dt>
+            <dd>{fmt(metrics.faithfulness, 3)}</dd>
+          </div>
+        </dl>
+      ) : (
+        <p className="missing">No indexed prediction in the logs for this example.</p>
+      )}
     </article>
   );
 }
 
-function CorrectPanel({ answer }: { answer: string }) {
+function AggregateTable({
+  language,
+  configDefs,
+  aggregates,
+}: {
+  language: DatasetLanguage;
+  configDefs: ConfigDef[];
+  aggregates: DatasetFile["aggregates"];
+}) {
   return (
-    <article className="model-panel correct-panel">
-      <header>
-        <div>
-          <p>Ground truth</p>
-          <h3>Correct answer</h3>
-        </div>
-        <span className="correct-pill">Gold</span>
-      </header>
-      <div className="answer correct-answer" dir="auto">
-        {answer || "(empty)"}
-      </div>
-      <p className="correct-hint">
-        Compare this gold answer with mT5 and Qwen on the right.
-      </p>
-    </article>
-  );
-}
-
-function BestLine({ best }: { best: BestModel }) {
-  const label =
-    best === "tie"
-      ? "Tie on Exact Match, F1, and faithfulness"
-      : best === "mt5"
-        ? "Best match to correct answer: mT5"
-        : "Best match to correct answer: Qwen";
-  return (
-    <div className={`best-line best-${best}`}>
-      <Trophy size={15} />
-      <span>{label}</span>
-      <small>{SCORING_RULE_LABEL}</small>
+    <div className="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Config</th>
+            <th>Model</th>
+            <th>Adapter</th>
+            <th>n</th>
+            <th>Faith</th>
+            <th>EM</th>
+            <th>F1</th>
+          </tr>
+        </thead>
+        <tbody>
+          {configDefs.flatMap((cfg) => {
+            const block = aggregates?.[language]?.[cfg.id] || {};
+            return (["mt5", "qwen"] as const).map((model) => {
+              const row = block[model] as AggregateMetrics | undefined;
+              return (
+                <tr key={`${cfg.id}-${model}`}>
+                  <td>{cfg.label}</td>
+                  <td>{model === "mt5" ? "mT5" : "Qwen"}</td>
+                  <td>{row?.lora_variant ?? "n/a"}</td>
+                  <td>{row?.n_eval ?? "n/a"}</td>
+                  <td>{fmt(row?.mean_faithfulness)}</td>
+                  <td>{fmt(row?.mean_em)}</td>
+                  <td>{fmt(row?.mean_f1)}</td>
+                </tr>
+              );
+            });
+          })}
+        </tbody>
+      </table>
     </div>
   );
 }
 
-function truncate(text: string, max = 64) {
-  const cleaned = text.replace(/\s+/g, " ").trim();
-  return cleaned.length <= max ? cleaned : `${cleaned.slice(0, max - 1)}…`;
+function bestLabel(best: BestModel) {
+  if (best === "tie") return "Tie versus the correct answer";
+  if (best === "mt5") return "Best match to the correct answer: mT5";
+  return "Best match to the correct answer: Qwen";
 }
 
 export default function App() {
-  const [theme, setTheme] = useState<Theme>("dark");
-  const [tab, setTab] = useState<TabId>("dataset");
-  const [query, setQuery] = useState("");
-  const [language, setLanguage] = useState<DatasetLanguage | "all">("arabic");
-  const [dataset, setDataset] = useState<DatasetExample[]>([]);
-  const [datasetError, setDatasetError] = useState<string | null>(null);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [demoIndex, setDemoIndex] = useState(3);
-  const [demoResult, setDemoResult] = useState({
-    mt5: examples[3].mt5,
-    qwen: examples[3].qwen,
-  });
-  const [loading, setLoading] = useState(false);
-  const [contextOpen, setContextOpen] = useState(false);
+  const [theme, setTheme] = useState<Theme>("light");
+  const [file, setFile] = useState<DatasetFile | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [language, setLanguage] = useState<DatasetLanguage>("arabic");
+  const [configId, setConfigId] = useState<ConfigId>("C_composite_lora");
+  const [exampleId, setExampleId] = useState<string>("");
+  const [showContext, setShowContext] = useState(false);
 
   useEffect(() => {
     const initial = getPreferredTheme();
@@ -148,17 +148,15 @@ export default function App() {
   useEffect(() => {
     let cancelled = false;
     loadDatasetExamples()
-      .then((file) => {
+      .then((data) => {
         if (cancelled) return;
-        setDataset(file.examples);
-        const first = file.examples.find((e) => e.language === "arabic");
-        setSelectedId(first?.id ?? file.examples[0]?.id ?? null);
+        setFile(data);
+        const first = data.examples.find((e) => e.language === "arabic");
+        if (first) setExampleId(first.id);
       })
-      .catch((error: unknown) => {
+      .catch((err: unknown) => {
         if (!cancelled) {
-          setDatasetError(
-            error instanceof Error ? error.message : "Failed to load dataset",
-          );
+          setError(err instanceof Error ? err.message : "Failed to load data");
         }
       });
     return () => {
@@ -166,330 +164,259 @@ export default function App() {
     };
   }, []);
 
-  const arabicCount = useMemo(
-    () => dataset.filter((e) => e.language === "arabic").length,
-    [dataset],
-  );
-  const malayCount = useMemo(
-    () => dataset.filter((e) => e.language === "malay").length,
-    [dataset],
+  const configDefs = file?.config_defs ?? [];
+  const examples = file?.examples ?? [];
+
+  const filtered = useMemo(
+    () => examples.filter((e) => e.language === language),
+    [examples, language],
   );
 
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    return dataset.filter((example) => {
-      if (language !== "all" && example.language !== language) return false;
-      if (!q) return true;
-      return (
-        example.question.toLowerCase().includes(q) ||
-        example.reference.toLowerCase().includes(q) ||
-        example.id.toLowerCase().includes(q) ||
-        String(example.example_index).includes(q)
-      );
-    });
-  }, [dataset, language, query]);
-
-  const active = useMemo(() => {
+  const active: DatasetExample | null = useMemo(() => {
     if (!filtered.length) return null;
-    return filtered.find((e) => e.id === selectedId) ?? filtered[0];
-  }, [filtered, selectedId]);
+    return filtered.find((e) => e.id === exampleId) ?? filtered[0];
+  }, [filtered, exampleId]);
 
-  const datasetBest = useMemo(
-    () => (active ? pickBestModel(active.mt5, active.qwen) : "tie"),
-    [active],
-  );
+  const configPred = active?.configs?.[configId];
+  const mt5 = configPred?.mt5 ?? null;
+  const qwen = configPred?.qwen ?? null;
+  const best = useMemo(() => {
+    if (!mt5 && !qwen) return "tie" as BestModel;
+    if (!mt5) return "qwen" as BestModel;
+    if (!qwen) return "mt5" as BestModel;
+    return pickBestModel(mt5, qwen);
+  }, [mt5, qwen]);
 
-  const demo = examples[demoIndex];
-  const compareBest = useMemo(
-    () => pickBestModel(demoResult.mt5, demoResult.qwen),
-    [demoResult],
-  );
-
-  function selectDemo(index: number) {
-    setDemoIndex(index);
-    setDemoResult({ mt5: examples[index].mt5, qwen: examples[index].qwen });
-    setContextOpen(false);
-  }
-
-  async function runCompare() {
-    setLoading(true);
-    const fallback = { mt5: demo.mt5, qwen: demo.qwen };
-    try {
-      const response = await fetch("/api/compare", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          context: demo.context,
-          question: demo.question,
-          reference: demo.reference,
-          mt5_configuration: "frozen",
-          qwen_configuration: "frozen",
-        }),
-      });
-      if (!response.ok) throw new Error("API unavailable");
-      const data = (await response.json()) as {
-        mt5: ModelScores;
-        qwen: ModelScores;
-      };
-      setDemoResult(data);
-    } catch {
-      // Offline / Vercel: use the per-example mock so the button always updates.
-      setDemoResult(fallback);
-    } finally {
-      setLoading(false);
-    }
-  }
+  const arabicCount = examples.filter((e) => e.language === "arabic").length;
+  const malayCount = examples.filter((e) => e.language === "malay").length;
 
   return (
-    <div className="app-shell">
-      <header className="topbar">
-        <div className="brand">
-          <span className="brand-mark">
-            <Sparkles size={16} />
-          </span>
-          <div>
-            <strong>RAG Faithfulness Lab</strong>
-            <small>mT5 × Qwen, offline results</small>
-          </div>
+    <div className="page">
+      <header className="masthead">
+        <div className="masthead-main">
+          <p className="eyebrow">LoRA Experiment · Offline evaluation browser</p>
+          <h1>RAG Faithfulness Lab</h1>
+          <p className="lede">
+            Compare logged mT5 and Qwen answers against the gold reference under
+            training configurations A (Frozen), B (CE LoRA), C (Composite LoRA),
+            and D (Full FT). No live GPU inference.
+          </p>
         </div>
-
-        <nav className="tabs" aria-label="Primary">
+        <div className="masthead-actions">
           <button
             type="button"
-            className={tab === "dataset" ? "tab active" : "tab"}
-            onClick={() => setTab("dataset")}
-          >
-            Dataset
-            <em>{dataset.length || "…"}</em>
-          </button>
-          <button
-            type="button"
-            className={tab === "compare" ? "tab active" : "tab"}
-            onClick={() => setTab("compare")}
-          >
-            Demos
-            <em>{examples.length}</em>
-          </button>
-        </nav>
-
-        <div className="top-actions">
-          <button
-            type="button"
-            className="ghost-btn"
+            className="icon-btn"
             onClick={() => setTheme((t) => toggleTheme(t))}
             aria-label="Toggle theme"
           >
             {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
           </button>
           <a
-            className="ghost-btn"
+            className="icon-btn"
             href="https://github.com/Akramtaha98/LoRA_Experiment"
             target="_blank"
             rel="noreferrer"
+            aria-label="GitHub repository"
           >
             <ExternalLink size={16} />
           </a>
         </div>
       </header>
 
-      {tab === "dataset" ? (
-        <main className="lab-grid">
-          <aside className="picker">
-            <div className="picker-head">
-              <h1>Examples</h1>
-              <p>
-                {arabicCount} Arabic, {malayCount} Malay
-              </p>
-            </div>
+      <section className="controls panel">
+        <label>
+          Language
+          <select
+            value={language}
+            onChange={(e) => {
+              const next = e.target.value as DatasetLanguage;
+              setLanguage(next);
+              const first = examples.find((ex) => ex.language === next);
+              if (first) setExampleId(first.id);
+              setShowContext(false);
+            }}
+          >
+            <option value="arabic">Arabic ({arabicCount})</option>
+            <option value="malay">Malay ({malayCount})</option>
+          </select>
+        </label>
 
-            <div className="lang-row">
-              {(
-                [
-                  ["arabic", `Arabic ${arabicCount}`],
-                  ["malay", `Malay ${malayCount}`],
-                  ["all", `All ${dataset.length}`],
-                ] as const
-              ).map(([value, label]) => (
-                <button
-                  key={value}
-                  type="button"
-                  className={language === value ? "chip active" : "chip"}
-                  onClick={() => {
-                    setLanguage(value);
-                    setQuery("");
-                    const next =
-                      value === "all"
-                        ? dataset[0]
-                        : dataset.find((e) => e.language === value);
-                    if (next) setSelectedId(next.id);
-                  }}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
+        <label>
+          Training configuration
+          <select
+            value={configId}
+            onChange={(e) => setConfigId(e.target.value as ConfigId)}
+          >
+            {configDefs.map((cfg) => (
+              <option key={cfg.id} value={cfg.id}>
+                {cfg.label}
+              </option>
+            ))}
+          </select>
+        </label>
 
-            <label className="search">
-              <Search size={15} />
-              <input
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search question or id…"
-              />
-            </label>
+        <label className="menubox">
+          Example
+          <select
+            value={active?.id ?? ""}
+            onChange={(e) => {
+              setExampleId(e.target.value);
+              setShowContext(false);
+            }}
+          >
+            {filtered.map((ex) => (
+              <option key={ex.id} value={ex.id}>
+                {ex.language === "arabic" ? "AR" : "MS"} #{ex.example_index}:{" "}
+                {ex.question.length > 72
+                  ? `${ex.question.slice(0, 72)}…`
+                  : ex.question}
+              </option>
+            ))}
+          </select>
+        </label>
+      </section>
 
-            <div className="pick-list" role="listbox">
-              {datasetError ? (
-                <p className="error">{datasetError}</p>
-              ) : filtered.length === 0 ? (
-                <p className="muted">No matches.</p>
-              ) : (
-                filtered.map((example) => {
-                  const selected = active?.id === example.id;
-                  return (
-                    <button
-                      key={example.id}
-                      type="button"
-                      role="option"
-                      aria-selected={selected}
-                      className={selected ? "pick active" : "pick"}
-                      onClick={() => {
-                        setSelectedId(example.id);
-                        setContextOpen(false);
-                      }}
-                    >
-                      <span className="pick-meta">
-                        {example.language === "arabic" ? "AR" : "MS"} #
-                        {example.example_index}
-                        <i className={`dot ${example.best_model}`} />
-                      </span>
-                      <strong dir="auto">{truncate(example.question, 70)}</strong>
-                    </button>
-                  );
-                })
-              )}
-            </div>
-          </aside>
+      {configDefs.length ? (
+        <p className="config-note">
+          {configDefs.find((c) => c.id === configId)?.description}.{" "}
+          {SCORING_RULE_LABEL}
+        </p>
+      ) : null}
 
-          <section className="stage">
-            {active ? (
-              <>
-                <div className="evidence">
-                  <div className="evidence-top">
-                    <div>
-                      <small>Question</small>
-                      <h2 dir="auto">{active.question}</h2>
-                    </div>
-                    <button
-                      type="button"
-                      className="text-btn"
-                      onClick={() => setContextOpen((v) => !v)}
-                    >
-                      {contextOpen ? "Hide context" : "Show context"}
-                    </button>
-                  </div>
-                  {contextOpen ? (
-                    <div className="context-box" dir="auto">
-                      {active.context}
-                    </div>
-                  ) : null}
-                  <p className="source-line">
-                    Logged QLoRA, seed {active.source.seed}, mT5{" "}
-                    {active.source.mt5_config}, Qwen{" "}
-                    {active.source.qwen_config}
-                  </p>
-                </div>
+      <section className="panel">
+        <div className="section-title">
+          <h2>Mean metrics by configuration</h2>
+          <p>
+            Aggregate scores from experiment logs ({language}; preferred seed 42,
+            QLoRA when available).
+          </p>
+        </div>
+        {file ? (
+          <AggregateTable
+            language={language}
+            configDefs={configDefs}
+            aggregates={file.aggregates}
+          />
+        ) : (
+          <p className="muted">{error ?? "Loading…"}</p>
+        )}
+      </section>
 
-                <BestLine best={datasetBest} />
-
-                <div className="panels panels-3">
-                  <CorrectPanel answer={active.reference} />
-                  <ModelPanel
-                    name="mT5"
-                    kind="Encoder-decoder"
-                    result={active.mt5}
-                    isBest={datasetBest === "mt5"}
-                  />
-                  <ModelPanel
-                    name="Qwen"
-                    kind="Decoder-only"
-                    result={active.qwen}
-                    isBest={datasetBest === "qwen"}
-                  />
-                </div>
-              </>
-            ) : (
-              <p className="muted">Loading examples…</p>
-            )}
-          </section>
-        </main>
-      ) : (
-        <main className="lab-grid">
-          <aside className="picker">
-            <div className="picker-head">
-              <h1>English demos</h1>
-              <p>Offline mock results update instantly</p>
-            </div>
-            <div className="pick-list">
-              {examples.map((example, index) => (
-                <button
-                  key={example.name}
-                  type="button"
-                  className={demoIndex === index ? "pick active" : "pick"}
-                  onClick={() => selectDemo(index)}
-                >
-                  <span className="pick-meta">Demo</span>
-                  <strong>{example.name}</strong>
-                  <em>{example.description}</em>
-                </button>
-              ))}
-            </div>
-          </aside>
-
-          <section className="stage">
-            <div className="evidence">
-              <div className="evidence-top">
-                <div>
-                  <small>Question</small>
-                  <h2>{demo.question}</h2>
-                </div>
-                <button
-                  type="button"
-                  className="compare-btn"
-                  onClick={runCompare}
-                  disabled={loading}
-                >
-                  <Play size={15} fill="currentColor" />
-                  {loading ? "Running…" : "Compare"}
-                </button>
+      {active ? (
+        <>
+          <section className="panel">
+            <div className="section-title row">
+              <div>
+                <h2>Selected example</h2>
+                <p>
+                  {active.language === "arabic" ? "Arabic" : "Malay"} example #
+                  {active.example_index}
+                </p>
               </div>
-              <div className="context-box">{demo.context}</div>
-              <p className="source-line">
-                Selecting a demo updates answers below. On Vercel, Compare uses
-                built-in mocks (no GPU API).
+              <button
+                type="button"
+                className="text-btn"
+                onClick={() => setShowContext((v) => !v)}
+              >
+                {showContext ? "Hide passage" : "Show passage"}
+              </button>
+            </div>
+            <p className="question" dir="auto">
+              {active.question}
+            </p>
+            {showContext ? (
+              <div className="passage" dir="auto">
+                {active.context}
+              </div>
+            ) : null}
+          </section>
+
+          <section className="best-strip">
+            <strong>{bestLabel(best)}</strong>
+            <span>{SCORING_RULE_LABEL}</span>
+          </section>
+
+          <section className="compare-grid">
+            <AnswerCard
+              title="Correct answer"
+              subtitle="Gold reference"
+              answer={active.reference}
+              variant="gold"
+              badge="Gold"
+            />
+            <AnswerCard
+              title="mT5"
+              subtitle="Encoder-decoder"
+              answer={mt5?.answer || "Not logged"}
+              metrics={mt5}
+              badge={best === "mt5" ? "Best" : undefined}
+            />
+            <AnswerCard
+              title="Qwen"
+              subtitle="Decoder-only"
+              answer={qwen?.answer || "Not logged"}
+              metrics={qwen}
+              badge={best === "qwen" ? "Best" : undefined}
+            />
+          </section>
+
+          <section className="panel">
+            <div className="section-title">
+              <h2>Same example across configs</h2>
+              <p>
+                Quick view of logged answers for this question under A/B/C/D when
+                present.
               </p>
             </div>
-
-            <BestLine best={compareBest} />
-
-            <div className="panels panels-3">
-              <CorrectPanel answer={demo.reference} />
-              <ModelPanel
-                name="mT5"
-                kind="Encoder-decoder"
-                result={demoResult.mt5}
-                isBest={compareBest === "mt5"}
-              />
-              <ModelPanel
-                name="Qwen"
-                kind="Decoder-only"
-                result={demoResult.qwen}
-                isBest={compareBest === "qwen"}
-              />
+            <div className="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Config</th>
+                    <th>mT5 answer</th>
+                    <th>Qwen answer</th>
+                    <th>Best</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {configDefs.map((cfg) => {
+                    const row = active.configs[cfg.id];
+                    return (
+                      <tr
+                        key={cfg.id}
+                        className={cfg.id === configId ? "is-active-row" : undefined}
+                      >
+                        <td>{cfg.label}</td>
+                        <td dir="auto">{row?.mt5?.answer ?? "Not logged"}</td>
+                        <td dir="auto">{row?.qwen?.answer ?? "Not logged"}</td>
+                        <td>
+                          {!row?.mt5 && !row?.qwen
+                            ? "n/a"
+                            : row.best_model === "tie"
+                              ? "Tie"
+                              : row.best_model === "mt5"
+                                ? "mT5"
+                                : "Qwen"}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </div>
           </section>
-        </main>
+        </>
+      ) : (
+        <p className="muted">{error ?? "Loading examples…"}</p>
       )}
+
+      <footer className="site-footer">
+        <span>
+          {arabicCount} Arabic and {malayCount} Malay examples · static JSON from{" "}
+          <code>experiment_results/</code>
+        </span>
+        <span>mT5 × Qwen RAG faithfulness study</span>
+      </footer>
     </div>
   );
 }
