@@ -20,6 +20,7 @@ import {
 } from "./data/dataset";
 import {
   pickBestModel,
+  neitherMatchedGold,
   SCORING_RULE_LABEL,
   type BestModel,
   type ModelScores,
@@ -162,9 +163,16 @@ function AggregateTable({
   );
 }
 
-function bestLabel(best: BestModel) {
+function bestLabel(
+  best: BestModel,
+  mt5: ModelScores | null,
+  qwen: ModelScores | null,
+) {
   if (best === "incomplete") {
     return "Incomplete comparison: only one model is logged for this config";
+  }
+  if (neitherMatchedGold(mt5, qwen)) {
+    return "Neither model matched the correct answer";
   }
   if (best === "tie") return "Tie versus the correct answer";
   if (best === "mt5") return "Best match to the correct answer: mT5";
@@ -227,6 +235,7 @@ export default function App() {
   const mt5 = configPred?.mt5 ?? null;
   const qwen = configPred?.qwen ?? null;
   const best = useMemo(() => pickBestModel(mt5, qwen), [mt5, qwen]);
+  const noGoldMatch = neitherMatchedGold(mt5, qwen);
 
   const arabicCount = examples.filter((e) => e.language === "arabic").length;
   const malayCount = examples.filter((e) => e.language === "malay").length;
@@ -378,7 +387,7 @@ export default function App() {
             <section className={`winner winner-${best}`}>
               <Trophy size={18} />
               <div>
-                <strong>{bestLabel(best)}</strong>
+                <strong>{bestLabel(best, mt5, qwen)}</strong>
                 <p>{SCORING_RULE_LABEL}</p>
               </div>
             </section>
@@ -396,14 +405,14 @@ export default function App() {
                 subtitle="Encoder-decoder"
                 answer={mt5?.answer || "Not logged"}
                 metrics={mt5}
-                badge={best === "mt5" ? "Best" : undefined}
+                badge={best === "mt5" && !noGoldMatch ? "Best" : undefined}
               />
               <AnswerCard
                 title="Qwen"
                 subtitle="Decoder-only"
                 answer={qwen?.answer || "Not logged"}
                 metrics={qwen}
-                badge={best === "qwen" ? "Best" : undefined}
+                badge={best === "qwen" && !noGoldMatch ? "Best" : undefined}
               />
             </section>
 
@@ -462,7 +471,9 @@ export default function App() {
                               (!row?.mt5 && !row?.qwen)
                                 ? "n/a"
                                 : row.best_model === "tie"
-                                  ? "Tie"
+                                  ? neitherMatchedGold(row.mt5, row.qwen)
+                                    ? "Neither"
+                                    : "Tie"
                                   : row.best_model === "mt5"
                                     ? "mT5"
                                     : "Qwen"}
