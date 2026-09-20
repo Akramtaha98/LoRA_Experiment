@@ -8,7 +8,7 @@ export type ModelScores = {
 
 export type BestModel = "mt5" | "qwen" | "tie";
 
-/** Higher faithfulness first, then EM, then F1. Equal on all three → tie. */
+/** Higher faithfulness first, then EM, then F1. Equal on all three is a tie. */
 export function pickBestModel(
   mt5: Pick<ModelScores, "faithfulness" | "exact_match" | "f1">,
   qwen: Pick<ModelScores, "faithfulness" | "exact_match" | "f1">,
@@ -23,4 +23,4 @@ export function pickBestModel(
 }
 
 export const SCORING_RULE_LABEL =
-  "Best model: higher faithfulness, then Exact Match, then Token F1. Equal on all three → tie.";
+  "Best model: higher faithfulness, then Exact Match, then Token F1. Equal on all three is a tie.";

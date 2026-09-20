@@ -70,7 +70,7 @@ function ModelPanel({
         ) : null}
       </header>
       <div className="answer" dir="auto">
-        {result.answer || "—"}
+        {result.answer || "(empty)"}
       </div>
       <MetricBar label="Faithfulness" value={result.faithfulness} />
       <MetricBar label="Exact Match" value={result.exact_match} />
@@ -85,7 +85,7 @@ function ModelPanel({
 function BestLine({ best }: { best: BestModel }) {
   const label =
     best === "tie"
-      ? "Tie on faithfulness → EM → F1"
+      ? "Tie on faithfulness, EM, and F1"
       : best === "mt5"
         ? "Best: mT5"
         : "Best: Qwen";
@@ -229,7 +229,7 @@ export default function App() {
           </span>
           <div>
             <strong>RAG Faithfulness Lab</strong>
-            <small>mT5 × Qwen · offline results</small>
+            <small>mT5 × Qwen, offline results</small>
           </div>
         </div>
 
@@ -278,7 +278,7 @@ export default function App() {
             <div className="picker-head">
               <h1>Examples</h1>
               <p>
-                {arabicCount} Arabic · {malayCount} Malay
+                {arabicCount} Arabic, {malayCount} Malay
               </p>
             </div>
 
@@ -339,7 +339,7 @@ export default function App() {
                       }}
                     >
                       <span className="pick-meta">
-                        {example.language === "arabic" ? "AR" : "MS"} · #
+                        {example.language === "arabic" ? "AR" : "MS"} #
                         {example.example_index}
                         <i className={`dot ${example.best_model}`} />
                       </span>
@@ -377,8 +377,8 @@ export default function App() {
                     </div>
                   ) : null}
                   <p className="source-line">
-                    Logged QLoRA · seed {active.source.seed} · mT5{" "}
-                    {active.source.mt5_config} · Qwen{" "}
+                    Logged QLoRA, seed {active.source.seed}, mT5{" "}
+                    {active.source.mt5_config}, Qwen{" "}
                     {active.source.qwen_config}
                   </p>
                 </div>
@@ -388,7 +388,7 @@ export default function App() {
                 <div className="panels">
                   <ModelPanel
                     name="mT5"
-                    kind="Encoder–decoder"
+                    kind="Encoder-decoder"
                     result={active.mt5}
                     isBest={datasetBest === "mt5"}
                   />
@@ -458,7 +458,7 @@ export default function App() {
             <div className="panels">
               <ModelPanel
                 name="mT5"
-                kind="Encoder–decoder"
+                kind="Encoder-decoder"
                 result={demoResult.mt5}
                 isBest={compareBest === "mt5"}
               />
