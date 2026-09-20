@@ -12,7 +12,7 @@
       "f1",
       "faithfulness"
     ],
-    "description": "Best answer = higher Exact Match vs reference, then Token F1, then faithfulness. Equal on all three is a tie."
+    "description": "Best answer = higher Exact Match vs reference, then Token F1, then faithfulness. Only awarded when both mT5 and Qwen predictions are logged for that example/config."
   },
   "config_defs": [
     {
@@ -198,7 +198,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -209,7 +209,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -231,7 +231,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -246,7 +246,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -257,7 +257,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -279,7 +279,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -294,7 +294,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -305,7 +305,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -327,7 +327,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -342,7 +342,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -353,7 +353,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -375,7 +375,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -390,7 +390,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -401,7 +401,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -423,7 +423,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -438,7 +438,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -449,7 +449,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -471,7 +471,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -486,7 +486,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -497,7 +497,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -519,7 +519,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -534,7 +534,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -545,7 +545,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -567,7 +567,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -582,7 +582,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -593,7 +593,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -615,7 +615,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -630,7 +630,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -641,7 +641,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -663,7 +663,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -678,7 +678,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -689,7 +689,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -711,7 +711,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -726,7 +726,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -737,7 +737,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -759,7 +759,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -774,7 +774,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -785,7 +785,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -807,7 +807,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -822,7 +822,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -833,7 +833,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -855,7 +855,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -870,7 +870,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -881,7 +881,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -903,7 +903,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -918,7 +918,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -929,7 +929,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -951,7 +951,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -966,7 +966,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -977,7 +977,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -999,7 +999,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -1014,7 +1014,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -1025,7 +1025,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -1047,7 +1047,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -1062,7 +1062,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -1073,7 +1073,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -1095,7 +1095,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -1110,7 +1110,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -1121,7 +1121,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -1143,7 +1143,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -1158,7 +1158,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -1169,7 +1169,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -1191,7 +1191,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -1206,7 +1206,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -1217,7 +1217,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -1239,7 +1239,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -1254,7 +1254,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -1265,7 +1265,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -1287,7 +1287,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -1302,7 +1302,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -1313,7 +1313,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -1335,7 +1335,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -1350,7 +1350,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -1361,7 +1361,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -1383,7 +1383,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -1398,7 +1398,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -1409,7 +1409,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -1431,7 +1431,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -1446,7 +1446,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -1457,7 +1457,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -1479,7 +1479,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -1494,7 +1494,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -1505,7 +1505,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -1527,7 +1527,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -1542,7 +1542,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -1553,7 +1553,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -1575,7 +1575,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -1590,7 +1590,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -1601,7 +1601,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -1623,7 +1623,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -1638,7 +1638,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -1649,7 +1649,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -1671,7 +1671,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -1686,7 +1686,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -1697,7 +1697,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -1719,7 +1719,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -1734,7 +1734,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -1745,7 +1745,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -1767,7 +1767,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -1782,7 +1782,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -1793,7 +1793,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -1815,7 +1815,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -1830,7 +1830,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -1841,7 +1841,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -1863,7 +1863,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -1878,7 +1878,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -1889,7 +1889,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -1911,7 +1911,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -1926,7 +1926,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -1937,7 +1937,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -1959,7 +1959,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -1974,7 +1974,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -1985,7 +1985,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -2007,7 +2007,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -2022,7 +2022,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -2033,7 +2033,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -2055,7 +2055,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -2070,7 +2070,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -2081,7 +2081,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -2103,7 +2103,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -2118,7 +2118,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -2129,7 +2129,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -2151,7 +2151,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -2166,7 +2166,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -2177,7 +2177,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -2199,7 +2199,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -2214,7 +2214,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -2225,7 +2225,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -2247,7 +2247,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -2262,7 +2262,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -2273,7 +2273,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -2295,7 +2295,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -2310,7 +2310,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -2321,7 +2321,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -2343,7 +2343,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -2358,7 +2358,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -2369,7 +2369,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -2391,7 +2391,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -2406,7 +2406,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -2417,7 +2417,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -2439,7 +2439,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -2454,7 +2454,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -2465,7 +2465,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -2487,7 +2487,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -2502,7 +2502,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -2513,7 +2513,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -2535,7 +2535,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -2550,7 +2550,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -2561,7 +2561,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -2583,7 +2583,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -2598,7 +2598,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -2609,7 +2609,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -2631,7 +2631,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -2646,7 +2646,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -2657,7 +2657,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -2679,7 +2679,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -2694,7 +2694,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -2705,7 +2705,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -2727,7 +2727,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -2742,7 +2742,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -2753,7 +2753,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -2775,7 +2775,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -2790,7 +2790,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -2801,7 +2801,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -2823,7 +2823,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -2838,7 +2838,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -2849,7 +2849,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -2871,7 +2871,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -2886,7 +2886,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -2897,7 +2897,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -2919,7 +2919,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -2934,7 +2934,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -2945,7 +2945,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -2967,7 +2967,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -2982,7 +2982,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -2993,7 +2993,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -3015,7 +3015,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -3030,7 +3030,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -3041,7 +3041,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -3063,7 +3063,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -3078,7 +3078,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -3089,7 +3089,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -3111,7 +3111,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -3126,7 +3126,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -3137,7 +3137,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -3159,7 +3159,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -3174,7 +3174,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -3185,7 +3185,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -3207,7 +3207,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -3222,7 +3222,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -3233,7 +3233,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -3255,7 +3255,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -3270,7 +3270,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -3281,7 +3281,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -3303,7 +3303,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -3318,7 +3318,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -3329,7 +3329,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -3351,7 +3351,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -3366,7 +3366,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -3377,7 +3377,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -3399,7 +3399,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -3414,7 +3414,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -3425,7 +3425,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -3447,7 +3447,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -3462,7 +3462,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -3473,7 +3473,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -3495,7 +3495,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -3510,7 +3510,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -3521,7 +3521,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -3543,7 +3543,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -3558,7 +3558,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -3569,7 +3569,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -3591,7 +3591,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -3606,7 +3606,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -3617,7 +3617,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -3639,7 +3639,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -3654,7 +3654,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -3665,7 +3665,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -3687,7 +3687,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -3702,7 +3702,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -3713,7 +3713,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -3735,7 +3735,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -3750,7 +3750,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -3761,7 +3761,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -3783,7 +3783,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -3798,7 +3798,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -3809,7 +3809,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -3831,7 +3831,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -3846,7 +3846,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -3857,7 +3857,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -3879,7 +3879,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -3894,7 +3894,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -3905,7 +3905,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -3927,7 +3927,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -3942,7 +3942,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -3953,7 +3953,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -3975,7 +3975,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -3990,7 +3990,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -4001,7 +4001,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -4023,7 +4023,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -4038,7 +4038,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -4049,7 +4049,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -4071,7 +4071,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -4086,7 +4086,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -4097,7 +4097,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -4119,7 +4119,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -4134,7 +4134,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -4145,7 +4145,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -4167,7 +4167,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -4182,7 +4182,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -4193,7 +4193,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -4215,7 +4215,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -4230,7 +4230,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -4241,7 +4241,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -4263,7 +4263,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -4278,7 +4278,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -4289,7 +4289,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -4311,7 +4311,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -4326,7 +4326,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -4337,7 +4337,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -4359,7 +4359,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -4374,7 +4374,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -4385,7 +4385,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -4407,7 +4407,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -4422,7 +4422,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -4433,7 +4433,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -4455,7 +4455,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -4470,7 +4470,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -4481,7 +4481,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -4503,7 +4503,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -4518,7 +4518,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -4529,7 +4529,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -4551,7 +4551,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -4566,7 +4566,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -4577,7 +4577,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -4599,7 +4599,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -4614,7 +4614,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -4625,7 +4625,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -4647,7 +4647,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -4662,7 +4662,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -4673,7 +4673,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -4695,7 +4695,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -4710,7 +4710,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -4721,7 +4721,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -4743,7 +4743,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -4758,7 +4758,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -4769,7 +4769,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -4791,7 +4791,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -4806,7 +4806,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -4817,7 +4817,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -4839,7 +4839,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -4854,7 +4854,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -4865,7 +4865,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -4887,7 +4887,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -4902,7 +4902,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -4913,7 +4913,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -4935,7 +4935,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -4950,7 +4950,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -4961,7 +4961,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -4983,7 +4983,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -4998,7 +4998,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -5009,7 +5009,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -5031,7 +5031,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -5046,7 +5046,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -5057,7 +5057,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -5079,7 +5079,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -5094,7 +5094,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -5105,7 +5105,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -5127,7 +5127,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -5142,7 +5142,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -5153,7 +5153,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -5175,7 +5175,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -5190,7 +5190,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -5201,7 +5201,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -5223,7 +5223,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -5238,7 +5238,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -5249,7 +5249,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -5271,7 +5271,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -5286,7 +5286,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -5297,7 +5297,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -5319,7 +5319,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -5334,7 +5334,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -5345,7 +5345,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -5367,7 +5367,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -5382,7 +5382,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -5393,7 +5393,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -5415,7 +5415,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     },
@@ -5430,7 +5430,7 @@
         "A_frozen": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         },
         "B_ce_lora": {
           "mt5": {
@@ -5441,7 +5441,7 @@
             "lora_variant": "qlora"
           },
           "qwen": null,
-          "best_model": "mt5"
+          "best_model": "incomplete"
         },
         "C_composite_lora": {
           "mt5": {
@@ -5463,7 +5463,7 @@
         "D_full_ft": {
           "mt5": null,
           "qwen": null,
-          "best_model": "tie"
+          "best_model": "incomplete"
         }
       }
     }

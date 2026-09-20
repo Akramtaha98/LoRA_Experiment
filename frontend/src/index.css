@@ -386,7 +386,8 @@ button {
   color: var(--accent);
 }
 
-.winner-tie {
+.winner-tie,
+.winner-incomplete {
   background: var(--warn-bg);
   border-color: color-mix(in srgb, var(--warn) 35%, var(--line));
   color: var(--warn);

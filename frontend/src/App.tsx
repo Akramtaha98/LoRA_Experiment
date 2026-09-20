@@ -163,6 +163,9 @@ function AggregateTable({
 }
 
 function bestLabel(best: BestModel) {
+  if (best === "incomplete") {
+    return "Incomplete comparison: only one model is logged for this config";
+  }
   if (best === "tie") return "Tie versus the correct answer";
   if (best === "mt5") return "Best match to the correct answer: mT5";
   return "Best match to the correct answer: Qwen";
@@ -223,12 +226,7 @@ export default function App() {
   const configPred = active?.configs?.[configId];
   const mt5 = configPred?.mt5 ?? null;
   const qwen = configPred?.qwen ?? null;
-  const best = useMemo(() => {
-    if (!mt5 && !qwen) return "tie" as BestModel;
-    if (!mt5) return "qwen" as BestModel;
-    if (!qwen) return "mt5" as BestModel;
-    return pickBestModel(mt5, qwen);
-  }, [mt5, qwen]);
+  const best = useMemo(() => pickBestModel(mt5, qwen), [mt5, qwen]);
 
   const arabicCount = examples.filter((e) => e.language === "arabic").length;
   const malayCount = examples.filter((e) => e.language === "malay").length;
@@ -460,7 +458,8 @@ export default function App() {
                               {row?.qwen?.answer ?? "Not logged"}
                             </td>
                             <td>
-                              {!row?.mt5 && !row?.qwen
+                              {row?.best_model === "incomplete" ||
+                              (!row?.mt5 && !row?.qwen)
                                 ? "n/a"
                                 : row.best_model === "tie"
                                   ? "Tie"
