@@ -43,15 +43,37 @@ No inflated claims. This project reports what the data actually shows, including
 ```
 .
 ├── lora_experiment_matrix.py    Main experiment script: trains + evaluates all conditions
+├── qwen_experiment_matrix.py    Qwen experiment matrix (same PEFT family)
 ├── experiment_results/          Per-condition checkpoint logs (JSONL) + results CSV
+├── experiment_results_qwen/     Qwen result logs
 ├── analysis/
 │   ├── generate_figures.py      Regenerates the paper's result figures from logged data
 │   └── xlmr_rescore.py          Independent NLI re-scoring (verification pass)
+├── frontend/                    Phase 1 RAG Faithfulness Lab UI (Vite + React)
+├── backend/                     Phase 1 mock FastAPI (`/api/health`, `/api/compare`)
 ├── docs/
-│   └── PROJECT_GUIDE.md         Full narrative: motivation, bug, fix, GPU rerun, verification
+│   ├── PROJECT_GUIDE.md         Full narrative: motivation, bug, fix, GPU rerun, verification
+│   └── WEBSITE_GUIDE.md         Website architecture, API contract, and phased plan
 ├── requirements.txt
 └── README.md
 ```
+
+## Website (Phase 1 demo)
+
+Interactive mT5 vs Qwen comparison UI with static demos and a mock API. No model loading or training from the website.
+
+```bash
+# API (repo root)
+pip install fastapi "uvicorn[standard]"
+uvicorn backend.api:app --reload --port 8000
+
+# UI
+cd frontend && npm install && npm run dev
+```
+
+- Frontend: http://localhost:5173
+- Backend: http://localhost:8000 — Swagger at `/docs`
+- Details: [`docs/WEBSITE_GUIDE.md`](docs/WEBSITE_GUIDE.md) and [`frontend/README.md`](frontend/README.md)
 
 ## Setup
 
