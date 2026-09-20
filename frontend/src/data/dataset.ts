@@ -39,7 +39,9 @@ let cache: DatasetFile | null = null;
 
 export async function loadDatasetExamples(): Promise<DatasetFile> {
   if (cache) return cache;
-  const response = await fetch("/data/dataset-examples.json");
+  const response = await fetch(
+    `${import.meta.env.BASE_URL}data/dataset-examples.json`,
+  );
   if (!response.ok) {
     throw new Error(`Failed to load dataset examples (${response.status})`);
   }

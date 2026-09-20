@@ -237,21 +237,27 @@ Dark research-dashboard design: Compare / Examples / Results / About; context/qu
 
 ## 16. Production Deployment (Vercel)
 
-Deploy the **frontend** as a static SPA (Root Directory = `frontend`).
+Deploy the **frontend** as a static SPA.
+
+**Option A — Root Directory = repository root (easiest)**  
+Repo root `vercel.json` already points Vercel at `frontend/` (`installCommand` / `buildCommand` / `outputDirectory`). You can leave **LoRA_Experiment (root)** selected.
+
+**Option B — Root Directory = `frontend`**  
+Also works; uses `frontend/vercel.json`.
 
 ```bash
 cd frontend
 npm install
 npm run build
-# Vercel: import the GitHub repo, set Root Directory to frontend,
-# Framework Preset = Vite, Build = npm run build, Output = dist
 ```
 
-- `frontend/vercel.json` rewrites unknown paths to `index.html` for SPA routing.
-- Dataset comparison loads `/data/dataset-examples.json` from `public/` — **no FastAPI required** on Vercel.
-- Live Compare still needs a separate GPU/API host when you wire real models; until then the Compare tab uses the mock/fallback only.
+- Build output: `frontend/dist`
+- Dataset comparison loads static JSON — **no FastAPI required** on Vercel.
+- Live Compare still needs a separate GPU/API host when you wire real models.
 
-Do not run model inference in the frontend-only host.
+**Branch:** Deploy from `main` after the website PR is merged, or from `cursor/rag-faithfulness-lab-datasets-3c8e` until then (`main` without the website has no `frontend/` folder).
+
+**GitHub Pages (backup):** workflow `.github/workflows/deploy-pages.yml` publishes on push to `main`. Enable Pages → Source: GitHub Actions in repo Settings once.
 
 ---
 

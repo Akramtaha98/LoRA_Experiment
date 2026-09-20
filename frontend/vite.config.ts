@@ -4,6 +4,8 @@ import { defineConfig } from "vite";
 
 // https://vite.dev/config/
 export default defineConfig({
+  // Relative base so static hosting works on Vercel root and GitHub project Pages.
+  base: "./",
   plugins: [react(), tailwindcss()],
   server: {
     proxy: {
