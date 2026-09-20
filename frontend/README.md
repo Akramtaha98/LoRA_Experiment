@@ -4,9 +4,9 @@ Interactive UI for comparing **mT5** and **Qwen** on retrieval-grounded QA.
 
 ## Features
 
-- **Dataset** tab: curated Arabic (12) + Malay (12) logged examples with side-by-side answers, metrics, and best-model highlight (faithfulness → EM → F1).
-- **Compare** tab: English demos + optional FastAPI `/api/compare` (falls back to mock metrics).
-- **Dark / light** theme toggle (persisted in `localStorage`).
+- **Dataset** tab: curated Arabic + Malay logged examples (100+) with side-by-side answers, metrics, and best-model highlight (faithfulness → EM → F1).
+- **Demos** tab: English scenarios with offline mock results (updates without FastAPI).
+- Compact lab layout + dark/light theme.
 
 ## Stack
 
