@@ -296,6 +296,35 @@ button {
   font-size: 13px;
 }
 
+.warn-hint {
+  color: var(--warn);
+  background: var(--warn-bg);
+  border: 1px solid color-mix(in srgb, var(--warn) 30%, var(--line));
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+
+.missing-block {
+  margin-top: 12px;
+}
+
+.agg-fallback {
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 12px;
+  background: var(--soft);
+  border: 1px solid var(--line);
+}
+
+.agg-title {
+  margin: 0 0 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
 .select-shell {
   position: relative;
 }

@@ -65,6 +65,8 @@ function AnswerCard({
   metrics,
   badge,
   variant = "model",
+  aggregate,
+  missingHint,
 }: {
   title: string;
   subtitle: string;
@@ -72,6 +74,8 @@ function AnswerCard({
   metrics?: ModelScores | null;
   badge?: string;
   variant?: "gold" | "model";
+  aggregate?: AggregateMetrics | null;
+  missingHint?: string;
 }) {
   const matched = metrics && metrics.exact_match >= 1;
   return (
@@ -107,10 +111,26 @@ function AnswerCard({
       ) : variant === "gold" ? (
         <p className="missing">Use this gold answer to judge the models.</p>
       ) : (
-        <p className="missing">
-          No indexed prediction in the logs for this example under the selected
-          config.
-        </p>
+        <div className="missing-block">
+          <p className="missing">
+            {missingHint ??
+              "No per-example prediction was saved in the experiment logs for this config."}
+          </p>
+          {aggregate ? (
+            <div className="agg-fallback">
+              <p className="agg-title">Dataset mean for this config</p>
+              <div className="metric-stack">
+                <MetricBar label="EM" value={aggregate.mean_em} />
+                <MetricBar label="F1" value={aggregate.mean_f1} />
+                <MetricBar label="Faith" value={aggregate.mean_faithfulness} />
+              </div>
+              <p className="missing">
+                n={aggregate.n_eval}, adapter={aggregate.lora_variant}, seed=
+                {aggregate.seed}
+              </p>
+            </div>
+          ) : null}
+        </div>
       )}
     </article>
   );
@@ -236,6 +256,14 @@ export default function App() {
   const qwen = configPred?.qwen ?? null;
   const best = useMemo(() => pickBestModel(mt5, qwen), [mt5, qwen]);
   const noGoldMatch = neitherMatchedGold(mt5, qwen);
+  const qwenAggregate =
+    file?.aggregates?.[language]?.[configId]?.qwen ?? null;
+  const mt5Aggregate =
+    file?.aggregates?.[language]?.[configId]?.mt5 ?? null;
+  const qwenMissingHint =
+    configId === "B_ce_lora"
+      ? "Qwen B CE LoRA did not save full per-question answers in this repo (only dataset means + a few snippets). Switch to C Composite LoRA for full Qwen answers."
+      : undefined;
 
   const arabicCount = examples.filter((e) => e.language === "arabic").length;
   const malayCount = examples.filter((e) => e.language === "malay").length;
@@ -331,6 +359,14 @@ export default function App() {
             {activeConfig ? (
               <p className="hint">{activeConfig.description}</p>
             ) : null}
+            {configId === "B_ce_lora" ? (
+              <p className="hint warn-hint">
+                Qwen under B CE is mostly Not logged at question level here.
+                Mean Qwen B metrics still appear in the table below and on the
+                Qwen card. Use <strong>C Composite LoRA</strong> for full
+                side-by-side Qwen answers.
+              </p>
+            ) : null}
           </div>
 
           <label className="control-block menubox">
@@ -406,6 +442,7 @@ export default function App() {
                 answer={mt5?.answer || "Not logged"}
                 metrics={mt5}
                 badge={best === "mt5" && !noGoldMatch ? "Best" : undefined}
+                aggregate={!mt5 ? mt5Aggregate : null}
               />
               <AnswerCard
                 title="Qwen"
@@ -413,6 +450,8 @@ export default function App() {
                 answer={qwen?.answer || "Not logged"}
                 metrics={qwen}
                 badge={best === "qwen" && !noGoldMatch ? "Best" : undefined}
+                aggregate={!qwen ? qwenAggregate : null}
+                missingHint={qwenMissingHint}
               />
             </section>
 

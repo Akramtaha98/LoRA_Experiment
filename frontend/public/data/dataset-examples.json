@@ -4,7 +4,8 @@
   "notes": [
     "Per-example answers are index-aligned from experiment JSONL logs (no GPU).",
     "A Frozen and D Full FT mostly have aggregate metrics only; B CE has full mT5 QLoRA logs; C Composite has full Qwen QLoRA logs.",
-    "Best answer uses Exact Match, then F1, then faithfulness versus the reference."
+    "Best answer uses Exact Match, then F1, then faithfulness versus the reference.",
+    "Qwen B CE LoRA: full per-example indexed logs were not saved in this repo (only mean metrics + 5 gold/generated snippets). Most examples show Not logged for Qwen under B; use C Composite for full side-by-side Qwen answers."
   ],
   "scoring_rule": {
     "order": [
@@ -23,7 +24,7 @@
     {
       "id": "B_ce_lora",
       "label": "B CE LoRA",
-      "description": "LoRA with cross-entropy loss"
+      "description": "LoRA with cross-entropy loss. mT5 has full per-example logs; Qwen B CE mostly aggregate-only in this repo (Not logged per question), except a few gold-matched snippets."
     },
     {
       "id": "C_composite_lora",
@@ -2800,8 +2801,15 @@
             "f1": 0.0,
             "lora_variant": "qlora"
           },
-          "qwen": null,
-          "best_model": "incomplete"
+          "qwen": {
+            "answer": "المويجسات",
+            "faithfulness": 0.0,
+            "exact_match": 0.0,
+            "f1": 0.0,
+            "lora_variant": "qlora",
+            "note": "Matched from B CE snippet log by gold text (no example_index in source)."
+          },
+          "best_model": "tie"
         },
         "C_composite_lora": {
           "mt5": {
@@ -3376,8 +3384,15 @@
             "f1": 0.0,
             "lora_variant": "qlora"
           },
-          "qwen": null,
-          "best_model": "incomplete"
+          "qwen": {
+            "answer": "Penggunaan pasaran IM",
+            "faithfulness": 0.0,
+            "exact_match": 0.0,
+            "f1": 0.1818,
+            "lora_variant": "qlora",
+            "note": "Matched from B CE snippet log by gold text (no example_index in source)."
+          },
+          "best_model": "qwen"
         },
         "C_composite_lora": {
           "mt5": {
