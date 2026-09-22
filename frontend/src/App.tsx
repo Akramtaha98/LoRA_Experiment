@@ -160,6 +160,7 @@ export default function App() {
   const [showContext, setShowContext] = useState(false);
   const [showMeans, setShowMeans] = useState(true);
   const [showAcross, setShowAcross] = useState(true);
+  const [completeOnly, setCompleteOnly] = useState(true);
 
   useEffect(() => {
     const initial = getPreferredTheme();
@@ -195,10 +196,105 @@ export default function App() {
     [examples, language],
   );
 
+  function pairStatus(
+    example: DatasetExample,
+    cfg: ConfigId,
+    variant: VariantId,
+  ) {
+    const row = example.configs?.[cfg]?.variants?.[variant];
+    const hasMt5 = Boolean(row?.mt5);
+    const hasQwen = Boolean(row?.qwen);
+    return {
+      hasMt5,
+      hasQwen,
+      both: hasMt5 && hasQwen,
+      either: hasMt5 || hasQwen,
+    };
+  }
+
+  const coverage = useMemo(() => {
+    const map: Record<
+      string,
+      { both: number; mt5: number; qwen: number; total: number }
+    > = {};
+    for (const cfg of configDefs) {
+      for (const variant of variantDefs) {
+        const key = `${cfg.id}::${variant.id}`;
+        const stats = { both: 0, mt5: 0, qwen: 0, total: filtered.length };
+        for (const example of filtered) {
+          const status = pairStatus(example, cfg.id, variant.id);
+          if (status.hasMt5) stats.mt5 += 1;
+          if (status.hasQwen) stats.qwen += 1;
+          if (status.both) stats.both += 1;
+        }
+        map[key] = stats;
+      }
+    }
+    return map;
+  }, [filtered, configDefs, variantDefs]);
+
+  function selectionStats(cfg: ConfigId, variant: VariantId) {
+    return (
+      coverage[`${cfg}::${variant}`] ?? {
+        both: 0,
+        mt5: 0,
+        qwen: 0,
+        total: filtered.length,
+      }
+    );
+  }
+
+  const usableExamples = useMemo(() => {
+    if (!completeOnly) return filtered;
+    return filtered.filter(
+      (example) => pairStatus(example, configId, variantId).both,
+    );
+  }, [filtered, completeOnly, configId, variantId]);
+
   const active: DatasetExample | null = useMemo(() => {
-    if (!filtered.length) return null;
-    return filtered.find((e) => e.id === exampleId) ?? filtered[0];
-  }, [filtered, exampleId]);
+    if (!usableExamples.length) return null;
+    return usableExamples.find((e) => e.id === exampleId) ?? usableExamples[0];
+  }, [usableExamples, exampleId]);
+
+  // Keep selection on combinations that actually have logged answers.
+  useEffect(() => {
+    if (!filtered.length || !configDefs.length || !variantDefs.length) return;
+    const current = selectionStats(configId, variantId);
+    const ok = completeOnly ? current.both > 0 : current.mt5 + current.qwen > 0;
+    if (ok) return;
+
+    const preferred: Array<[ConfigId, VariantId]> = [
+      ["C_composite_lora", "qlora"],
+      ["C_composite_lora", "dora"],
+      ["C_composite_lora", "adalora"],
+      ["C_composite_lora", "vera"],
+      ["B_ce_lora", "qlora"],
+      ["B_ce_lora", "dora"],
+    ];
+    for (const [cfg, variant] of preferred) {
+      const stats = selectionStats(cfg, variant);
+      if (completeOnly ? stats.both > 0 : stats.mt5 + stats.qwen > 0) {
+        setConfigId(cfg);
+        setVariantId(variant);
+        return;
+      }
+    }
+  }, [
+    filtered,
+    configDefs,
+    variantDefs,
+    configId,
+    variantId,
+    completeOnly,
+    coverage,
+  ]);
+
+  useEffect(() => {
+    if (!usableExamples.length) return;
+    if (!usableExamples.some((e) => e.id === exampleId)) {
+      setExampleId(usableExamples[0].id);
+    }
+  }, [usableExamples, exampleId]);
 
   const activeConfig: ConfigDef | undefined = configDefs.find(
     (c) => c.id === configId,
@@ -221,10 +317,48 @@ export default function App() {
   const arabicCount = examples.filter((e) => e.language === "arabic").length;
   const malayCount = examples.filter((e) => e.language === "malay").length;
 
+  const currentStats = selectionStats(configId, variantId);
+  const completeCombos = useMemo(() => {
+    const labels: string[] = [];
+    for (const cfg of configDefs) {
+      for (const variant of variantDefs) {
+        const stats = selectionStats(cfg.id, variant.id);
+        if (stats.both > 0) {
+          labels.push(
+            `${cfg.label.replace(/^([A-D])\s+/, "$1 · ")} · ${variant.label} (${stats.both}/${stats.total})`,
+          );
+        }
+      }
+    }
+    return labels;
+  }, [configDefs, variantDefs, coverage]);
+
+  const coverageBanner = useMemo(() => {
+    if (!filtered.length) return "Loading coverage…";
+    if (completeOnly) {
+      if (!completeCombos.length) {
+        return "No complete mT5+Qwen pairs in the static logs for this language. Turn off Complete pairs to browse partial runs, or re-export full per-question dumps.";
+      }
+      return `Full side-by-side logs exist only for: ${completeCombos.join("; ")}. Other procedures/variants show “Not logged” because those checkpoints never wrote per-question answers — not a UI bug.`;
+    }
+    const partial =
+      currentStats.mt5 > 0 && currentStats.qwen === 0
+        ? "Qwen answers were not saved for this combo (means may still appear below)."
+        : currentStats.qwen > 0 && currentStats.mt5 === 0
+          ? "mT5 answers were not saved for this combo (means may still appear below)."
+          : currentStats.mt5 === 0 && currentStats.qwen === 0
+            ? "Neither model has per-question logs here."
+            : `${currentStats.both}/${currentStats.total} questions have both models.`;
+    return partial;
+  }, [
+    filtered.length,
+    completeOnly,
+    completeCombos,
+    currentStats,
+  ]);
+
   function setLang(next: DatasetLanguage) {
     setLanguage(next);
-    const first = examples.find((ex) => ex.language === next);
-    if (first) setExampleId(first.id);
     setShowContext(false);
   }
 
@@ -297,41 +431,109 @@ export default function App() {
           <div className="control-block">
             <span className="control-label">LoRA variant (paper comparison)</span>
             <div className="seg seg-wrap" role="tablist" aria-label="Variant">
-              {variantDefs.map((v) => (
-                <button
-                  key={v.id}
-                  type="button"
-                  className={variantId === v.id ? "seg-btn active" : "seg-btn"}
-                  onClick={() => setVariantId(v.id)}
-                >
-                  {v.label}
-                </button>
-              ))}
+              {variantDefs.map((v) => {
+                const stats = selectionStats(configId, v.id);
+                const available = completeOnly
+                  ? stats.both > 0
+                  : stats.mt5 + stats.qwen > 0;
+                return (
+                  <button
+                    key={v.id}
+                    type="button"
+                    className={
+                      variantId === v.id ? "seg-btn active" : "seg-btn"
+                    }
+                    disabled={!available}
+                    title={
+                      available
+                        ? `${stats.both}/${stats.total} complete pairs`
+                        : completeOnly
+                          ? "No complete mT5+Qwen logs — turn off Complete pairs or pick another combo"
+                          : "No per-example logs for this variant under the current procedure"
+                    }
+                    onClick={() => setVariantId(v.id)}
+                  >
+                    {v.label}
+                    <em>
+                      {completeOnly
+                        ? `${stats.both}/${stats.total}`
+                        : `${Math.max(stats.mt5, stats.qwen)}/${stats.total}`}
+                    </em>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
           <div className="control-block">
             <span className="control-label">Training procedure</span>
             <div className="seg seg-wrap" role="tablist" aria-label="Config">
-              {configDefs.map((cfg) => (
-                <button
-                  key={cfg.id}
-                  type="button"
-                  className={configId === cfg.id ? "seg-btn active" : "seg-btn"}
-                  onClick={() => setConfigId(cfg.id)}
-                  title={cfg.description}
-                >
-                  {cfg.label.replace(/^([A-D])\s+/, "$1 · ")}
-                </button>
-              ))}
+              {configDefs.map((cfg) => {
+                const stats = selectionStats(cfg.id, variantId);
+                const available = completeOnly
+                  ? stats.both > 0
+                  : stats.mt5 + stats.qwen > 0;
+                return (
+                  <button
+                    key={cfg.id}
+                    type="button"
+                    className={
+                      configId === cfg.id ? "seg-btn active" : "seg-btn"
+                    }
+                    disabled={!available}
+                    title={
+                      available
+                        ? cfg.description
+                        : completeOnly
+                          ? "No complete mT5+Qwen logs for this procedure with the current variant"
+                          : "No per-example logs for this procedure with the current variant"
+                    }
+                    onClick={() => setConfigId(cfg.id)}
+                  >
+                    {cfg.label.replace(/^([A-D])\s+/, "$1 · ")}
+                    <em>
+                      {completeOnly
+                        ? `${stats.both}/${stats.total}`
+                        : `${Math.max(stats.mt5, stats.qwen)}/${stats.total}`}
+                    </em>
+                  </button>
+                );
+              })}
             </div>
             {activeConfig ? (
               <p className="hint">{activeConfig.description}</p>
             ) : null}
           </div>
 
+          <div className="control-block coverage-row">
+            <label className="toggle-line">
+              <input
+                type="checkbox"
+                checked={completeOnly}
+                onChange={(e) => setCompleteOnly(e.target.checked)}
+              />
+              <span>
+                Complete pairs only
+                <small>
+                  Hide combos where mT5 or Qwen was not saved per question
+                </small>
+              </span>
+            </label>
+            <p className="coverage-banner" role="status">
+              {coverageBanner}
+            </p>
+          </div>
+
           <label className="control-block menubox">
-            <span className="control-label">Example question</span>
+            <span className="control-label">
+              Example question
+              {completeOnly ? (
+                <em className="count-inline">
+                  {" "}
+                  · {usableExamples.length} with both models
+                </em>
+              ) : null}
+            </span>
             <div className="select-shell">
               <select
                 value={active?.id ?? ""}
@@ -339,8 +541,9 @@ export default function App() {
                   setExampleId(e.target.value);
                   setShowContext(false);
                 }}
+                disabled={!usableExamples.length}
               >
-                {filtered.map((ex) => (
+                {usableExamples.map((ex) => (
                   <option key={ex.id} value={ex.id}>
                     {ex.language === "arabic" ? "AR" : "MS"} #{ex.example_index}
                     :{" "}
@@ -405,6 +608,11 @@ export default function App() {
                 metrics={mt5}
                 badge={best === "mt5" && !noGoldMatch ? "Best" : undefined}
                 aggregate={!mt5 ? mt5Aggregate : null}
+                missingHint={
+                  mt5
+                    ? undefined
+                    : "mT5 per-question answers were never written for this procedure × variant. Re-run eval with answer dumps to fill this cell."
+                }
               />
               <AnswerCard
                 title="Qwen"
@@ -413,6 +621,11 @@ export default function App() {
                 metrics={qwen}
                 badge={best === "qwen" && !noGoldMatch ? "Best" : undefined}
                 aggregate={!qwen ? qwenAggregate : null}
+                missingHint={
+                  qwen
+                    ? undefined
+                    : "Qwen per-question answers were never written for this procedure × variant. Means below are from aggregate files only."
+                }
               />
             </section>
 
@@ -426,8 +639,9 @@ export default function App() {
                 <div>
                   <h3>Same example across LoRA variants</h3>
                   <p>
-                    Under {activeConfig?.label ?? configId}: compare QLoRA /
-                    AdaLoRA / DoRA / VeRA for this question.
+                    Under {activeConfig?.label ?? configId}: compare logged
+                    variants for this question
+                    {completeOnly ? " (complete pairs only)" : ""}.
                   </p>
                 </div>
                 <ChevronDown
@@ -447,46 +661,56 @@ export default function App() {
                       </tr>
                     </thead>
                     <tbody>
-                      {variantDefs.map((v) => {
-                        const row =
-                          active.configs[configId]?.variants?.[v.id];
-                        return (
-                          <tr
-                            key={v.id}
-                            className={
-                              v.id === variantId ? "is-active-row" : undefined
-                            }
-                          >
-                            <td>
-                              <button
-                                type="button"
-                                className="linkish"
-                                onClick={() => setVariantId(v.id)}
-                              >
-                                {v.label}
-                              </button>
-                            </td>
-                            <td dir="auto">
-                              {row?.mt5?.answer ?? "Not logged"}
-                            </td>
-                            <td dir="auto">
-                              {row?.qwen?.answer ?? "Not logged"}
-                            </td>
-                            <td>
-                              {row?.best_model === "incomplete" ||
-                              (!row?.mt5 && !row?.qwen)
-                                ? "n/a"
-                                : row.best_model === "tie"
-                                  ? neitherMatchedGold(row.mt5, row.qwen)
-                                    ? "Neither"
-                                    : "Tie"
-                                  : row.best_model === "mt5"
-                                    ? "mT5"
-                                    : "Qwen"}
-                            </td>
-                          </tr>
-                        );
-                      })}
+                      {variantDefs
+                        .filter((v) => {
+                          if (!completeOnly) return true;
+                          return selectionStats(configId, v.id).both > 0;
+                        })
+                        .map((v) => {
+                          const row =
+                            active.configs[configId]?.variants?.[v.id];
+                          const hasPair = Boolean(row?.mt5 && row?.qwen);
+                          const canSelect = completeOnly
+                            ? hasPair
+                            : Boolean(row?.mt5 || row?.qwen);
+                          return (
+                            <tr
+                              key={v.id}
+                              className={
+                                v.id === variantId ? "is-active-row" : undefined
+                              }
+                            >
+                              <td>
+                                <button
+                                  type="button"
+                                  className="linkish"
+                                  disabled={!canSelect}
+                                  onClick={() => setVariantId(v.id)}
+                                >
+                                  {v.label}
+                                </button>
+                              </td>
+                              <td dir="auto">
+                                {row?.mt5?.answer ?? "Not logged"}
+                              </td>
+                              <td dir="auto">
+                                {row?.qwen?.answer ?? "Not logged"}
+                              </td>
+                              <td>
+                                {row?.best_model === "incomplete" ||
+                                (!row?.mt5 && !row?.qwen)
+                                  ? "n/a"
+                                  : row.best_model === "tie"
+                                    ? neitherMatchedGold(row.mt5, row.qwen)
+                                      ? "Neither"
+                                      : "Tie"
+                                    : row.best_model === "mt5"
+                                      ? "mT5"
+                                      : "Qwen"}
+                              </td>
+                            </tr>
+                          );
+                        })}
                     </tbody>
                   </table>
                 </div>
@@ -494,7 +718,16 @@ export default function App() {
             </section>
           </>
         ) : (
-          <p className="muted">{error ?? "Loading examples…"}</p>
+          <div className="empty-state">
+            <p className="muted">
+              {error ??
+                (file
+                  ? completeOnly
+                    ? "No complete mT5+Qwen pairs for this selection. Pick C · QLoRA or C · DoRA, or turn off Complete pairs."
+                    : "No logged answers for this selection."
+                  : "Loading examples…")}
+            </p>
+          </div>
         )}
 
         <section className="fold panel">
