@@ -331,6 +331,12 @@ BASE_MODEL    = "google/mt5-base"
 NLI_MODEL     = "MoritzLaurer/mDeBERTa-v3-base-mnli-xnli"
 LANGUAGES     = ["arabic", "malay"]
 LORA_VARIANTS = ["qlora", "adalora", "dora", "vera"]
+# Plain, unmodified LoRA (Hu et al., 2021): the standard baseline reviewers ask
+# for. Same r/alpha/dropout/target modules as the QLoRA entry, but the backbone
+# is NOT 4-bit quantized. Deliberately kept OUT of LORA_VARIANTS so the main
+# 20-condition matrix (and every previously reported number) is unchanged; it is
+# only run when requested explicitly with --variant lora.
+EXTRA_VARIANTS = ["lora"]
 
 # Data scale for --full runs.
 # FIX (post-submission readiness review, item B2 -- the single highest-
@@ -662,6 +668,14 @@ def build_peft_config(variant: str, total_steps: int = 30):
             tfinal=max(2, total_steps // 2),
             deltaT=max(1, total_steps // 20),
             total_step=total_steps,
+        )
+    elif variant == "lora":
+        # Plain LoRA baseline: identical hyperparameters to the other variants,
+        # no quantization, no DoRA magnitude decomposition.
+        return LoraConfig(
+            task_type=TaskType.SEQ_2_SEQ_LM,
+            r=8, lora_alpha=16, lora_dropout=0.05,
+            target_modules=attn_and_ffn,
         )
     elif variant == "dora":
         return LoraConfig(
@@ -1214,13 +1228,15 @@ def run_single_experiment(config_name: str, lora_variant: str, language: str,
 
 
 # ─── MAIN: BUILD THE RUN MATRIX ────────────────────────────────────────────
-def build_run_matrix():
-    """A_frozen and D_full_ft don't vary by LoRA variant -> use 'none'."""
+def build_run_matrix(variants=None):
+    """A_frozen and D_full_ft don't vary by LoRA variant -> use 'none'.
+    `variants` defaults to LORA_VARIANTS (the published 20-condition matrix)."""
+    variants = LORA_VARIANTS if variants is None else variants
     runs = []
     for lang in LANGUAGES:
         runs.append(("A_frozen", "none", lang))
         runs.append(("D_full_ft", "none", lang))
-        for variant in LORA_VARIANTS:
+        for variant in variants:
             runs.append(("B_ce_lora", variant, lang))
             runs.append(("C_composite_lora", variant, lang))
     return runs   # 2 langs x (1 + 1 + 4 + 4) = 20 conditions total.
@@ -1263,7 +1279,7 @@ def main():
                              "give them their own small pod/command instead "
                              "of folding them into a --variant-sharded run.")
     parser.add_argument("--variant", type=str, default=None,
-                        choices=LORA_VARIANTS,
+                        choices=LORA_VARIANTS + EXTRA_VARIANTS,
                         help="Restrict to a single LoRA variant (e.g. 'qlora'). "
                              "Combine with --lang to isolate exactly one of the "
                              "8 Config C conditions, so different rented GPU "
@@ -1304,6 +1320,10 @@ def main():
                               "value actually used is recorded in each "
                               "checkpoint JSONL record's 'lambda1' field, "
                               "so sweep output is self-documenting.")
+    parser.add_argument("--no_git", action="store_true",
+                         help="Skip the per-run git commit/push. Use when "
+                              "launching several runs concurrently on one "
+                              "machine (avoids git index.lock races).")
     args = parser.parse_args()
 
     if not (args.smoke_test or args.full):
@@ -1358,7 +1378,8 @@ def main():
         checkpoint_name = f"checkpoint_full{seed_suffix}{lambda1_suffix}.jsonl"
     checkpoint_file = OUTPUT_DIR / checkpoint_name
 
-    runs = build_run_matrix()
+    runs = build_run_matrix(LORA_VARIANTS + EXTRA_VARIANTS
+                            if args.variant in EXTRA_VARIANTS else None)
     if args.composite_only:
         runs = [r for r in runs if r[0] == "C_composite_lora"]
         print(f"--composite_only: restricting to the {len(runs)} Config C "
@@ -1407,7 +1428,7 @@ def main():
                                        log_all_examples=args.log_all_examples,
                                        lambda1=args.lambda1)
         append_checkpoint(checkpoint_file, result)
-        if not args.smoke_test:
+        if not args.smoke_test and not args.no_git:
             git_commit_and_push(
                 checkpoint_file,
                 f"Checkpoint: {config_name}/{lora_variant}/{language} "
