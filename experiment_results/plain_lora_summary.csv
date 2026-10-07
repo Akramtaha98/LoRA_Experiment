@@ -1,0 +1,13 @@
+config,language,seed,status,F_faith,EM,F1,n_eval,runtime_min,error
+B_ce_lora,arabic,42,PASS,0.1405,0.0194,0.057,720,10.7,
+B_ce_lora,arabic,123,PASS,0.1288,0.0236,0.0557,720,10.2,
+B_ce_lora,arabic,2026,PASS,0.1264,0.0222,0.0564,720,8.3,
+C_composite_lora,arabic,42,PASS,0.0509,0.0028,0.006,720,108.3,
+C_composite_lora,arabic,123,PASS,0.0488,0.0014,0.0038,720,105.5,
+C_composite_lora,arabic,2026,PASS,0.0458,0.0,0.0004,720,103.6,
+B_ce_lora,malay,42,PASS,0.3074,0.1442,0.3164,430,8.3,
+B_ce_lora,malay,123,PASS,0.2737,0.1395,0.319,430,6.2,
+B_ce_lora,malay,2026,PASS,0.287,0.1721,0.3334,430,5.9,
+C_composite_lora,malay,42,PASS,0.1351,0.0116,0.1488,430,90.5,
+C_composite_lora,malay,123,PASS,0.047,0.0116,0.0901,430,85.8,
+C_composite_lora,malay,2026,PASS,0.0621,0.0116,0.0941,430,85.9,
