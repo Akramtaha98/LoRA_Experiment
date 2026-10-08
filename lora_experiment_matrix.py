@@ -360,6 +360,11 @@ TRAIN_SIZE      = 470   # matches the training-set size already reported in
 SMOKE_DATA_CAP  = 3     # unchanged -- pipeline validation only, keep tiny
 SMOKE_EVAL_SIZE = 3
 TRAIN_BATCH_SIZE = 4
+
+# Checkpointing control (reviewer-requested). None keeps the original policy used for every
+# result in the paper (Config C checkpointed for all non-QLoRA variants, QLoRA not).
+# 'on' / 'off' force gradient checkpointing for Config B/C LoRA runs of the chosen variant.
+GRAD_CKPT_OVERRIDE = None
 # FIX: 3 epochs on ~470 train examples (~350 steps total) was nowhere near
 # enough exposure for mT5-base -- a checkpoint that has NEVER been fine-tuned
 # for QA, only pretrained on span-corruption denoising -- to learn a brand
@@ -1088,7 +1093,9 @@ def run_single_experiment(config_name: str, lora_variant: str, language: str,
                 # already-running pods aren't affected by this change.
                 gradient_checkpointing=(
                     config_name == "D_full_ft"
-                    or (config_name == "C_composite_lora" and lora_variant != "qlora")
+                    or (GRAD_CKPT_OVERRIDE == "on" and config_name == "C_composite_lora")
+                    or (GRAD_CKPT_OVERRIDE is None
+                        and config_name == "C_composite_lora" and lora_variant != "qlora")
                 ),
                 optim=("adafactor" if config_name == "D_full_ft" else "adamw_torch"),
             )
@@ -1307,6 +1314,10 @@ def main():
                               "study (docs/EXPERIMENTAL_DEBT_ROADMAP.md "
                               "item 7). Produces a larger checkpoint JSONL "
                               "but costs no extra GPU time.")
+    parser.add_argument("--grad_ckpt", type=str, default=None, choices=["on", "off"],
+                        help="Checkpointing control: force gradient checkpointing on/off for "
+                             "Config C. Default (omitted) = the paper's original policy. "
+                             "Results go to checkpoint files with a _ckpt<on|off> suffix.")
     parser.add_argument("--lambda1", type=float, default=0.3,
                          help="Composite-loss penalty weight (default 0.3, "
                               "the value used throughout the main "
@@ -1350,6 +1361,10 @@ def main():
             return
 
     seed_suffix = "" if args.seed == SEED else f"_seed{args.seed}"
+    global GRAD_CKPT_OVERRIDE
+    GRAD_CKPT_OVERRIDE = args.grad_ckpt
+    if args.grad_ckpt:
+        seed_suffix += f"_ckpt{args.grad_ckpt}"
     # A non-default --lambda1 gets its own checkpoint file too, same
     # reasoning as seed_suffix: without this, a lambda1 sweep run would
     # silently append into (and get merged with) the main lambda1=0.3
