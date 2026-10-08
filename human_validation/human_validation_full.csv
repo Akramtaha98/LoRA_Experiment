@@ -1,4 +1,4 @@
-item_id,language,backbone,variant,config,seed,example_index,question,gold_answer,generated_answer,em,f1,f_faith_nli_score,q1_rater1,q1_rater2,q1_final,q2_rater1,q2_rater2
+item_id,language,backbone,lora_variant,config,seed,example_index,question,gold_answer,generated_answer,em,f1,f_faith_nli_score,q1_rater1,q1_rater2,q1_final,q2_rater1,q2_rater2
 AR-001,arabic,mt5-base,dora,B_ce_lora,42,568,ما هو المضيق بين بينجن و بون؟,مضيق رهين,عبر مضائق رهين,0,0.4,0.0026,1,1,1,0,1
 AR-002,arabic,mt5-base,qlora,C_composite_lora,42,52,ما الذي يضمنه بروتوكول الرسم المعلوماتي للمستعمل؟,تضمن الشبكة في نظام الاتصال الافتراضي البلوغ المتتابع للمعلومات إلى المضيف,شهادة الشبكة,0,0.1538,0.9678,1,0,1,0,0
 AR-003,arabic,mt5-base,qlora,C_composite_lora,42,118,متى افتُتح أول سوق داخلي في نيوكاسل؟,1835,1835,1,1.0,0.0083,2,2,2,2,2
