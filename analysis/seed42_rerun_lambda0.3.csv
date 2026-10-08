@@ -1,0 +1,9 @@
+backbone,variant,language,config,seed,f_faith,em,f1,n_eval,source
+mt5,dora,arabic,B_ce_lora,42,0.1411,0.0194,0.0664,720,mt5:checkpoint_full_dora_arabic.jsonl
+mt5,dora,arabic,C_composite_lora,42,0.049,0.0014,0.0043,720,mt5:checkpoint_full_dora_arabic.jsonl
+mt5,dora,malay,B_ce_lora,42,0.2933,0.1651,0.3164,430,mt5:checkpoint_full_dora_malay.jsonl
+mt5,dora,malay,C_composite_lora,42,0.0527,0.0047,0.0856,430,mt5:checkpoint_full_dora_malay.jsonl
+mt5,qlora,arabic,B_ce_lora,42,0.1317,0.0097,0.0468,720,mt5:checkpoint_full_qlora_arabic.jsonl
+mt5,qlora,arabic,C_composite_lora,42,0.1534,0.0153,0.0445,720,mt5:checkpoint_full_qlora_arabic.jsonl
+mt5,qlora,malay,B_ce_lora,42,0.2717,0.1326,0.3032,430,mt5:checkpoint_full_qlora_malay.jsonl
+mt5,qlora,malay,C_composite_lora,42,0.336,0.1349,0.2982,430,mt5:checkpoint_full_qlora_malay.jsonl
