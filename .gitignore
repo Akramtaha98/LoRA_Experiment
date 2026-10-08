@@ -9,3 +9,8 @@ run_log.txt
 sync_log.txt
 frontend/node_modules/
 frontend/dist/
+frontend/
+backend/
+.github/
+vercel.json
+auto_sync.sh
