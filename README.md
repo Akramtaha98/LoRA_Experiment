@@ -1,52 +1,132 @@
-# LoRA Faithfulness Study: Arabic and Malay Closed-Passage QA
+<div align="center">
 
-Code, results and analysis scripts for a controlled study of a training-time NLI faithfulness penalty combined with
-LoRA variants (QLoRA, AdaLoRA, DoRA, VeRA, plus a post hoc plain LoRA baseline) on two backbones (mT5-base and
-Qwen3-0.6B-Base), evaluated on Arabic (XQuAD) and Malay (Belebele `zsm_Latn`) closed-passage question answering.
+# Training-Time Faithfulness Penalties × LoRA Adapter Choice
 
-## Findings (see the paper for the full analysis)
-- **DoRA collapse (robust).** On mT5 the composite objective lowers DoRA's NLI faithfulness score by 0.154. The effect holds
-  in every seed and under pooled, Welch and seed-paired analyses, and a blinded human validation of 350 generations confirms it.
-- **Plain LoRA collapses too** (post hoc, mT5 only, -0.146), so the collapse is not specific to DoRA's decomposition.
-- **QLoRA gain (small, not robust).** +0.023, same sign in all seeds and both languages. Significant under the pooled-variance
-  analysis (p = 2e-7) but not under a Welch test (p = 0.012; threshold 0.00625) or a seed-paired test (p = 0.070). The human
-  sample can neither confirm nor exclude it. QLoRA also differs from the other variants in quantization and in its
-  gradient-checkpointing policy, which are confounded with the variant.
-- **Qwen3:** no variant-level effect detected under this protocol (three seeds per cell; absence of detection is not evidence of absence).
-- The NLI score is also the training reward and correlates only weakly with human judgment (Spearman 0.30 Arabic, 0.16 Malay).
-- mT5 Arabic is in a near-floor regime (EM <= 0.022).
+**Arabic and Malay closed-passage QA on mT5-base, Qwen3-0.6B-Base and T5Gemma 2**
+
+![python](https://img.shields.io/badge/python-3.10%2B-blue)
+![pytorch](https://img.shields.io/badge/PyTorch-2.1%2B-ee4c2c)
+![peft](https://img.shields.io/badge/PEFT-LoRA%20%7C%20DoRA%20%7C%20QLoRA%20%7C%20AdaLoRA%20%7C%20VeRA-8a2be2)
+![runs](https://img.shields.io/badge/backbones-3-success)
+![license](https://img.shields.io/badge/license-MIT-green)
+
+</div>
+
+## TL;DR
+
+A composite objective (cross-entropy + NLI-based faithfulness reward, optimised with self-critical policy gradient) is trained
+with several parameter-efficient adapters. **Its effect depends on the adapter and the backbone.** On mT5 it collapses
+DoRA and plain LoRA faithfulness (about −0.15) and slightly raises QLoRA (+0.023). On Qwen3-0.6B and T5Gemma 2 (270M) no
+variant-level effect is detected. The collapse is therefore **not** a generic encoder-decoder property; which property of
+mT5 matters is left open.
+
+## Key results
+
+Language-averaged change in NLI faithfulness, ΔF_faith = F_faith(C) − F_faith(B), with 95% CI (3 seeds × 2 languages per cell).
+
+| Adapter | mT5-base (580M) | Qwen3-0.6B-Base | T5Gemma 2 270M-270M |
+|---|---|---|---|
+| DoRA | **−0.154** [−0.161, −0.147] | +0.008 [−0.001, +0.018] | +0.001 [−0.013, +0.014] |
+| LoRA (post hoc) | **−0.146** [−0.177, −0.114] | not run | −0.003 [−0.016, +0.011] |
+| QLoRA | +0.023 [+0.016, +0.031] | −0.008 [−0.018, +0.001] | +0.004 [−0.010, +0.017] |
+| AdaLoRA | −0.010 [−0.017, −0.002] | +0.003 [−0.006, +0.013] | not run |
+| VeRA | −0.005 [−0.012, +0.002] | −0.003 [−0.012, +0.007] | not run |
+
+| Claim | Evidence | Status |
+|---|---|---|
+| DoRA collapse on mT5 | Every seed; pooled, Welch and seed-paired tests; blinded human validation (350 generations) | Robust |
+| Plain LoRA also collapses | −0.146, mT5 only | Post hoc |
+| QLoRA gain on mT5 | Pooled p = 2e-7; Welch p = 0.012 (threshold 0.00625); seed-paired p = 0.070 | Small, not robust; confounded with quantization and checkpointing policy |
+| Qwen3 / T5Gemma 2 | All intervals contain zero | No detection ≠ no effect |
+| T5Gemma 2 analysis | Descriptive; Bonferroni 0.05/3 = 0.0167 | Post hoc |
+
+Caveats: the NLI scorer is also the training reward and correlates only weakly with human judgment (Spearman 0.30 Arabic,
+0.16 Malay). mT5 Arabic is in a near-floor regime (EM ≤ 0.022). On T5Gemma 2, Malay EM falls in 7 of 9 runs (mean −0.023).
 
 ## Design
-- Configs: A frozen baseline, B CE-only LoRA, C composite LoRA (CE + lambda_1 (1 - F_faith), lambda_1 = 0.3, optimized with a
-  corrected self-critical policy-gradient (SCST) estimator, K = 4 samples), D full fine-tuning (single seed, different optimizer).
-- Training set: 470 examples per language. Held-out evaluation: 720 Arabic and 430 Malay examples.
-- Configs B and C: 3 seeds (42, 123, 2026). Configs A and D: seed 42 only.
 
-## Repository contents
+```mermaid
+flowchart LR
+    D[XQuAD ar / Belebele zsm_Latn<br/>470 train, 720 / 430 held-out] --> M[Backbone<br/>mT5 · Qwen3 · T5Gemma 2]
+    M --> A[Adapter<br/>LoRA · DoRA · QLoRA · AdaLoRA · VeRA]
+    A --> B[Config B: CE only]
+    A --> C[Config C: CE + λ1·1−F_faith, SCST K=4]
+    N[NLI scorer<br/>mDeBERTa-v3-base-mnli-xnli] --> C
+    B --> E[Evaluate: F_faith, EM, F1]
+    C --> E
+```
+
+| Setting | Value |
+|---|---|
+| Configs | A frozen · B CE-only LoRA · C composite LoRA · D full fine-tuning (A, D: seed 42 only; D uses a different optimizer) |
+| Objective (C) | CE + λ1·(1 − F_faith), λ1 = 0.3, SCST/REINFORCE, K = 4 samples |
+| Adapter | r = 8, α = 16, dropout 0.05 |
+| Optimisation | AdamW, lr 2e-4, 12 epochs, batch 4 (1416 steps) |
+| Seeds | 42, 123, 2026 (Configs B and C) |
+| NLI scorer | `MoritzLaurer/mDeBERTa-v3-base-mnli-xnli` |
+
+### T5Gemma 2 deviations
+
+`google/t5gemma-2-270m-270m` was run with QLoRA, DoRA and plain LoRA, Configs B and C only (36 runs). LoRA targets the 252
+text-only linear modules by name (vision tower excluded); no sentinel tokens are used; the NLI scorer runs on GPU; gradient
+checkpointing follows the mT5 policy (Config C checkpointed except QLoRA).
+
+## Repository map
+
 | Path | What it is |
 |---|---|
 | `lora_experiment_matrix.py` | mT5-base experiment matrix |
 | `qwen_experiment_matrix.py` | Qwen3-0.6B-Base experiment matrix |
+| `t5gemma2_experiment_matrix.py`, `run_t5gemma2.py`, `make_t5gemma2_script.py`, `t5gemma2_smoke.py`, `run_h200_all.sh` | T5Gemma 2 matrix, launcher, smoke test and multi-GPU driver |
 | `run_plain_lora.py` | Plain LoRA baseline (mT5) |
-| `analysis/per_seed_results.csv` | 108 per-seed runs (F_faith, EM, F1) behind Tables 1 and 3 |
-| `analysis/seed42_rerun_lambda0.3.csv` | Later seed-42 lambda = 0.3 reruns (used by the lambda sweep, not by the 3-seed tables) |
-| `analysis/verify_table.py` | Checks that the per-seed file reproduces the published cell means and SDs (32/32) |
-| `analysis/factorial_reanalysis.py` | Planned contrasts and interaction tests from the cell means/SDs |
-| `analysis/robust_reanalysis.py` | Welch, seed-paired and Holm sensitivity analyses |
-| `human_validation/` | 350 adjudicated human labels, analysis script and README |
-| `RUNBOOK.md` | Running the experiments on a rented GPU |
+| `run_ckpt_control.py` | Gradient-checkpointing control (not yet run; needs a 48 GB+ GPU) |
+| `experiment_results/`, `experiment_results_qwen/`, `experiment_results_t5gemma2/` | Raw per-run JSONL and summary CSVs |
+| `lambda_sweep_results.json` | λ1 sweep results |
+| `analysis/per_seed_results.csv` | 108 per-seed runs (mT5 + Qwen3) behind the main tables |
+| `analysis/t5gemma2_per_seed.csv`, `t5gemma2_reanalysis.py`, `t5gemma2_reanalysis_results.json` | T5Gemma 2 per-seed data and cross-backbone analysis |
+| `analysis/verify_table.py` | Checks that per-seed data reproduces published cell means/SDs |
+| `analysis/factorial_reanalysis.py`, `robust_reanalysis.py` | Planned contrasts; Welch, seed-paired and Holm sensitivity |
+| `analysis/` (other) | Figures, XLM-R rescoring, Arabic EM diagnostic, annotation sampling |
+| `human_validation/` | 350 adjudicated human labels, analysis script, README |
+| `backend/`, `frontend/`, `docs/` | Demo API, web front end and guides |
 
-## Reproduce the statistics
+## Reproduce
+
+Statistics (CPU only):
+
 ```bash
 pip install numpy scipy
-python analysis/verify_table.py        # expect: TABLE_REPRODUCED cells 32 mismatch 0
+python analysis/verify_table.py                 # expect: TABLE_REPRODUCED cells 32 mismatch 0
 python analysis/factorial_reanalysis.py
 python analysis/robust_reanalysis.py analysis/per_seed_results.csv
+python analysis/t5gemma2_reanalysis.py          # third backbone + cross-backbone contrasts
 python human_validation/analyze_human_validation.py
 ```
 
-## Notes
-- XQuAD (Apache-2.0) and Belebele (CC-BY-SA-4.0) are third-party datasets and are not redistributed.
-- Results from earlier 30-example evaluations are superseded and should not be used.
-- Open (not run): plain LoRA Config C without gradient checkpointing, a lambda = 0 control through the composite path,
-  a shuffled-reward control, full-output independent rescoring, and a tuned Arabic CE baseline.
+Re-running experiments (GPU; `pip install -r requirements.txt`):
+
+```bash
+python lora_experiment_matrix.py                # mT5-base
+python qwen_experiment_matrix.py                # Qwen3-0.6B-Base
+python run_plain_lora.py                        # plain LoRA (mT5)
+python t5gemma2_smoke.py                        # quick T5Gemma 2 check
+bash run_h200_all.sh                            # full T5Gemma 2 matrix
+python run_ckpt_control.py                      # checkpointing control (48 GB+ GPU)
+```
+
+Each run appends to a `checkpoint_full_*.jsonl`, so interrupted jobs resume.
+
+## Data
+
+Per-seed CSV columns: backbone, variant, config, language, seed, F_faith, EM, F1. XQuAD (Apache-2.0) and Belebele
+(CC-BY-SA-4.0) are third-party datasets and are not redistributed; they are downloaded from the Hugging Face Hub at run time.
+
+## Open items
+
+Not run: plain LoRA Config C without gradient checkpointing (`run_ckpt_control.py`), a λ1 = 0 control through the composite
+path, a shuffled-reward control, full-output independent rescoring, a tuned Arabic CE baseline. Results from earlier
+30-example evaluations are superseded.
+
+## License
+
+MIT (see `LICENSE`).
