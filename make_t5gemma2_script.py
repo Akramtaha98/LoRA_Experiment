@@ -44,7 +44,7 @@ rep("""labels = tokenizer(text_target=(gold or ""), truncation=True,
                 model_inputs["labels"] = labels["input_ids"] + [tokenizer.eos_token_id]""")
 # SCST: drop the leading decoder-start token from sampled ids (it is pad for mT5, BOS for Gemma)
 rep("        # ---- Step 3: leave-one-out baseline / advantage (detached) ----",
-    "        sampled_ids = sampled_ids[:, 1:]  # strip decoder-start token\n\n        # ---- Step 3: leave-one-out baseline / advantage (detached) ----")
+    "        sampled_ids = sampled_ids[:, 1:].contiguous()  # strip decoder-start token (contiguous: model loss uses .view)\n\n        # ---- Step 3: leave-one-out baseline / advantage (detached) ----")
 rep("data_collator = DataCollatorForSeq2Seq(tokenizer, model=model)", "data_collator = DataCollatorForSeq2Seq(tokenizer, model=None)  # T5Gemma2 shifts labels itself")
 rep("        _nli_model.eval()\n    return _nli_tokenizer, _nli_model", "        _nli_model.to(DEVICE).eval()  # NLI scorer on GPU (was CPU: GPU sat idle)\n    return _nli_tokenizer, _nli_model")
 rep("""    enc = tok(context, answer, truncation=True, max_length=512, return_tensors="pt")

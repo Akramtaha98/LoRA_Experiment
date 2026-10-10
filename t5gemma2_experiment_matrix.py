@@ -960,7 +960,7 @@ class CompositeLossTrainer(Seq2SeqTrainer):
                 rep_input_ids, skip_special_tokens=True)
             rewards = [f_faith(t, c) for t, c in zip(sampled_texts, context_texts)]
 
-        sampled_ids = sampled_ids[:, 1:]  # strip decoder-start token
+        sampled_ids = sampled_ids[:, 1:].contiguous()  # strip decoder-start token (contiguous: model loss uses .view)
 
         # ---- Step 3: leave-one-out baseline / advantage (detached) ----
         rewards_t = torch.tensor(rewards, device=input_ids.device,
