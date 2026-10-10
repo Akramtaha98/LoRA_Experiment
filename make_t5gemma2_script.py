@@ -46,5 +46,11 @@ rep("""labels = tokenizer(text_target=(gold or ""), truncation=True,
 rep("        # ---- Step 3: leave-one-out baseline / advantage (detached) ----",
     "        sampled_ids = sampled_ids[:, 1:]  # strip decoder-start token\n\n        # ---- Step 3: leave-one-out baseline / advantage (detached) ----")
 rep("data_collator = DataCollatorForSeq2Seq(tokenizer, model=model)", "data_collator = DataCollatorForSeq2Seq(tokenizer, model=None)  # T5Gemma2 shifts labels itself")
+rep("        _nli_model.eval()\n    return _nli_tokenizer, _nli_model", "        _nli_model.to(DEVICE).eval()  # NLI scorer on GPU (was CPU: GPU sat idle)\n    return _nli_tokenizer, _nli_model")
+rep("""    enc = tok(context, answer, truncation=True, max_length=512, return_tensors="pt")
+    with torch.no_grad():
+        logits = model(**enc).logits""", """    enc = tok(context, answer, truncation=True, max_length=512, return_tensors="pt").to(DEVICE)
+    with torch.no_grad():
+        logits = model(**enc).logits""")
 open("t5gemma2_experiment_matrix.py", "w", encoding="utf-8").write(src)
 print("wrote t5gemma2_experiment_matrix.py")

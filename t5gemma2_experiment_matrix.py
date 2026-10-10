@@ -817,7 +817,7 @@ def _load_nli():
     if _nli_model is None:
         _nli_tokenizer = AutoTokenizer.from_pretrained(NLI_MODEL)
         _nli_model = AutoModelForSequenceClassification.from_pretrained(NLI_MODEL)
-        _nli_model.eval()
+        _nli_model.to(DEVICE).eval()  # NLI scorer on GPU (was CPU: GPU sat idle)
     return _nli_tokenizer, _nli_model
 
 
@@ -877,7 +877,7 @@ def f_faith(answer: str, context: str) -> float:
     if "entailment" not in label_map:
         raise ValueError(f"NLI model has no 'entailment' label: {model.config.id2label}")
     ent_idx = label_map["entailment"]
-    enc = tok(context, answer, truncation=True, max_length=512, return_tensors="pt")
+    enc = tok(context, answer, truncation=True, max_length=512, return_tensors="pt").to(DEVICE)
     with torch.no_grad():
         logits = model(**enc).logits
     probs = torch.softmax(logits, dim=-1)[0]
