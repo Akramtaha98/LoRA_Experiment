@@ -1058,7 +1058,7 @@ def run_single_experiment(config_name: str, lora_variant: str, language: str,
                              else dataset.select(eval_indices))
             train_ds = train_ds_raw.map(_tokenize_fn,
                                          remove_columns=train_ds_raw.column_names)
-            data_collator = DataCollatorForSeq2Seq(tokenizer, model=model)
+            data_collator = DataCollatorForSeq2Seq(tokenizer, model=None)  # T5Gemma2 shifts labels itself
 
             training_args = Seq2SeqTrainingArguments(
                 output_dir=str(OUTPUT_DIR / f"ckpt_{config_name}_{lora_variant}_{language}"),

@@ -28,13 +28,21 @@ js = jobs({"pilot":[42],"rest":[123,2026],"all":[42,123,2026]}[a.stage], a.varia
 if a.dry_run:
     for j in js: print(" ".join(j["cmd"]))
     sys.exit()
-LOG.mkdir(exist_ok=True); pend, run, t0 = list(js), [], time.time()
+def any_fail():
+    for p in glob.glob("experiment_results_t5gemma2/checkpoint_full_*.jsonl"):
+        for l in open(p, encoding="utf-8"):
+            if l.strip() and json.loads(l).get("status") == "FAIL": return True
+    return False
+LOG.mkdir(exist_ok=True); pend, run, t0, aborted = list(js), [], time.time(), False
 while pend or run:
-    while pend and len(run) < a.parallel:
+    while pend and len(run) < a.parallel and not aborted:
         j = pend.pop(0); f = open(LOG / f"{j['name']}.log", "a")
         run.append((j, subprocess.Popen(j["cmd"], stdout=f, stderr=subprocess.STDOUT), f)); print(f"[{(time.time()-t0)/60:6.1f} min] started {j['name']}", flush=True); time.sleep(20)
     for it in run[:]:
         if it[1].poll() is not None:
             it[2].close(); run.remove(it); print(f"[{(time.time()-t0)/60:6.1f} min] finished {it[0]['name']} rc={it[1].returncode}", flush=True)
+            if any_fail() and not aborted:
+                aborted = True; pend.clear(); print("!! A run FAILED - no new jobs will start. Check t5gemma2_logs/", flush=True)
     time.sleep(15)
 summary()
+sys.exit(1 if any_fail() else 0)

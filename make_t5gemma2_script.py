@@ -45,5 +45,6 @@ rep("""labels = tokenizer(text_target=(gold or ""), truncation=True,
 # SCST: drop the leading decoder-start token from sampled ids (it is pad for mT5, BOS for Gemma)
 rep("        # ---- Step 3: leave-one-out baseline / advantage (detached) ----",
     "        sampled_ids = sampled_ids[:, 1:]  # strip decoder-start token\n\n        # ---- Step 3: leave-one-out baseline / advantage (detached) ----")
+rep("data_collator = DataCollatorForSeq2Seq(tokenizer, model=model)", "data_collator = DataCollatorForSeq2Seq(tokenizer, model=None)  # T5Gemma2 shifts labels itself")
 open("t5gemma2_experiment_matrix.py", "w", encoding="utf-8").write(src)
 print("wrote t5gemma2_experiment_matrix.py")
