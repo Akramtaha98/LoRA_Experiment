@@ -86,6 +86,7 @@ checkpointing follows the mT5 policy (Config C checkpointed except QLoRA).
 | `analysis/t5gemma2_per_seed.csv`, `t5gemma2_reanalysis.py`, `t5gemma2_reanalysis_results.json` | T5Gemma 2 per-seed data and cross-backbone analysis |
 | `analysis/verify_table.py` | Checks that per-seed data reproduces published cell means/SDs |
 | `analysis/factorial_reanalysis.py`, `robust_reanalysis.py` | Planned contrasts; Welch, seed-paired and Holm sensitivity |
+| `analysis/empty_output_audit.py`, `same_seed_repeat.py`, `equivalence_tost.py`, `estimator_checks.py` | Empty-output audit, same-seed repeat comparison, TOST equivalence for the no-effect cells, CPU checks of the policy-gradient term |
 | `analysis/` (other) | Figures, XLM-R rescoring, Arabic EM diagnostic, annotation sampling |
 | `human_validation/` | 350 adjudicated human labels, analysis script, README |
 | `backend/`, `frontend/`, `docs/` | Demo API, web front end and guides |
@@ -100,6 +101,10 @@ python analysis/verify_table.py                 # expect: TABLE_REPRODUCED cells
 python analysis/factorial_reanalysis.py
 python analysis/robust_reanalysis.py analysis/per_seed_results.csv
 python analysis/t5gemma2_reanalysis.py          # third backbone + cross-backbone contrasts
+python analysis/equivalence_tost.py             # equivalence (±0.03) for Qwen3 / T5Gemma 2
+python analysis/same_seed_repeat.py             # seed-42 main vs repeat runs
+python analysis/empty_output_audit.py           # empty-output rates (needs experiment_results/)
+python analysis/estimator_checks.py             # CPU checks of the policy-gradient term (torch + transformers)
 python human_validation/analyze_human_validation.py
 ```
 

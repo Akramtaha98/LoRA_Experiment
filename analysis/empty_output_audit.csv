@@ -1,0 +1,9 @@
+variant,language,config,seed,n,empty,empty_rate,f_faith_all,f_faith_nonempty,em
+dora,arabic,B_ce_lora,42,720,3,0.0042,0.1411,0.1416,0.0194
+dora,arabic,C_composite_lora,42,720,210,0.2917,0.049,0.0692,0.0014
+dora,malay,B_ce_lora,42,430,3,0.007,0.2933,0.2953,0.1651
+dora,malay,C_composite_lora,42,430,14,0.0326,0.0527,0.0545,0.0047
+qlora,arabic,B_ce_lora,42,720,6,0.0083,0.1317,0.1329,0.0097
+qlora,arabic,C_composite_lora,42,720,2,0.0028,0.1534,0.1538,0.0153
+qlora,malay,B_ce_lora,42,430,5,0.0116,0.2717,0.2749,0.1326
+qlora,malay,C_composite_lora,42,430,0,0.0,0.336,0.336,0.1349
