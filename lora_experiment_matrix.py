@@ -131,6 +131,7 @@ USAGE:
 
 import argparse
 import json
+import os
 import re
 import subprocess
 import time
@@ -411,7 +412,24 @@ def set_all_seeds(seed: int = SEED):
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
 
-OUTPUT_DIR = Path("./experiment_results")
+# Env-gated options added for the corrected-estimator rerun (all default OFF,
+# so legacy behaviour and the published seed-42/123/2026 results reproduce).
+#   LORA_OUTPUT_DIR     override OUTPUT_DIR (keeps rerun apart from legacy runs)
+#   LORA_PG_FIX=1       aligned REINFORCE: no double decoder-start token, same
+#                       (sentinel-masked, untruncated) distribution for sampling
+#                       and scoring
+#   LORA_REWARD_MODE    "shuffled" permutes rewards across the batch (control)
+#   LORA_DETERMINISTIC=1  torch deterministic algorithms (determinism repeat)
+#   LORA_NLI_DEVICE     "cuda" to run the NLI scorer on GPU (default CPU)
+PG_FIX = os.environ.get("LORA_PG_FIX", "0") == "1"
+REWARD_MODE = os.environ.get("LORA_REWARD_MODE", "real")
+DETERMINISTIC = os.environ.get("LORA_DETERMINISTIC", "0") == "1"
+NLI_DEVICE = os.environ.get("LORA_NLI_DEVICE", "cpu")
+if DETERMINISTIC:
+    os.environ.setdefault("CUBLAS_WORKSPACE_CONFIG", ":4096:8")
+    torch.use_deterministic_algorithms(True, warn_only=True)
+    torch.backends.cudnn.benchmark = False
+OUTPUT_DIR = Path(os.environ.get("LORA_OUTPUT_DIR", "./experiment_results"))
 OUTPUT_DIR.mkdir(exist_ok=True)
 
 
@@ -799,7 +817,47 @@ def _load_nli():
         _nli_tokenizer = AutoTokenizer.from_pretrained(NLI_MODEL)
         _nli_model = AutoModelForSequenceClassification.from_pretrained(NLI_MODEL)
         _nli_model.eval()
+        if NLI_DEVICE != "cpu":
+            _nli_model.to(NLI_DEVICE)
     return _nli_tokenizer, _nli_model
+
+
+def _driver_version() -> str:
+    try:
+        return subprocess.check_output(
+            ["nvidia-smi", "--query-gpu=driver_version", "--format=csv,noheader"],
+            text=True, timeout=10).strip().splitlines()[0]
+    except Exception:
+        return "n/a"
+
+
+def _seq_log_probs_aligned(model, input_ids, attention_mask, sampled_ids,
+                            pad_token_id, decoder_start_id, banned_ids):
+    """log pi(y | x) of generate()'s output, with the SAME conditioning and
+    distribution that produced it.
+
+    generate() returns [decoder_start, y_1..y_n(, EOS), pad...]. Conditioning:
+    decoder input = sampled[:, :-1], target = sampled[:, 1:] (a plain
+    shift), so the start token is fed once, never twice. Banned (sentinel)
+    logits are masked exactly as generate()'s suppress_tokens did, and
+    non-finite logits are cleaned exactly as _NaNSafeLogitsProcessor did.
+    The sampler uses top_p=1, top_k=0 under LORA_PG_FIX, so this is the exact
+    sampling distribution and the estimator is on-policy.
+    """
+    assert bool((sampled_ids[:, 0] == decoder_start_id).all()), \
+        "sampled sequence must begin with decoder_start_token_id"
+    dec_in = sampled_ids[:, :-1]
+    target = sampled_ids[:, 1:]
+    out = model(input_ids=input_ids, attention_mask=attention_mask,
+                decoder_input_ids=dec_in)
+    logits = torch.nan_to_num(out.logits.float(), nan=-1e9,
+                              posinf=1e9, neginf=-1e9)
+    if banned_ids:
+        logits[..., banned_ids] = -1e9
+    logp = F.log_softmax(logits, dim=-1)
+    tok_lp = logp.gather(2, target.unsqueeze(-1)).squeeze(-1)
+    mask = (target != pad_token_id).float()      # EOS (id 1) is kept
+    return (tok_lp * mask).sum(dim=1)
 
 
 # ─── CORRECTNESS METRICS (separate from F_faith) ─────────────────────────────
@@ -859,6 +917,8 @@ def f_faith(answer: str, context: str) -> float:
         raise ValueError(f"NLI model has no 'entailment' label: {model.config.id2label}")
     ent_idx = label_map["entailment"]
     enc = tok(context, answer, truncation=True, max_length=512, return_tensors="pt")
+    if NLI_DEVICE != "cpu":
+        enc = {k: v.to(NLI_DEVICE) for k, v in enc.items()}
     with torch.no_grad():
         logits = model(**enc).logits
     probs = torch.softmax(logits, dim=-1)[0]
@@ -926,7 +986,10 @@ class CompositeLossTrainer(Seq2SeqTrainer):
                 max_new_tokens=40,
                 do_sample=True,
                 temperature=PG_SAMPLE_TEMPERATURE,
-                top_p=PG_SAMPLE_TOP_P,
+                # LORA_PG_FIX: sample from the full (sentinel-masked)
+                # softmax so the scorer's distribution equals the sampler's.
+                top_p=1.0 if PG_FIX else PG_SAMPLE_TOP_P,
+                **({"top_k": 0} if PG_FIX else {}),
                 renormalize_logits=True,
                 logits_processor=LogitsProcessorList([_NaNSafeLogitsProcessor()]),
                 # FIX (readiness review item B1, prime suspect #4): ban
@@ -944,6 +1007,11 @@ class CompositeLossTrainer(Seq2SeqTrainer):
         # ---- Step 3: leave-one-out baseline / advantage (detached) ----
         rewards_t = torch.tensor(rewards, device=input_ids.device,
                                   dtype=torch.float32).view(batch_size, K)
+        if REWARD_MODE == "shuffled":
+            # Control: keep the reward distribution, destroy its link to the
+            # sampled text (permute across the whole B*K batch).
+            rewards_t = rewards_t.view(-1)[torch.randperm(
+                batch_size * K, device=rewards_t.device)].view(batch_size, K)
         if K > 1:
             sum_r = rewards_t.sum(dim=1, keepdim=True)
             baseline = (sum_r - rewards_t) / (K - 1)   # leave-one-out mean
@@ -952,8 +1020,14 @@ class CompositeLossTrainer(Seq2SeqTrainer):
         advantages = (rewards_t - baseline).view(-1).detach()  # (B*K,)
 
         # ---- Step 4: differentiable log-prob of the sampled sequences ----
-        seq_log_probs = _seq_log_probs(
-            model, rep_input_ids, rep_attention_mask, sampled_ids, pad_id)  # (B*K,)
+        if PG_FIX:
+            dec_start = model.config.decoder_start_token_id
+            seq_log_probs = _seq_log_probs_aligned(
+                model, rep_input_ids, rep_attention_mask, sampled_ids, pad_id,
+                dec_start, get_sentinel_token_ids(self.tokenizer_ref))
+        else:
+            seq_log_probs = _seq_log_probs(
+                model, rep_input_ids, rep_attention_mask, sampled_ids, pad_id)  # (B*K,)
 
         # ---- Step 5: policy-gradient loss + combine with CE ----
         pg_loss = -(advantages * seq_log_probs).mean()
@@ -1196,6 +1270,14 @@ def run_single_experiment(config_name: str, lora_variant: str, language: str,
         result = {
             "config": config_name, "lora_variant": lora_variant, "language": language,
             "seed": seed, "lambda1": lambda1,
+            "pg_fix": PG_FIX, "reward_mode": REWARD_MODE,
+            "deterministic": DETERMINISTIC, "nli_device": NLI_DEVICE,
+            "gpu": (torch.cuda.get_device_name(0) if torch.cuda.is_available() else "cpu"),
+            "torch": torch.__version__,
+            "cuda": str(torch.version.cuda),
+            "transformers": __import__("transformers").__version__,
+            "peft": __import__("peft").__version__,
+            "driver": _driver_version(),
             "status": "PASS", "mean_f_faith": round(mean_score, 4),
             "mean_em": round(mean_em, 4), "mean_f1": round(mean_f1, 4),
             "n_eval": len(scores), "runtime_sec": round(elapsed, 1), "error": "",
