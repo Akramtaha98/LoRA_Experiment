@@ -1,0 +1,19 @@
+\begin{table}[t]
+\centering
+\caption{Reward-attribution controls (gradient checkpointing off; three seeds; mean~$\pm$~SD of $F_{\text{faith}}$). $\lambda_1{=}0$: the sampling-and-scoring path runs but the policy-gradient term has zero weight. Shuffled: the NLI rewards are permuted across the batch before advantages are computed, which preserves the reward distribution but removes its dependence on the sampled answer. B is repeated from Table~\ref{tab:main}.}
+\label{tab:attrib}
+\footnotesize
+\begin{tabular}{@{}lllcccc@{}}
+\toprule
+\textbf{Lang} & \textbf{Variant} & & B & $\lambda_1{=}0$ & Shuffled & Real reward \\
+\midrule
+Arabic & QLoRA & & 0.1395 $\pm$ 0.0152 & 0.1351 $\pm$ 0.0040 & 0.1341 $\pm$ 0.0019 & 0.1421 $\pm$ 0.0032 \\
+Arabic & LoRA & & 0.1327 $\pm$ 0.0016 & 0.1330 $\pm$ 0.0022 & 0.1253 $\pm$ 0.0008 & 0.1612 $\pm$ 0.0046 \\
+Arabic & DoRA & & 0.1300 $\pm$ 0.0030 & 0.1372 $\pm$ 0.0042 & 0.1297 $\pm$ 0.0182 & 0.1474 $\pm$ 0.0058 \\
+\midrule
+Malay & QLoRA & & 0.2859 $\pm$ 0.0072 & 0.2893 $\pm$ 0.0146 & 0.2877 $\pm$ 0.0104 & 0.3093 $\pm$ 0.0177 \\
+Malay & LoRA & & 0.2748 $\pm$ 0.0107 & 0.2857 $\pm$ 0.0155 & 0.2873 $\pm$ 0.0279 & 0.2949 $\pm$ 0.0082 \\
+Malay & DoRA & & 0.2955 $\pm$ 0.0188 & 0.2733 $\pm$ 0.0139 & 0.2826 $\pm$ 0.0105 & 0.3098 $\pm$ 0.0112 \\
+\botrule
+\end{tabular}
+\end{table}

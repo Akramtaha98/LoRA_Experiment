@@ -1,66 +1,32 @@
-# H200 rerun runbook (corrected REINFORCE estimator)
+# Runbook: corrected-estimator study (188 runs, 118 jobs)
 
-All commands run on the GPU node (`warisan-gpu-01`, 4x H200). Everything new is env-gated; the default path reproduces the legacy results.
+Hardware used: one node with 4x NVIDIA H200 NVL, driver 595.71.05, CUDA 13.0. Software: PyTorch 2.12.1, Transformers 5.5.0, PEFT 0.21.2
+(plus `bitsandbytes`, `sentencepiece`, `pandas`, `scipy`). Each run record stores GPU, driver and library versions.
 
-## 0. Get the code
-```bash
-cd ~ && rm -rf LoRA_Experiment && git clone https://github.com/Akramtaha98/LoRA_Experiment.git && cd LoRA_Experiment
-git log --oneline | head -3          # must show the "PG-fix rerun" commit
-nvidia-smi --query-gpu=name,driver_version --format=csv ; nproc
-```
-## 1. Environment
+## 1. Environment and unit test
 ```bash
 python3 -m venv ~/venv_pgfix && source ~/venv_pgfix/bin/activate
-pip install -q torch transformers peft datasets accelerate bitsandbytes sentencepiece tabulate pandas scipy
-python - <<'PY'
-import torch, transformers, peft; print(torch.__version__, transformers.__version__, peft.__version__, torch.cuda.device_count())
-PY
+pip install torch transformers peft datasets accelerate bitsandbytes sentencepiece tabulate pandas scipy
 pip freeze > env_pgfix_freeze.txt
-```
-## 2. Gate: unit tests (stop if either fails)
-```bash
 python analysis/estimator_checks_fixed.py        # must end with ALL_PASS
 ```
-## 3. Gate: one-job GPU smoke test (~10-20 min)
-```bash
-LORA_PG_FIX=1 LORA_OUTPUT_DIR=./smoke_gpu CUDA_VISIBLE_DEVICES=0 python lora_experiment_matrix.py --smoke_test --no_git
-```
-## 4. Stages (each is restartable; finished jobs are skipped)
-Use `tmux` so the SSH session can drop. Add `--nli-gpu` to move the NLI scorer to the GPU (faster; applies identically to B and C). Start with `--slots-per-gpu 2`; raise to 3 if `nproc` >= 64 and GPU memory < 60%.
-```bash
-tmux new -s pgfix
-source ~/venv_pgfix/bin/activate
-python run_pgfix.py --stage core --slots-per-gpu 2 --nli-gpu --dry-run     # inspect: 18 jobs
-python run_pgfix.py --stage core --slots-per-gpu 2 --nli-gpu 2>&1 | tee core.log
-```
-Monitor from a second tmux pane: `nvidia-smi -l 30` and `tail -n 3 runs_pgfix/core/*/run.log`.
-Then, in order of priority:
-```bash
-python run_pgfix.py --stage repeat   --slots-per-gpu 2 --nli-gpu 2>&1 | tee repeat.log     # 8 jobs, determinism / same-seed
-python run_pgfix.py --stage controls --slots-per-gpu 2 --nli-gpu 2>&1 | tee controls.log   # 24 jobs, ckpt/lambda0/shuffled
-python run_pgfix.py --stage extra    --slots-per-gpu 2 --nli-gpu 2>&1 | tee extra.log      # 12 jobs, AdaLoRA/VeRA (optional)
-```
-Failed jobs print `FAILED`; just rerun the same command (it resumes).
-## 5. Collect and pack
-```bash
-python collect_pgfix.py                                  # runs_pgfix/summary.csv + C-B table
-tar czf pgfix_results.tgz runs_pgfix/summary.csv runs_pgfix/*/*/checkpoint_*.jsonl runs_pgfix/*/*/run.log env_pgfix_freeze.txt core.log repeat.log controls.log extra.log 2>/dev/null
-ls -lh pgfix_results.tgz ; sha256sum pgfix_results.tgz
-```
-## 6. Bring results back
-From the Mac: `scp <user>@warisan-gpu-01:~/LoRA_Experiment/pgfix_results.tgz ~/LoRA_Experiment/` then give it to Claude (attach or say the folder) to rewrite the results section.
-## 7. Cleanup
-```bash
-tmux kill-server ; deactivate ; rm -rf ~/venv_pgfix ~/LoRA_Experiment/smoke_gpu
-```
-Revoke the old GitHub token and stop the GPU instance.
 
-## What each stage answers
-| Stage | Reviewer issue |
-|---|---|
-| core | Corrected-estimator B vs C (DoRA, plain LoRA, QLoRA; both languages; 3 seeds) |
-| repeat | Same-seed discrepancy: 2 nondeterministic + 2 deterministic repeats per cell, hardware logged per run |
-| controls | Checkpointing on/off, lambda1=0 through composite path, shuffled-reward control |
-| extra | AdaLoRA / VeRA under the corrected estimator |
+## 2. Stages (restartable; finished jobs are skipped)
+Use `tmux` so the session can drop. `--nli-gpu` runs the NLI scorer on the GPU; `--slots-per-gpu 2` runs two jobs per GPU.
+```bash
+python run_pgfix.py --stage core     --slots-per-gpu 2 --nli-gpu   # 18 jobs: LoRA/QLoRA/DoRA x 2 languages x 3 seeds, B and C, original checkpointing policy
+python run_pgfix.py --stage extra    --slots-per-gpu 2 --nli-gpu   # 12 jobs: AdaLoRA/VeRA
+python run_pgfix.py --stage controls --slots-per-gpu 2 --nli-gpu   # 24 jobs, seed 42: checkpointing on/off, lambda1=0, shuffled reward
+python run_pgfix.py --stage repeat   --slots-per-gpu 2 --nli-gpu   # 8 jobs: determinism repeats
+python run_pgfix.py --stage ckptoff  --slots-per-gpu 2 --nli-gpu   # 20 jobs: five adapters, seeds 123/2026, checkpointing OFF
+python run_pgfix.py --stage attrib   --slots-per-gpu 2 --nli-gpu   # 36 jobs: lambda1=0 and shuffled reward, checkpointing OFF, 3 seeds
+```
+Add `--dry-run` to list jobs. Failed jobs print `FAILED`; rerun the same command to resume.
 
-Per-run records now include pg_fix, reward_mode, deterministic, gpu, driver, torch/CUDA/transformers/peft versions.
+## 3. Collect and analyse
+```bash
+python collect_pgfix.py                                      # runs_pgfix/summary.csv
+cd analysis/pgfix_corrected && python merge.py ../..          # rebuild all.csv from raw runs
+python tables.py && python stats.py && python mk_tables.py && python mk_figs.py
+```
+Total compute: about 62 GPU-hours (Config B runs 3-8 minutes, Config C runs 20-45 minutes).

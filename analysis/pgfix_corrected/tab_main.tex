@@ -1,0 +1,25 @@
+\begin{table}[t]
+\centering
+\caption{mT5-base, corrected pipeline (Section~\ref{sec:method-train}), seeds 42, 123 and 2026; mean~$\pm$~SD over seeds. B: CE-only LoRA. C(off): composite objective, gradient checkpointing off. C(default): composite objective under the checkpointing setting of the original protocol (on for every non-quantized variant, off for QLoRA, so QLoRA's C(default) is the same run as C(off)). Arabic: 720 held-out examples; Malay: 430. For AdaLoRA and VeRA, C(off) has seeds 123 and 2026 only ($n=2$).}
+\label{tab:main}
+\footnotesize
+\begin{tabular}{@{}llccccc@{}}
+\toprule
+& & \multicolumn{3}{c}{$F_{\text{faith}}$} & \multicolumn{2}{c}{EM} \\
+\cmidrule(lr){3-5}\cmidrule(lr){6-7}
+\textbf{Lang} & \textbf{Variant} & B & C(off) & C(default) & B & C(off) \\
+\midrule
+Arabic & QLoRA & 0.1395 $\pm$ 0.0152 & 0.1421 $\pm$ 0.0032 & same as C(off) & 0.013 $\pm$ 0.005 & 0.015 $\pm$ 0.004 \\
+Arabic & LoRA & 0.1327 $\pm$ 0.0016 & 0.1612 $\pm$ 0.0046 & 0.0419 $\pm$ 0.0070 & 0.013 $\pm$ 0.003 & 0.015 $\pm$ 0.004 \\
+Arabic & DoRA & 0.1300 $\pm$ 0.0030 & 0.1474 $\pm$ 0.0058 & 0.0508 $\pm$ 0.0041 & 0.022 $\pm$ 0.006 & 0.016 $\pm$ 0.005 \\
+Arabic & AdaLoRA & 0.0642 $\pm$ 0.0011 & 0.0662 $\pm$ 0.0002 & 0.0634 $\pm$ 0.0019 & 0.000 $\pm$ 0.000 & 0.000 $\pm$ 0.000 \\
+Arabic & VeRA & 0.0693 $\pm$ 0.0000 & 0.0667 $\pm$ 0.0000 & 0.0614 $\pm$ 0.0000 & 0.000 $\pm$ 0.000 & 0.000 $\pm$ 0.000 \\
+\midrule
+Malay & QLoRA & 0.2859 $\pm$ 0.0072 & 0.3093 $\pm$ 0.0177 & same as C(off) & 0.151 $\pm$ 0.013 & 0.152 $\pm$ 0.020 \\
+Malay & LoRA & 0.2748 $\pm$ 0.0107 & 0.2949 $\pm$ 0.0082 & 0.0482 $\pm$ 0.0075 & 0.171 $\pm$ 0.022 & 0.130 $\pm$ 0.030 \\
+Malay & DoRA & 0.2955 $\pm$ 0.0188 & 0.3098 $\pm$ 0.0112 & 0.0538 $\pm$ 0.0043 & 0.149 $\pm$ 0.026 & 0.133 $\pm$ 0.027 \\
+Malay & AdaLoRA & 0.0394 $\pm$ 0.0068 & 0.0369 $\pm$ 0.0001 & 0.0273 $\pm$ 0.0014 & 0.000 $\pm$ 0.000 & 0.000 $\pm$ 0.000 \\
+Malay & VeRA & 0.0315 $\pm$ 0.0000 & 0.0372 $\pm$ 0.0000 & 0.0321 $\pm$ 0.0000 & 0.000 $\pm$ 0.000 & 0.000 $\pm$ 0.000 \\
+\botrule
+\end{tabular}
+\end{table}

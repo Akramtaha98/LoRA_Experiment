@@ -1,0 +1,31 @@
+\begin{table}[t]
+\centering
+\caption{Language-averaged contrasts in $F_{\text{faith}}$, seed-paired ($n=3$ seeds, 2 degrees of freedom). $p$: two-sided paired $t$; $p_{\text{Holm}}$: Holm correction over the three variants within a contrast. Cells: variant-by-language-by-seed differences that are positive (descriptive; the 18 cells are not independent). ``All'' pools the three variants (per-seed mean over six cells; 90\% CI shown); it treats variants as exchangeable and is descriptive.}
+\label{tab:contrasts}
+\footnotesize
+\begin{tabular}{@{}llrrrrr@{}}
+\toprule
+\textbf{Contrast} & \textbf{Variant} & $\Delta$ & $p$ & $p_{\text{Holm}}$ & Cells $>0$ & 90\% CI \\
+\midrule
+C(off) $-$ B & QLoRA & $+0.0129$ & 0.331 & 0.331 & 4/6 & \\
+ & LoRA & $+0.0243$ & 0.072 & 0.143 & 6/6 & \\
+ & DoRA & $+0.0158$ & 0.019 & 0.057 & 6/6 & \\
+ & All & $+0.0177$ & 0.058 & -- & 16/18 & [$+0.0047$, $+0.0307$] \\
+\midrule
+C(off) $-$ ($\lambda_1{=}0$) & QLoRA & $+0.0135$ & 0.112 & 0.224 & 6/6 & \\
+ & LoRA & $+0.0187$ & 0.112 & 0.224 & 5/6 & \\
+ & DoRA & $+0.0233$ & 0.072 & 0.217 & 6/6 & \\
+ & All & $+0.0185$ & 0.014 & -- & 17/18 & [$+0.0121$, $+0.0249$] \\
+\midrule
+C(off) $-$ shuffled & QLoRA & $+0.0148$ & 0.093 & 0.280 & 6/6 & \\
+ & LoRA & $+0.0218$ & 0.198 & 0.289 & 4/6 & \\
+ & DoRA & $+0.0225$ & 0.145 & 0.289 & 6/6 & \\
+ & All & $+0.0197$ & 0.081 & -- & 16/18 & [$+0.0023$, $+0.0371$] \\
+\midrule
+C(default) $-$ B & QLoRA & $+0.0129$ & 0.331 & 0.331 & 4/6 & \\
+ & LoRA & $-0.1588$ & 0.001 & 0.003 & 0/6 & \\
+ & DoRA & $-0.1605$ & 0.001 & 0.003 & 0/6 & \\
+ & All & $-0.1021$ & 0.001 & -- & 4/18 & [$-0.1099$, $-0.0943$] \\
+\botrule
+\end{tabular}
+\end{table}

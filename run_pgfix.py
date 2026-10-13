@@ -5,12 +5,14 @@ Every job is one `lora_experiment_matrix.py` process (one variant x language x s
 back-to-back in the SAME process/environment). Jobs are packed onto GPUs (--slots-per-gpu processes per GPU),
 each in its own output directory under runs_pgfix/<stage>/<job>/, and finished jobs are skipped on restart.
 
-Stages:  core | extra | controls | repeat | all
+Stages:  core | extra | controls | repeat | ckptoff | attrib | all
   core      dora, lora, qlora x {arabic, malay} x seeds {42,123,2026}, --bc_only            (18 jobs)
   extra     adalora, vera    x {arabic, malay} x seeds {42,123,2026}, --bc_only            (12 jobs)
   controls  seed 42, Config C only: gradient-checkpointing on/off (B+C), lambda1=0 via composite path,
             shuffled-reward control; dora/lora/qlora x both languages                      (24 jobs)
   repeat    dora, qlora x malay, seed 42, B+C, 2 nondeterministic + 2 deterministic repeats (8 jobs)
+  ckptoff   all five adapters x both languages x seeds {123,2026}, B+C with Config C gradient checkpointing OFF (20 jobs)
+  attrib    dora, lora, qlora x both languages x 3 seeds, Config C with checkpointing OFF: lambda1=0 and shuffled reward (36 jobs)
 Usage:  python run_pgfix.py --stage core [--gpus 0,1,2,3] [--slots-per-gpu 2] [--dry-run]
 """
 import argparse, itertools, os, subprocess, sys, time
@@ -39,6 +41,15 @@ def build(stage):
             J.append(job("controls", f"lambda0_{v}_{l}_s42", v, l, 42, ["--composite_only", "--lambda1", "0.0"]))
             J.append(job("controls", f"shuffled_{v}_{l}_s42", v, l, 42, ["--composite_only"],
                          {"LORA_REWARD_MODE": "shuffled"}))
+    if stage in ("ckptoff", "all"):   # B+C with gradient checkpointing OFF for Config C, seeds 123/2026 (42 is in controls)
+        for v, l, sd in itertools.product(["dora", "lora", "qlora", "adalora", "vera"], LANGS, [123, 2026]):
+            J.append(job("ckptoff", f"ckptoff_{v}_{l}_s{sd}", v, l, sd, ["--bc_only", "--grad_ckpt", "off"]))
+    if stage in ("attrib", "all"):   # reward attribution with checkpointing OFF: lambda1=0 and shuffled reward, all seeds
+        for v, l, sd in itertools.product(["dora", "lora", "qlora"], LANGS, SEEDS):
+            J.append(job("attrib", f"lambda0_{v}_{l}_s{sd}", v, l, sd,
+                         ["--composite_only", "--grad_ckpt", "off", "--lambda1", "0.0"]))
+            J.append(job("attrib", f"shuffled_{v}_{l}_s{sd}", v, l, sd,
+                         ["--composite_only", "--grad_ckpt", "off"], {"LORA_REWARD_MODE": "shuffled"}))
     if stage in ("repeat", "all"):
         for v in ("dora", "qlora"):
             for tag, det in (("nd1", "0"), ("nd2", "0"), ("det1", "1"), ("det2", "1")):
@@ -48,7 +59,7 @@ def build(stage):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--stage", required=True, choices=["core", "extra", "controls", "repeat", "all"])
+    ap.add_argument("--stage", required=True, choices=["core", "extra", "controls", "repeat", "ckptoff", "attrib", "all"])
     ap.add_argument("--gpus", default="0,1,2,3")
     ap.add_argument("--slots-per-gpu", type=int, default=2)
     ap.add_argument("--nli-gpu", action="store_true", help="run the NLI scorer on the GPU (faster; same for all arms)")

@@ -1,0 +1,19 @@
+\begin{table}[t]
+\centering
+\caption{Gradient-checkpointing audit, seed 42 (one run per cell). $F_{\text{faith}}$ of Config~C with checkpointing on and off, and of the two controls with checkpointing on, against Config~B. The two control columns follow the original protocol's default (checkpointing on, except QLoRA, which was never checkpointed). With checkpointing on, Config~C collapses whether the reward is real, shuffled or absent ($\lambda_1{=}0$), and QLoRA collapses too when checkpointing is forced on for it; with checkpointing off the same code does not collapse.}
+\label{tab:ckpt}
+\footnotesize
+\begin{tabular}{@{}llccccc@{}}
+\toprule
+\textbf{Lang} & \textbf{Variant} & B & C, ckpt on & C, ckpt off & $\lambda_1{=}0$, on & Shuffled, on \\
+\midrule
+Arabic & QLoRA & 0.1359 & 0.0443 & 0.1397 & 0.1306 & 0.1361 \\
+Arabic & LoRA & 0.1344 & 0.0341 & 0.1559 & 0.0501 & 0.0397 \\
+Arabic & DoRA & 0.1327 & 0.0467 & 0.1455 & 0.0495 & 0.0515 \\
+\midrule
+Malay & QLoRA & 0.2797 & 0.0538 & 0.3237 & 0.2865 & 0.2975 \\
+Malay & LoRA & 0.2869 & 0.0467 & 0.2889 & 0.0511 & 0.0416 \\
+Malay & DoRA & 0.2739 & 0.0585 & 0.2970 & 0.0481 & 0.0541 \\
+\botrule
+\end{tabular}
+\end{table}

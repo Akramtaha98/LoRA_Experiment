@@ -1,0 +1,481 @@
+{
+ "ckptoff_vs_B": {
+  "dora": {
+   "delta": 0.0158,
+   "sd": 0.0038,
+   "n": 3,
+   "t": 7.14,
+   "p": 0.0191,
+   "pos_cells": 6,
+   "cells": 6,
+   "arab": 0.0174,
+   "malay": 0.0143
+  },
+  "lora": {
+   "delta": 0.0243,
+   "sd": 0.0119,
+   "n": 3,
+   "t": 3.53,
+   "p": 0.0717,
+   "pos_cells": 6,
+   "cells": 6,
+   "arab": 0.0285,
+   "malay": 0.02
+  },
+  "qlora": {
+   "delta": 0.0129,
+   "sd": 0.0176,
+   "n": 3,
+   "t": 1.271,
+   "p": 0.3314,
+   "pos_cells": 4,
+   "cells": 6,
+   "arab": 0.0026,
+   "malay": 0.0233
+  },
+  "pooled": {
+   "delta": 0.0177,
+   "n": 3,
+   "t": 3.964,
+   "p": 0.0581,
+   "ci90": [
+    0.0047,
+    0.0307
+   ],
+   "pos_cells": 16,
+   "cells": 18,
+   "sign_p": 0.0013,
+   "cellsd": 0.0147
+  }
+ },
+ "default_vs_B": {
+  "dora": {
+   "delta": -0.1605,
+   "sd": 0.0085,
+   "n": 3,
+   "t": -32.814,
+   "p": 0.0009,
+   "pos_cells": 0,
+   "cells": 6,
+   "arab": -0.0792,
+   "malay": -0.2417
+  },
+  "lora": {
+   "delta": -0.1588,
+   "sd": 0.0104,
+   "n": 3,
+   "t": -26.418,
+   "p": 0.0014,
+   "pos_cells": 0,
+   "cells": 6,
+   "arab": -0.0909,
+   "malay": -0.2267
+  },
+  "qlora": {
+   "delta": 0.0129,
+   "sd": 0.0176,
+   "n": 3,
+   "t": 1.271,
+   "p": 0.3314,
+   "pos_cells": 4,
+   "cells": 6,
+   "arab": 0.0026,
+   "malay": 0.0233
+  },
+  "pooled": {
+   "delta": -0.1021,
+   "n": 3,
+   "t": -38.21,
+   "p": 0.0007,
+   "ci90": [
+    -0.1099,
+    -0.0943
+   ],
+   "pos_cells": 4,
+   "cells": 18,
+   "sign_p": 0.0309,
+   "cellsd": 0.1058
+  }
+ },
+ "real_vs_shuffled": {
+  "dora": {
+   "delta": 0.0225,
+   "sd": 0.0167,
+   "n": 3,
+   "t": 2.335,
+   "p": 0.1446,
+   "pos_cells": 6,
+   "cells": 6,
+   "arab": 0.0177,
+   "malay": 0.0272
+  },
+  "lora": {
+   "delta": 0.0218,
+   "sd": 0.0199,
+   "n": 3,
+   "t": 1.896,
+   "p": 0.1984,
+   "pos_cells": 4,
+   "cells": 6,
+   "arab": 0.0359,
+   "malay": 0.0076
+  },
+  "qlora": {
+   "delta": 0.0148,
+   "sd": 0.0084,
+   "n": 3,
+   "t": 3.039,
+   "p": 0.0934,
+   "pos_cells": 6,
+   "cells": 6,
+   "arab": 0.008,
+   "malay": 0.0216
+  },
+  "pooled": {
+   "delta": 0.0197,
+   "n": 3,
+   "t": 3.305,
+   "p": 0.0806,
+   "ci90": [
+    0.0023,
+    0.0371
+   ],
+   "pos_cells": 16,
+   "cells": 18,
+   "sign_p": 0.0013,
+   "cellsd": 0.0194
+  }
+ },
+ "real_vs_lambda0": {
+  "dora": {
+   "delta": 0.0233,
+   "sd": 0.0115,
+   "n": 3,
+   "t": 3.509,
+   "p": 0.0725,
+   "pos_cells": 6,
+   "cells": 6,
+   "arab": 0.0102,
+   "malay": 0.0365
+  },
+  "lora": {
+   "delta": 0.0187,
+   "sd": 0.0119,
+   "n": 3,
+   "t": 2.728,
+   "p": 0.1122,
+   "pos_cells": 5,
+   "cells": 6,
+   "arab": 0.0282,
+   "malay": 0.0091
+  },
+  "qlora": {
+   "delta": 0.0135,
+   "sd": 0.0085,
+   "n": 3,
+   "t": 2.734,
+   "p": 0.1118,
+   "pos_cells": 6,
+   "cells": 6,
+   "arab": 0.007,
+   "malay": 0.0199
+  },
+  "pooled": {
+   "delta": 0.0185,
+   "n": 3,
+   "t": 8.476,
+   "p": 0.0136,
+   "ci90": [
+    0.0121,
+    0.0249
+   ],
+   "pos_cells": 17,
+   "cells": 18,
+   "sign_p": 0.0001,
+   "cellsd": 0.0152
+  }
+ },
+ "shuffled_vs_B": {
+  "dora": {
+   "delta": -0.0066,
+   "sd": 0.02,
+   "n": 3,
+   "t": -0.574,
+   "p": 0.6236,
+   "pos_cells": 3,
+   "cells": 6,
+   "arab": -0.0003,
+   "malay": -0.013
+  },
+  "lora": {
+   "delta": 0.0025,
+   "sd": 0.0108,
+   "n": 3,
+   "t": 0.405,
+   "p": 0.725,
+   "pos_cells": 2,
+   "cells": 6,
+   "arab": -0.0074,
+   "malay": 0.0125
+  },
+  "qlora": {
+   "delta": -0.0018,
+   "sd": 0.0114,
+   "n": 3,
+   "t": -0.279,
+   "p": 0.8065,
+   "pos_cells": 3,
+   "cells": 6,
+   "arab": -0.0054,
+   "malay": 0.0017
+  },
+  "pooled": {
+   "delta": -0.002,
+   "n": 3,
+   "t": -0.367,
+   "p": 0.7486,
+   "ci90": [
+    -0.0178,
+    0.0138
+   ],
+   "pos_cells": 8,
+   "cells": 18,
+   "sign_p": 0.8145,
+   "cellsd": 0.0168
+  }
+ },
+ "lambda0_vs_B": {
+  "dora": {
+   "delta": -0.0075,
+   "sd": 0.0095,
+   "n": 3,
+   "t": -1.37,
+   "p": 0.3041,
+   "pos_cells": 3,
+   "cells": 6,
+   "arab": 0.0072,
+   "malay": -0.0222
+  },
+  "lora": {
+   "delta": 0.0056,
+   "sd": 0.0057,
+   "n": 3,
+   "t": 1.713,
+   "p": 0.2289,
+   "pos_cells": 4,
+   "cells": 6,
+   "arab": 0.0003,
+   "malay": 0.0109
+  },
+  "qlora": {
+   "delta": -0.0005,
+   "sd": 0.0166,
+   "n": 3,
+   "t": -0.056,
+   "p": 0.9607,
+   "pos_cells": 3,
+   "cells": 6,
+   "arab": -0.0045,
+   "malay": 0.0034
+  },
+  "pooled": {
+   "delta": -0.0008,
+   "n": 3,
+   "t": -0.252,
+   "p": 0.8247,
+   "ci90": [
+    -0.0103,
+    0.0087
+   ],
+   "pos_cells": 10,
+   "cells": 18,
+   "sign_p": 0.8145,
+   "cellsd": 0.0152
+  }
+ },
+ "off_vs_on": {
+  "dora": {
+   "delta": 0.1686,
+   "sd": NaN,
+   "n": 1,
+   "t": NaN,
+   "p": NaN,
+   "pos_cells": 2,
+   "cells": 2,
+   "arab": 0.0988,
+   "malay": 0.2385
+  },
+  "lora": {
+   "delta": 0.182,
+   "sd": NaN,
+   "n": 1,
+   "t": NaN,
+   "p": NaN,
+   "pos_cells": 2,
+   "cells": 2,
+   "arab": 0.1218,
+   "malay": 0.2422
+  },
+  "qlora": {
+   "delta": 0.1826,
+   "sd": NaN,
+   "n": 1,
+   "t": NaN,
+   "p": NaN,
+   "pos_cells": 2,
+   "cells": 2,
+   "arab": 0.0954,
+   "malay": 0.2699
+  },
+  "pooled": {
+   "delta": 0.1778,
+   "n": 1,
+   "t": NaN,
+   "p": NaN,
+   "ci90": [
+    NaN,
+    NaN
+   ],
+   "pos_cells": 6,
+   "cells": 6,
+   "sign_p": 0.0312,
+   "cellsd": 0.0806
+  }
+ },
+ "l0_ckpton_vs_B": {
+  "dora": {
+   "delta": -0.1545,
+   "sd": NaN,
+   "n": 1,
+   "t": NaN,
+   "p": NaN,
+   "pos_cells": 0,
+   "cells": 2,
+   "arab": -0.0832,
+   "malay": -0.2258
+  },
+  "lora": {
+   "delta": -0.16,
+   "sd": NaN,
+   "n": 1,
+   "t": NaN,
+   "p": NaN,
+   "pos_cells": 0,
+   "cells": 2,
+   "arab": -0.0843,
+   "malay": -0.2358
+  },
+  "qlora": {
+   "delta": 0.0007,
+   "sd": NaN,
+   "n": 1,
+   "t": NaN,
+   "p": NaN,
+   "pos_cells": 1,
+   "cells": 2,
+   "arab": -0.0053,
+   "malay": 0.0068
+  },
+  "pooled": {
+   "delta": -0.1046,
+   "n": 1,
+   "t": NaN,
+   "p": NaN,
+   "ci90": [
+    NaN,
+    NaN
+   ],
+   "pos_cells": 1,
+   "cells": 6,
+   "sign_p": 0.2188,
+   "cellsd": 0.1049
+  }
+ },
+ "shuf_ckpton_vs_B": {
+  "dora": {
+   "delta": -0.1505,
+   "sd": NaN,
+   "n": 1,
+   "t": NaN,
+   "p": NaN,
+   "pos_cells": 0,
+   "cells": 2,
+   "arab": -0.0812,
+   "malay": -0.2198
+  },
+  "lora": {
+   "delta": -0.17,
+   "sd": NaN,
+   "n": 1,
+   "t": NaN,
+   "p": NaN,
+   "pos_cells": 0,
+   "cells": 2,
+   "arab": -0.0947,
+   "malay": -0.2453
+  },
+  "qlora": {
+   "delta": 0.009,
+   "sd": NaN,
+   "n": 1,
+   "t": NaN,
+   "p": NaN,
+   "pos_cells": 2,
+   "cells": 2,
+   "arab": 0.0002,
+   "malay": 0.0178
+  },
+  "pooled": {
+   "delta": -0.1038,
+   "n": 1,
+   "t": NaN,
+   "p": NaN,
+   "ci90": [
+    NaN,
+    NaN
+   ],
+   "pos_cells": 2,
+   "cells": 6,
+   "sign_p": 0.6875,
+   "cellsd": 0.1092
+  }
+ },
+ "ckptoff_vs_B_adalora_vera": {
+  "adalora": {
+   "delta": 0.001,
+   "sd": 0.0036,
+   "n": 2,
+   "t": 0.406,
+   "p": 0.7545,
+   "pos_cells": 3,
+   "cells": 4,
+   "arab": 0.0024,
+   "malay": -0.0003
+  },
+  "vera": {
+   "delta": 0.0015,
+   "sd": 0.0,
+   "n": 2,
+   "t": Infinity,
+   "p": 0.0,
+   "pos_cells": 2,
+   "cells": 4,
+   "arab": -0.0026,
+   "malay": 0.0057
+  },
+  "pooled": {
+   "delta": 0.0013,
+   "n": 2,
+   "t": 1.02,
+   "p": 0.4938,
+   "ci90": [
+    -0.0067,
+    0.0093
+   ],
+   "pos_cells": 5,
+   "cells": 8,
+   "sign_p": 0.7266,
+   "cellsd": 0.0045
+  }
+ }
+}
