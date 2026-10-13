@@ -1,0 +1,14 @@
+# Versions used for every run reported in the manuscript (recorded in each run record: torch, cuda, transformers, peft, driver).
+torch==2.12.1
+transformers==5.5.0
+peft==0.21.2
+# The remaining packages were not version-recorded in the first study; run_v2 stage 0 (below) writes `pip freeze` to env_freeze.txt
+# and that file, not this one, is the authoritative environment record for the v2 runs.
+datasets
+accelerate
+bitsandbytes
+sentencepiece
+tabulate
+pandas
+scipy
+scikit-learn

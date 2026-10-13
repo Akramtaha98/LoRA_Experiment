@@ -155,6 +155,22 @@ from transformers import (
 )
 
 
+# LORA_V2: one shared sanitizer for generation and for re-scoring (the legacy
+# code used +-1e4 in generate() but +-1e9 in the scorer), with counters so a
+# run record shows how often non-finite logits actually occurred.
+SANITIZE_STATS = {"gen_calls": 0, "gen_nan": 0, "gen_posinf": 0,
+                  "score_calls": 0, "score_nan": 0, "score_posinf": 0}
+
+
+def sanitize_logits(scores, site, legacy_fill):
+    fill = 1e4 if V2 else legacy_fill
+    SANITIZE_STATS[site + "_calls"] += 1
+    if V2:   # accumulate on-device; converted to int only when the record is written
+        SANITIZE_STATS[site + "_nan"] = SANITIZE_STATS[site + "_nan"] + torch.isnan(scores).sum()
+        SANITIZE_STATS[site + "_posinf"] = SANITIZE_STATS[site + "_posinf"] + (scores == float("inf")).sum()
+    return torch.nan_to_num(scores, nan=-fill, posinf=fill, neginf=-fill), fill
+
+
 class _NaNSafeLogitsProcessor(LogitsProcessor):
     """Sanitize NaN/Inf logits before sampling.
 
@@ -179,7 +195,7 @@ class _NaNSafeLogitsProcessor(LogitsProcessor):
     """
 
     def __call__(self, input_ids, scores):
-        return torch.nan_to_num(scores, nan=-1e4, posinf=1e4, neginf=-1e4)
+        return sanitize_logits(scores, "gen", 1e4)[0]
 
 
 # FIX (readiness review item B1, prime suspect #4): "<extra_id_N>" tokens
@@ -421,7 +437,20 @@ def set_all_seeds(seed: int = SEED):
 #   LORA_REWARD_MODE    "shuffled" permutes rewards across the batch (control)
 #   LORA_DETERMINISTIC=1  torch deterministic algorithms (determinism repeat)
 #   LORA_NLI_DEVICE     "cuda" to run the NLI scorer on GPU (default CPU)
-PG_FIX = os.environ.get("LORA_PG_FIX", "0") == "1"
+#   LORA_V2=1           reviewer-driven corrections (implies LORA_PG_FIX=1):
+#                       NLI premise = raw passage in training (as in evaluation);
+#                       model.eval() + mode assertions before held-out generation;
+#                       policy branch (sampling AND re-scoring) run with dropout
+#                       disabled, train mode restored for the CE pass;
+#                       one shared logit sanitizer with counters; AdaLoRA rank
+#                       reallocation (update_and_allocate) wired in; the
+#                       checkpointing flag, stable source/passage IDs, per-example
+#                       predictions, passage-overlap and truncation flags recorded.
+#   LORA_POLICY_MODE    "eval" (default under V2) or "train": dropout state of the
+#                       policy branch (kept selectable for the CE x mode ablation)
+V2 = os.environ.get("LORA_V2", "0") == "1"
+PG_FIX = V2 or os.environ.get("LORA_PG_FIX", "0") == "1"
+POLICY_MODE = os.environ.get("LORA_POLICY_MODE", "eval" if V2 else "train")
 REWARD_MODE = os.environ.get("LORA_REWARD_MODE", "real")
 DETERMINISTIC = os.environ.get("LORA_DETERMINISTIC", "0") == "1"
 NLI_DEVICE = os.environ.get("LORA_NLI_DEVICE", "cpu")
@@ -850,10 +879,9 @@ def _seq_log_probs_aligned(model, input_ids, attention_mask, sampled_ids,
     target = sampled_ids[:, 1:]
     out = model(input_ids=input_ids, attention_mask=attention_mask,
                 decoder_input_ids=dec_in)
-    logits = torch.nan_to_num(out.logits.float(), nan=-1e9,
-                              posinf=1e9, neginf=-1e9)
+    logits, fill = sanitize_logits(out.logits.float(), "score", 1e9)
     if banned_ids:
-        logits[..., banned_ids] = -1e9
+        logits[..., banned_ids] = -fill
     logp = F.log_softmax(logits, dim=-1)
     tok_lp = logp.gather(2, target.unsqueeze(-1)).squeeze(-1)
     mask = (target != pad_token_id).float()      # EOS (id 1) is kept
@@ -925,6 +953,65 @@ def f_faith(answer: str, context: str) -> float:
     return round(probs[ent_idx].item(), 4)
 
 
+# ─── V2 HELPERS: stable IDs, passage hashing, collator, AdaLoRA callback ─────
+import hashlib
+
+
+def passage_id(passage: str) -> str:
+    return hashlib.sha1((passage or "").strip().encode("utf-8")).hexdigest()[:12]
+
+
+def source_id(ex: dict, language: str, ds_index: int) -> str:
+    """Stable identifier of the source item (not the position in a shuffled split)."""
+    if language == "arabic":
+        return f"xquad.ar:{ex.get('id', ds_index)}"
+    return f"belebele.zsm:{ex.get('link', '')}#{ex.get('question_number', ds_index)}"
+
+
+class PassageCollator:
+    """Wraps DataCollatorForSeq2Seq: raw strings (the NLI premise `passage` and
+    `src_id`) bypass tokenizer padding and are re-attached to the batch, so
+    compute_loss can score the PASSAGE (exactly as evaluation does) instead of
+    the decoded prompt (which also contains the question and Malay options)."""
+    EXTRA = ("passage", "src_id")
+
+    def __init__(self, base):
+        self.base = base
+
+    def __call__(self, features):
+        extra = {k: [f.pop(k) for f in features] for k in self.EXTRA if k in features[0]}
+        batch = self.base(features)
+        for k, v in extra.items():
+            batch[k] = v
+        return batch
+
+
+from transformers import TrainerCallback
+
+
+class AdaLoraAllocateCallback(TrainerCallback):
+    """Calls peft's AdaLoRA budget scheduler after each optimizer step (before
+    gradients are zeroed). Without this call AdaLoRA never prunes: it behaves
+    as a fixed rank-init_r LoRA. Logs the number of non-zero singular values."""
+
+    def __init__(self, every: int = 20):
+        self.every = every
+        self.rank_log = []
+
+    @staticmethod
+    def total_rank(model):
+        return int(sum((p.detach() != 0).sum().item()
+                       for n, p in model.named_parameters() if "lora_E" in n))
+
+    def on_optimizer_step(self, args, state, control, model=None, **kw):
+        base = getattr(model, "base_model", None)
+        if base is None or not hasattr(base, "update_and_allocate"):
+            return
+        base.update_and_allocate(state.global_step)
+        if state.global_step % self.every == 0 or state.global_step <= 1:
+            self.rank_log.append([int(state.global_step), self.total_rank(model)])
+
+
 # ─── CUSTOM TRAINER (Config C composite loss -- CORRECTED, self-critical) ────
 class CompositeLossTrainer(Seq2SeqTrainer):
     """
@@ -964,7 +1051,9 @@ class CompositeLossTrainer(Seq2SeqTrainer):
         self.num_samples = num_samples
 
     def compute_loss(self, model, inputs, return_outputs=False, **kwargs):
-        outputs = model(**inputs)
+        passages = inputs.pop("passage", None)    # raw NLI premise (V2 path)
+        inputs.pop("src_id", None)
+        outputs = model(**inputs)                 # CE pass: always the Trainer's own (train) mode
         ce_loss = outputs.loss
 
         if not self.use_composite:
@@ -976,6 +1065,27 @@ class CompositeLossTrainer(Seq2SeqTrainer):
         K = self.num_samples
         pad_id = self.tokenizer_ref.pad_token_id or 0
 
+        # LORA_V2: the policy branch (sampling + re-scoring) runs with dropout
+        # DISABLED so that the sampler and the scorer define the same
+        # distribution (the legacy path drew independent dropout masks for the
+        # two). Train mode is restored afterwards for backward/the next step.
+        policy_eval = V2 and POLICY_MODE == "eval"
+        was_training = model.training
+        if policy_eval:
+            model.eval()
+            assert not model.training and not any(m.training for m in model.modules()), \
+                "policy branch must run in eval mode"
+        try:
+            return self._policy_branch(model, inputs, input_ids, attention_mask,
+                                        batch_size, K, pad_id, passages, ce_loss,
+                                        outputs, return_outputs)
+        finally:
+            if policy_eval:
+                model.train(was_training)
+                assert model.training == was_training
+
+    def _policy_branch(self, model, inputs, input_ids, attention_mask, batch_size,
+                       K, pad_id, passages, ce_loss, outputs, return_outputs):
         # ---- Step 1-2: sample K generations per example, score (no_grad) ----
         with torch.no_grad():
             rep_input_ids = input_ids.repeat_interleave(K, dim=0)
@@ -1000,8 +1110,15 @@ class CompositeLossTrainer(Seq2SeqTrainer):
             )
             sampled_texts = self.tokenizer_ref.batch_decode(
                 sampled_ids, skip_special_tokens=True)
-            context_texts = self.tokenizer_ref.batch_decode(
-                rep_input_ids, skip_special_tokens=True)
+            if V2:
+                # premise = the raw passage, identical to what evaluation scores
+                assert passages is not None and len(passages) == batch_size, \
+                    "V2 requires the raw passage in the batch (PassageCollator)"
+                context_texts = [p for p in passages for _ in range(K)]
+                self.last_premises = context_texts       # inspected by tests
+            else:
+                context_texts = self.tokenizer_ref.batch_decode(
+                    rep_input_ids, skip_special_tokens=True)
             rewards = [f_faith(t, c) for t, c in zip(sampled_texts, context_texts)]
 
         # ---- Step 3: leave-one-out baseline / advantage (detached) ----
@@ -1043,6 +1160,11 @@ def run_single_experiment(config_name: str, lora_variant: str, language: str,
     label = f"config={config_name} variant={lora_variant} lang={language} seed={seed}"
     print(f"\n{'='*70}\nRUN: {label}\n{'='*70}")
     t0 = time.time()
+    for _k in SANITIZE_STATS:
+        SANITIZE_STATS[_k] = 0
+    grad_ckpt_used = False
+    adalora_cb = None
+    frac_train_trunc = None
     model = None  # tracked so the finally block below can always release GPU
                   # memory, even if this run fails before/while building it
 
@@ -1098,20 +1220,26 @@ def run_single_experiment(config_name: str, lora_variant: str, language: str,
         model = load_model_for_config(config_name, lora_variant, total_steps)
 
         if config_name != "A_frozen" and not smoke_test:
-            def _tokenize_fn(ex):
+            def _tokenize_fn(ex, idx):
                 ctx, q, gold, options = extract_context_question_answer(ex, language)
                 prompt = build_prompt(q, ctx, options)
                 model_inputs = tokenizer(prompt, truncation=True, max_length=512)
                 labels = tokenizer(text_target=(gold or ""), truncation=True,
                                     max_length=64)
                 model_inputs["labels"] = labels["input_ids"]
+                if V2:
+                    model_inputs["passage"] = ctx
+                    model_inputs["src_id"] = source_id(ex, language, train_indices[idx])
                 return model_inputs
 
             train_ds_raw = (dataset.select(train_indices) if train_indices
                              else dataset.select(eval_indices))
-            train_ds = train_ds_raw.map(_tokenize_fn,
+            train_ds = train_ds_raw.map(_tokenize_fn, with_indices=True,
                                          remove_columns=train_ds_raw.column_names)
             data_collator = DataCollatorForSeq2Seq(tokenizer, model=model)
+            if V2:
+                data_collator = PassageCollator(data_collator)
+                frac_train_trunc = sum(len(x) >= 512 for x in train_ds["input_ids"]) / max(1, len(train_ds))
 
             training_args = Seq2SeqTrainingArguments(
                 output_dir=str(OUTPUT_DIR / f"ckpt_{config_name}_{lora_variant}_{language}"),
@@ -1165,15 +1293,22 @@ def run_single_experiment(config_name: str, lora_variant: str, language: str,
                 # unaffected (its 4-bit backbone already uses ~4x less
                 # memory) and is deliberately excluded below so its
                 # already-running pods aren't affected by this change.
+                # LORA_V2: checkpointing is a pure memory switch, applied to B and C
+                # alike and OFF unless requested (--grad_ckpt on). The legacy rule
+                # (on for C only, non-QLoRA only) is kept for V2=0 reproduction.
                 gradient_checkpointing=(
                     config_name == "D_full_ft"
-                    or (GRAD_CKPT_OVERRIDE == "on" and config_name == "C_composite_lora")
-                    or (GRAD_CKPT_OVERRIDE is None
+                    or (V2 and GRAD_CKPT_OVERRIDE == "on"
+                        and config_name in ("B_ce_lora", "C_composite_lora"))
+                    or (not V2 and GRAD_CKPT_OVERRIDE == "on" and config_name == "C_composite_lora")
+                    or (not V2 and GRAD_CKPT_OVERRIDE is None
                         and config_name == "C_composite_lora" and lora_variant != "qlora")
                 ),
                 optim=("adafactor" if config_name == "D_full_ft" else "adamw_torch"),
             )
 
+            if V2 and lora_variant == "adalora":
+                adalora_cb = AdaLoraAllocateCallback()
             trainer = CompositeLossTrainer(
                 model=model,
                 args=training_args,
@@ -1182,7 +1317,9 @@ def run_single_experiment(config_name: str, lora_variant: str, language: str,
                 use_composite=(config_name == "C_composite_lora"),
                 tokenizer_ref=tokenizer,
                 lambda1=lambda1,
+                callbacks=([adalora_cb] if adalora_cb is not None else None),
             )
+            grad_ckpt_used = bool(training_args.gradient_checkpointing)
             trainer.train()
             print(f"  [TRAINING] completed {training_args.num_train_epochs} epochs "
                   f"({'composite loss' if config_name == 'C_composite_lora' else 'CE loss'})")
@@ -1193,6 +1330,15 @@ def run_single_experiment(config_name: str, lora_variant: str, language: str,
         # Evaluation: generate + score F_faith on the held-out slice reserved
         # above (guaranteed disjoint from train_ds when training occurred).
         eval_slice = dataset.select(eval_indices)
+        if V2:
+            # Evaluation must be deterministic: no dropout. torch.no_grad() does
+            # NOT disable dropout; only eval() does.
+            model.eval()
+            assert not model.training and not any(m.training for m in model.modules()), \
+                "model must be in eval mode for held-out generation"
+            train_pids = {passage_id(extract_context_question_answer(e, language)[0])
+                          for e in dataset.select(train_indices)}
+        pred_records = []
         scores = []
         em_scores = []
         f1_scores = []
@@ -1232,6 +1378,29 @@ def run_single_experiment(config_name: str, lora_variant: str, language: str,
                 )
             answer = tokenizer.decode(out[0], skip_special_tokens=True)
             f_faith_score = f_faith(answer, context)
+            if V2:
+                pid = passage_id(context)
+                n_tok = len(tokenizer(prompt).input_ids)
+                norm_ans = _normalize_text(answer)
+                rec = {"src_id": source_id(ex, language, eval_indices[i]),
+                       "ds_index": int(eval_indices[i]), "passage_id": pid,
+                       "passage_in_train": pid in train_pids,
+                       "prompt_tokens": n_tok, "prompt_truncated": n_tok > 512,
+                       "question": question, "gold": gold, "generated": answer,
+                       "em": exact_match(answer, gold),
+                       "f1": round(token_f1(answer, gold), 4),
+                       "f_faith": round(f_faith_score, 4),
+                       "in_context": bool(norm_ans) and norm_ans in _normalize_text(context)}
+                if options:
+                    f1s = [token_f1(answer, o) for o in options]
+                    top = max(f1s)
+                    best = [j for j, v in enumerate(f1s) if v == top]
+                    gold_j = [j for j, o in enumerate(options)
+                              if _normalize_text(o) == _normalize_text(gold)]
+                    rec["option_correct"] = bool(top > 0 and len(best) == 1
+                                                 and gold_j and best[0] == gold_j[0])
+                    rec["option_exact"] = any(_normalize_text(o) == norm_ans for o in options)
+                pred_records.append(rec)
             scores.append(f_faith_score)
             # EM/F1 measure whether the answer is actually CORRECT (matches
             # gold), independent of F_faith's "is it entailed by context"
@@ -1265,6 +1434,61 @@ def run_single_experiment(config_name: str, lora_variant: str, language: str,
         mean_score = sum(scores) / len(scores) if scores else 0.0
         mean_em = sum(em_scores) / len(em_scores) if em_scores else 0.0
         mean_f1 = sum(f1_scores) / len(f1_scores) if f1_scores else 0.0
+        v2_fields = {}
+        if V2:
+            def _m(rs, k):
+                return round(sum(float(r[k]) for r in rs) / len(rs), 4) if rs else None
+            clean = [r for r in pred_records if not r["passage_in_train"]]
+            v2_fields = {
+                "v2": True, "policy_mode": POLICY_MODE, "eval_mode_asserted": True,
+                "grad_ckpt": grad_ckpt_used, "grad_ckpt_override": GRAD_CKPT_OVERRIDE,
+                # headline (mean_*) = held-out items whose PASSAGE is not in the
+                # training slice; *_all keeps every item
+                "mean_f_faith_all": round(mean_score, 4), "mean_em_all": round(mean_em, 4),
+                "mean_f1_all": round(mean_f1, 4), "n_eval_all": len(pred_records),
+                "n_passage_overlap_excluded": len(pred_records) - len(clean),
+                "frac_eval_prompt_truncated": _m(pred_records, "prompt_truncated"),
+                "frac_train_prompt_truncated": (round(frac_train_trunc, 4)
+                                                if frac_train_trunc is not None else None),
+                "in_context_rate": _m(clean, "in_context"),
+                "option_acc": _m([r for r in clean if "option_correct" in r], "option_correct"),
+                "option_exact_rate": _m([r for r in clean if "option_exact" in r], "option_exact"),
+                "sanitize_stats": {k: int(v) for k, v in SANITIZE_STATS.items()},
+                "adalora_rank_log": (adalora_cb.rank_log if adalora_cb else None),
+            }
+            if clean:
+                mean_score = _m(clean, "f_faith"); mean_em = _m(clean, "em"); mean_f1 = _m(clean, "f1")
+                scores = [r["f_faith"] for r in clean]
+            if os.environ.get("LORA_EVAL_ALSO_TRAINMODE", "1") == "1" and not smoke_test:
+                # Diagnostic for the checkpointing question: re-score the SAME trained
+                # adapter with the legacy evaluation state (train mode, so dropout is
+                # on and, if gradient checkpointing is enabled, generate() loses its
+                # KV cache). Reported next to the eval-mode headline; never used as one.
+                model.train()
+                lt = []
+                for ex in eval_slice:
+                    c_, q_, g_, o_ = extract_context_question_answer(ex, language)
+                    if not c_ or not q_:
+                        continue
+                    inp = tokenizer(build_prompt(q_, c_, o_), return_tensors="pt",
+                                    truncation=True, max_length=512).to(DEVICE)
+                    with torch.no_grad():
+                        o = model.generate(**inp, max_new_tokens=40, renormalize_logits=True,
+                                           logits_processor=LogitsProcessorList([_NaNSafeLogitsProcessor()]),
+                                           suppress_tokens=get_sentinel_token_ids(tokenizer))
+                    a_ = tokenizer.decode(o[0], skip_special_tokens=True)
+                    lt.append((f_faith(a_, c_), exact_match(a_, g_)))
+                model.eval()
+                v2_fields["trainmode_eval_f_faith"] = round(sum(x for x, _ in lt) / max(1, len(lt)), 4)
+                v2_fields["trainmode_eval_em"] = round(sum(y for _, y in lt) / max(1, len(lt)), 4)
+            pdir = OUTPUT_DIR / "preds"
+            pdir.mkdir(exist_ok=True)
+            pname = (f"{config_name}_{lora_variant}_{language}_seed{seed}_l{lambda1}"
+                     f"_{REWARD_MODE}_ckpt{int(grad_ckpt_used)}.jsonl")
+            with open(pdir / pname, "w", encoding="utf-8") as fh:
+                for r in pred_records:
+                    fh.write(json.dumps(r, ensure_ascii=False) + "\n")
+            v2_fields["preds_file"] = f"preds/{pname}"
         elapsed = time.time() - t0
 
         result = {
@@ -1282,6 +1506,7 @@ def run_single_experiment(config_name: str, lora_variant: str, language: str,
             "mean_em": round(mean_em, 4), "mean_f1": round(mean_f1, 4),
             "n_eval": len(scores), "runtime_sec": round(elapsed, 1), "error": "",
             "samples": json.dumps(sample_log, ensure_ascii=False),
+            **v2_fields,
         }
         print(f"  RESULT: PASS | mean_f_faith={result['mean_f_faith']} "
               f"| mean_em={result['mean_em']} | mean_f1={result['mean_f1']} "
