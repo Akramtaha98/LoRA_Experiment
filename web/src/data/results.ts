@@ -37,7 +37,20 @@ export interface FirstRow {
   em_B: number; em_C: number; f1_B: number; f1_C: number;
 }
 
+export interface RankRow { model: string; name: string; mean: number; sd: number; n: number; per_unit: number[] }
+export interface CmpResult { ranking: RankRow[]; winner: string; runner_up: string; margin: number; lo: number | null; hi: number | null; p: number | null; clear: boolean }
+export interface OutputAnswer { generated: string; em: number; f1: number }
+export interface OutputItem {
+  id: string; language: string; question: string; context: string; gold: string;
+  answers: Record<string, Record<string, Record<string, OutputAnswer>>>;
+}
+export interface Compare {
+  models: Record<string, string>; adapters: string[]; seeds: number[]; protocol_note: string;
+  results: Record<string, CmpResult>; outputs: OutputItem[];
+}
+
 export interface ResultsFile {
+  compare: Compare;
   meta: { base_model: string; reward_model: string; independent_scorer: string; margin: number };
   corrected: {
     n_runs: number; seeds: number[];

@@ -25,6 +25,10 @@ A leave-one-out REINFORCE objective with an NLI entailment reward is added to cr
 
 The NLI score is also the training reward, so the pattern is consistent with over-optimisation of the score. It is not evidence that the answers are less faithful, and the human evidence is limited (two annotators, low agreement).
 
+### Model comparison (which model wins)
+
+With the same adapters (DoRA, QLoRA) and seeds (42, 123, 2026), standard fine-tuning (config B), exact match, Arabic and Malay combined: **Qwen3-0.6B-Base 0.480**, T5Gemma 2 (270M) 0.368, mT5-base 0.166 (token F1 0.592 / 0.510 / 0.256). Qwen3 leads the runner-up by +0.111 EM (95% CI +0.105 to +0.118). The NLI score is not used to rank models because it is the training reward. The models differ in size, architecture and pre-training, and Qwen3 and T5Gemma 2 use the original protocol, so this ranks the fine-tuned systems, not the architectures. Side-by-side answers for five shared questions per language are in `results/compare/outputs.json` (`python scripts/build_compare_outputs.py --runs_v2 runs_v2`).
+
 ### Other backbones (original protocol, not comparable)
 
 T5Gemma 2 (`google/t5gemma-2-270m-270m`) and Qwen3-0.6B-Base were run with the first-study code path (3 seeds, before the training and evaluation fixes). Neither shows a detectable reward effect on the NLI score (T5Gemma 2 pooled +0.0005, 95% CI −0.0095 to +0.0105). No corrected-protocol run exists for them, so nothing here says whether the reward would help them once the fixes are applied. They are included in the dashboard and in `results/first_study/`.
@@ -83,7 +87,7 @@ Pre-specified design: seeds 42, 123, 2026, 7, 11, 13, 17, 19; seed-paired t inte
 
 ## Web dashboard
 
-`web/` is a static React app published on Vercel. Every number is read from `web/public/data/results.json`, which `scripts/build_web_data.py` generates from `results/`; nothing is typed into the front end. Tabs: overview, corrected study, T5Gemma 2 and other backbones, validation, worked examples, first-study prediction logs. Vercel builds from `web/` (see `vercel.json`); a GitHub Pages workflow is also provided.
+`web/` is a static React app published on Vercel. Every number is read from `web/public/data/results.json`, which `scripts/build_web_data.py` generates from `results/`; nothing is typed into the front end. Tabs: which model wins, model outputs, more questions, then the NLI-reward study (reward effect by model, corrected study, validation, reward examples, summary). Earlier tabs: T5Gemma 2 and other backbones, validation, worked examples, first-study prediction logs. Vercel builds from `web/` (see `vercel.json`); a GitHub Pages workflow is also provided.
 
 ## Data and licence
 

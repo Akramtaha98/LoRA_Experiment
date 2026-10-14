@@ -1,0 +1,872 @@
+[
+ {
+  "id": "arabic-0",
+  "language": "arabic",
+  "question": "ما هو اسم المجسات الصغيرة التي تحملها المشطيات؟",
+  "context": "تُعَدّ كل المشطيات تقريباً ضارية، فهي تقتات على فرائس متنوعة من اليرقات المجهرية إلى الحيوانات الدولابية، وحتى القشريات الصغيرة البالغة، أما الاستثناءات فهي نوعين ناشئين يعيشان كفطريات على السالبيات التي تقتات عليها الأنواع البالغة منها. يمكن للمشطيات في أفضل الظروف أن تأكل عشرة أضعاف وزنها في اليوم. وقدتم التعريف فقط 100-150 نوعا، هناك تقريبا 25 نوعا آخر لم يتم تعريفه وتسميته. ومن أمثلة مشطيات البحر الموجودة في الكتاب هناك ذوات الجسم البيضاوي وع زوج من المجسات القابلة للانكماش وهي تهدّبها المويجسات (\"مجسّات صغيرة\") تغطيها مولدات المادة الغروية، وهي خلايا تلتصق بالفريسة لتثبيتها. أما الشعبة فبها العديد من الأشكال البدنية مثل نوغ بليتيتسنيدا المسطّحة والكائنة في أعماق البحر، ويفتقر البالغون من هذا النوع إلى الثقوب، نوع البروادا التي ليس لها مجسات وتقتات على المشطيات الأخرى باستعمال فم كبير مزود بمجموعة من الأهداب المتصلبة التي تعمل عمل الأسنان. وتمكن هذا الاختلافات الأنواع المتعددة من التكاثر بشكل كبير وفي نفس المنطقة، فلكل من هذه الأنواع فرائس مختلفة والتي تختلف طريقة صيدها كاختلاف طريقة صيد العناكب لفرائسها.",
+  "gold": "المويجسات",
+  "answers": {
+   "qwen3": {
+    "qlora": {
+     "B_ce_lora": {
+      "generated": "المويجسات",
+      "em": 1.0,
+      "f1": 1.0
+     },
+     "C_composite_lora": {
+      "generated": "المويجسات",
+      "em": 1.0,
+      "f1": 1.0
+     }
+    },
+    "dora": {
+     "B_ce_lora": {
+      "generated": "المويجسات",
+      "em": 1.0,
+      "f1": 1.0
+     },
+     "C_composite_lora": {
+      "generated": "المويجسات",
+      "em": 1.0,
+      "f1": 1.0
+     }
+    }
+   },
+   "t5gemma2": {
+    "qlora": {
+     "B_ce_lora": {
+      "generated": "المويجسات",
+      "em": 1.0,
+      "f1": 1.0
+     },
+     "C_composite_lora": {
+      "generated": "المويجسات",
+      "em": 1.0,
+      "f1": 1.0
+     }
+    },
+    "dora": {
+     "B_ce_lora": {
+      "generated": "المويجسات",
+      "em": 1.0,
+      "f1": 1.0
+     },
+     "C_composite_lora": {
+      "generated": "المويجسات",
+      "em": 1.0,
+      "f1": 1.0
+     }
+    }
+   },
+   "mt5": {
+    "qlora": {
+     "B_ce_lora": {
+      "generated": "عشرة أضعاف وزنها في اليوم",
+      "em": 0.0,
+      "f1": 0.0
+     },
+     "C_composite_lora": {
+      "generated": "عشرة أضعاف وزنها في اليوم. وقدتم التعريف 100-150 نوعا. وقدتم التعريف فقط 100-150 نوعا. وقدتم التع",
+      "em": 0.0,
+      "f1": 0.0
+     }
+    },
+    "dora": {
+     "B_ce_lora": {
+      "generated": "عشرة أضعاف وزنها في اليوم",
+      "em": 0.0,
+      "f1": 0.0
+     },
+     "C_composite_lora": {
+      "generated": "عشرة أضعاف وزنها في اليوم. وتمكن هذا الاختلافات الأنواع المتعددة من التكاثر بشكل كبير. وتمكن هذا الاختلافات الأنواع",
+      "em": 0.0,
+      "f1": 0.0
+     }
+    }
+   }
+  }
+ },
+ {
+  "id": "arabic-1",
+  "language": "arabic",
+  "question": "ما الشيء الذي تستعمله فصيلة البروادا الساحلية كأسنان؟",
+  "context": "تُعَدّ كل المشطيات تقريباً ضارية، فهي تقتات على فرائس متنوعة من اليرقات المجهرية إلى الحيوانات الدولابية، وحتى القشريات الصغيرة البالغة، أما الاستثناءات فهي نوعين ناشئين يعيشان كفطريات على السالبيات التي تقتات عليها الأنواع البالغة منها. يمكن للمشطيات في أفضل الظروف أن تأكل عشرة أضعاف وزنها في اليوم. وقدتم التعريف فقط 100-150 نوعا، هناك تقريبا 25 نوعا آخر لم يتم تعريفه وتسميته. ومن أمثلة مشطيات البحر الموجودة في الكتاب هناك ذوات الجسم البيضاوي وع زوج من المجسات القابلة للانكماش وهي تهدّبها المويجسات (\"مجسّات صغيرة\") تغطيها مولدات المادة الغروية، وهي خلايا تلتصق بالفريسة لتثبيتها. أما الشعبة فبها العديد من الأشكال البدنية مثل نوغ بليتيتسنيدا المسطّحة والكائنة في أعماق البحر، ويفتقر البالغون من هذا النوع إلى الثقوب، نوع البروادا التي ليس لها مجسات وتقتات على المشطيات الأخرى باستعمال فم كبير مزود بمجموعة من الأهداب المتصلبة التي تعمل عمل الأسنان. وتمكن هذا الاختلافات الأنواع المتعددة من التكاثر بشكل كبير وفي نفس المنطقة، فلكل من هذه الأنواع فرائس مختلفة والتي تختلف طريقة صيدها كاختلاف طريقة صيد العناكب لفرائسها.",
+  "gold": "الأهداب المتصلبة",
+  "answers": {
+   "qwen3": {
+    "qlora": {
+     "B_ce_lora": {
+      "generated": "الأهداب المتصلبة",
+      "em": 1.0,
+      "f1": 1.0
+     },
+     "C_composite_lora": {
+      "generated": "الأهداب المتصلبة",
+      "em": 1.0,
+      "f1": 1.0
+     }
+    },
+    "dora": {
+     "B_ce_lora": {
+      "generated": "الأهداب المتصلبة",
+      "em": 1.0,
+      "f1": 1.0
+     },
+     "C_composite_lora": {
+      "generated": "الأهداب المتصلبة",
+      "em": 1.0,
+      "f1": 1.0
+     }
+    }
+   },
+   "t5gemma2": {
+    "qlora": {
+     "B_ce_lora": {
+      "generated": "الأهداب المتصلبة",
+      "em": 1.0,
+      "f1": 1.0
+     },
+     "C_composite_lora": {
+      "generated": "الأهداب المتصلبة",
+      "em": 1.0,
+      "f1": 1.0
+     }
+    },
+    "dora": {
+     "B_ce_lora": {
+      "generated": "الأهداب المتصلبة",
+      "em": 1.0,
+      "f1": 1.0
+     },
+     "C_composite_lora": {
+      "generated": "الأهداب المتصلبة",
+      "em": 1.0,
+      "f1": 1.0
+     }
+    }
+   },
+   "mt5": {
+    "qlora": {
+     "B_ce_lora": {
+      "generated": "فصيلة البروادا الساحلية كأسنان",
+      "em": 0.0,
+      "f1": 0.0
+     },
+     "C_composite_lora": {
+      "generated": "عشرة أضعاف وزنها في اليوم. وقدتم التعريف 100-150 نوعا",
+      "em": 0.0,
+      "f1": 0.0
+     }
+    },
+    "dora": {
+     "B_ce_lora": {
+      "generated": "فصيلة البروادا الساحلية كأسنان",
+      "em": 0.0,
+      "f1": 0.0
+     },
+     "C_composite_lora": {
+      "generated": "فصيلة البروادا الساحلية كأسنان. وتمكن هذا الاختلافات الأنواع المتعددة من التكاثر بشكل كبير وفي نفس المنطقة. وتمكن",
+      "em": 0.0,
+      "f1": 0.0
+     }
+    }
+   }
+  }
+ },
+ {
+  "id": "arabic-2",
+  "language": "arabic",
+  "question": "ما الشيء الذي تستعمله المشطيات للإمساك بفريستها؟",
+  "context": "تُعَدّ كل المشطيات تقريباً ضارية، فهي تقتات على فرائس متنوعة من اليرقات المجهرية إلى الحيوانات الدولابية، وحتى القشريات الصغيرة البالغة، أما الاستثناءات فهي نوعين ناشئين يعيشان كفطريات على السالبيات التي تقتات عليها الأنواع البالغة منها. يمكن للمشطيات في أفضل الظروف أن تأكل عشرة أضعاف وزنها في اليوم. وقدتم التعريف فقط 100-150 نوعا، هناك تقريبا 25 نوعا آخر لم يتم تعريفه وتسميته. ومن أمثلة مشطيات البحر الموجودة في الكتاب هناك ذوات الجسم البيضاوي وع زوج من المجسات القابلة للانكماش وهي تهدّبها المويجسات (\"مجسّات صغيرة\") تغطيها مولدات المادة الغروية، وهي خلايا تلتصق بالفريسة لتثبيتها. أما الشعبة فبها العديد من الأشكال البدنية مثل نوغ بليتيتسنيدا المسطّحة والكائنة في أعماق البحر، ويفتقر البالغون من هذا النوع إلى الثقوب، نوع البروادا التي ليس لها مجسات وتقتات على المشطيات الأخرى باستعمال فم كبير مزود بمجموعة من الأهداب المتصلبة التي تعمل عمل الأسنان. وتمكن هذا الاختلافات الأنواع المتعددة من التكاثر بشكل كبير وفي نفس المنطقة، فلكل من هذه الأنواع فرائس مختلفة والتي تختلف طريقة صيدها كاختلاف طريقة صيد العناكب لفرائسها.",
+  "gold": "مولدات المادة الغروية",
+  "answers": {
+   "qwen3": {
+    "qlora": {
+     "B_ce_lora": {
+      "generated": "المويجسات",
+      "em": 0.0,
+      "f1": 0.0
+     },
+     "C_composite_lora": {
+      "generated": "المويجسات",
+      "em": 0.0,
+      "f1": 0.0
+     }
+    },
+    "dora": {
+     "B_ce_lora": {
+      "generated": "فم كبير مزود بمجموعة من الأهداب المتصلبة",
+      "em": 0.0,
+      "f1": 0.0
+     },
+     "C_composite_lora": {
+      "generated": "الأهداب المتصلبة",
+      "em": 0.0,
+      "f1": 0.0
+     }
+    }
+   },
+   "t5gemma2": {
+    "qlora": {
+     "B_ce_lora": {
+      "generated": "المويجسات",
+      "em": 0.0,
+      "f1": 0.0
+     },
+     "C_composite_lora": {
+      "generated": "الأهداب المتصلبة",
+      "em": 0.0,
+      "f1": 0.0
+     }
+    },
+    "dora": {
+     "B_ce_lora": {
+      "generated": "الأهداب المتصلبة",
+      "em": 0.0,
+      "f1": 0.0
+     },
+     "C_composite_lora": {
+      "generated": "مولدات المادة الغروية",
+      "em": 1.0,
+      "f1": 1.0
+     }
+    }
+   },
+   "mt5": {
+    "qlora": {
+     "B_ce_lora": {
+      "generated": "عشرة أضعاف وزنها في اليوم",
+      "em": 0.0,
+      "f1": 0.0
+     },
+     "C_composite_lora": {
+      "generated": "عشرة أضعاف وزنها في اليوم. وقدتم التعريف 100-150 نوعا",
+      "em": 0.0,
+      "f1": 0.0
+     }
+    },
+    "dora": {
+     "B_ce_lora": {
+      "generated": "عشرة أضعاف وزنها في اليوم",
+      "em": 0.0,
+      "f1": 0.0
+     },
+     "C_composite_lora": {
+      "generated": "عشرة أضعاف وزنها في اليوم. وتمكن هذا الاختلافات الأنواع المتعددة من التكاثر بشكل كبير. وتمكن هذا الاختلافات الأنواع",
+      "em": 0.0,
+      "f1": 0.0
+     }
+    }
+   }
+  }
+ },
+ {
+  "id": "arabic-3",
+  "language": "arabic",
+  "question": "كم نوعا يوجد من المشطيات؟",
+  "context": "تُعَدّ كل المشطيات تقريباً ضارية، فهي تقتات على فرائس متنوعة من اليرقات المجهرية إلى الحيوانات الدولابية، وحتى القشريات الصغيرة البالغة، أما الاستثناءات فهي نوعين ناشئين يعيشان كفطريات على السالبيات التي تقتات عليها الأنواع البالغة منها. يمكن للمشطيات في أفضل الظروف أن تأكل عشرة أضعاف وزنها في اليوم. وقدتم التعريف فقط 100-150 نوعا، هناك تقريبا 25 نوعا آخر لم يتم تعريفه وتسميته. ومن أمثلة مشطيات البحر الموجودة في الكتاب هناك ذوات الجسم البيضاوي وع زوج من المجسات القابلة للانكماش وهي تهدّبها المويجسات (\"مجسّات صغيرة\") تغطيها مولدات المادة الغروية، وهي خلايا تلتصق بالفريسة لتثبيتها. أما الشعبة فبها العديد من الأشكال البدنية مثل نوغ بليتيتسنيدا المسطّحة والكائنة في أعماق البحر، ويفتقر البالغون من هذا النوع إلى الثقوب، نوع البروادا التي ليس لها مجسات وتقتات على المشطيات الأخرى باستعمال فم كبير مزود بمجموعة من الأهداب المتصلبة التي تعمل عمل الأسنان. وتمكن هذا الاختلافات الأنواع المتعددة من التكاثر بشكل كبير وفي نفس المنطقة، فلكل من هذه الأنواع فرائس مختلفة والتي تختلف طريقة صيدها كاختلاف طريقة صيد العناكب لفرائسها.",
+  "gold": "100-150 نوعا",
+  "answers": {
+   "qwen3": {
+    "qlora": {
+     "B_ce_lora": {
+      "generated": "100-150",
+      "em": 0.0,
+      "f1": 0.6667
+     },
+     "C_composite_lora": {
+      "generated": "100-150",
+      "em": 0.0,
+      "f1": 0.6667
+     }
+    },
+    "dora": {
+     "B_ce_lora": {
+      "generated": "100-150",
+      "em": 0.0,
+      "f1": 0.6667
+     },
+     "C_composite_lora": {
+      "generated": "100-150",
+      "em": 0.0,
+      "f1": 0.6667
+     }
+    }
+   },
+   "t5gemma2": {
+    "qlora": {
+     "B_ce_lora": {
+      "generated": "100-150",
+      "em": 0.0,
+      "f1": 0.6667
+     },
+     "C_composite_lora": {
+      "generated": "100-150",
+      "em": 0.0,
+      "f1": 0.6667
+     }
+    },
+    "dora": {
+     "B_ce_lora": {
+      "generated": "100-150",
+      "em": 0.0,
+      "f1": 0.6667
+     },
+     "C_composite_lora": {
+      "generated": "100-150",
+      "em": 0.0,
+      "f1": 0.6667
+     }
+    }
+   },
+   "mt5": {
+    "qlora": {
+     "B_ce_lora": {
+      "generated": "عشرة أضعاف وزنها في اليوم",
+      "em": 0.0,
+      "f1": 0.0
+     },
+     "C_composite_lora": {
+      "generated": "عشرة أضعاف وزنها في اليوم. وقدتم التعريف 100-150 نوعا. وقدتم التعريف فقط 100-150 نوعا. وقدتم التع",
+      "em": 0.0,
+      "f1": 0.2222
+     }
+    },
+    "dora": {
+     "B_ce_lora": {
+      "generated": "عشرة أضعاف وزنها في اليوم",
+      "em": 0.0,
+      "f1": 0.0
+     },
+     "C_composite_lora": {
+      "generated": "عشرة أضعاف وزنها في اليوم. وتمكن هذا الاختلافات الأنواع المتعددة من التكاثر بشكل كبير. وتمكن هذا الاختلافات الأنواع",
+      "em": 0.0,
+      "f1": 0.0
+     }
+    }
+   }
+  }
+ },
+ {
+  "id": "arabic-4",
+  "language": "arabic",
+  "question": "متى كان انقراض العصر الطباشيري الثلاثي؟",
+  "context": "تم العثور على مستحثات أثرية في المرسب الأحفوري يعتقد بأنها لمشطيات ذات أجسام ناعمة وهلامية، تبدو بلا مجسّأت بل لها من أهداب مصطفة أكثر مما في الأشكال الحديثة، وتعود إلى أوائل العصر الكمبري منذ حوالي 515 مليون سنة. لطالما كان موضع المشطينات في تطور شجرة العائلة محلاً للنقاش، وباعتماد علم الوراثة العرفي الجزيئي، فإن وجهة نظر الأغلبية هي أن اللواسع وثنائيات التناظر لهما ارتباط وثيق بعضهما يزيد عن ارتباطهما بالمشطيات. وقد استنتج تحليل وراثي جزيئي أن أصل جميع المشطيات الحديثة كان مشابها للمشطيات، وأن كل المجموعات العصرية وجدت ربّما بعد انقراض العصر الطباشيري الثلاثي منذ 66 مليون سنة خلت. تشير الأدلة التي جُمعَت منذ ثمانينات القرن الماضي إلى أن \"المشطيات\" ليست أحادية الأرومة، أي لا تتضمن سليلات كاملة ووحيدة لنوع رئيسي مشترك، لأن كل المجموعات الأخرى للمشطيات تنحدر من حيوانات مشطية أخرى",
+  "gold": "66 مليون سنة خلت",
+  "answers": {
+   "qwen3": {
+    "qlora": {
+     "B_ce_lora": {
+      "generated": "66 مليون سنة",
+      "em": 0.0,
+      "f1": 0.8571
+     },
+     "C_composite_lora": {
+      "generated": "66 مليون سنة",
+      "em": 0.0,
+      "f1": 0.8571
+     }
+    },
+    "dora": {
+     "B_ce_lora": {
+      "generated": "66 مليون سنة",
+      "em": 0.0,
+      "f1": 0.8571
+     },
+     "C_composite_lora": {
+      "generated": "66 مليون سنة",
+      "em": 0.0,
+      "f1": 0.8571
+     }
+    }
+   },
+   "t5gemma2": {
+    "qlora": {
+     "B_ce_lora": {
+      "generated": "66 مليون سنة",
+      "em": 0.0,
+      "f1": 0.8571
+     },
+     "C_composite_lora": {
+      "generated": "66 مليون سنة خلت",
+      "em": 1.0,
+      "f1": 1.0
+     }
+    },
+    "dora": {
+     "B_ce_lora": {
+      "generated": "66 مليون سنة",
+      "em": 0.0,
+      "f1": 0.8571
+     },
+     "C_composite_lora": {
+      "generated": "66 مليون سنة",
+      "em": 0.0,
+      "f1": 0.8571
+     }
+    }
+   },
+   "mt5": {
+    "qlora": {
+     "B_ce_lora": {
+      "generated": "حيوانات مشطية أخرى",
+      "em": 0.0,
+      "f1": 0.0
+     },
+     "C_composite_lora": {
+      "generated": "حيوانات مشطية أخرى. وقد استنتج تحليل وراثي جزيئي. تشير الأدلة التي جُمعَت منذ ثمانينات القرن",
+      "em": 0.0,
+      "f1": 0.0
+     }
+    },
+    "dora": {
+     "B_ce_lora": {
+      "generated": "منذ 66 مليون سنة خلت",
+      "em": 0.0,
+      "f1": 0.8889
+     },
+     "C_composite_lora": {
+      "generated": "حيوانات مشطية أخرى. وقد استنتج تحليل وراثي جزيئي أن أصل جميع المشطيات الحديثة كان مشابها للمشطيات. وقد",
+      "em": 0.0,
+      "f1": 0.0
+     }
+    }
+   }
+  }
+ },
+ {
+  "id": "malay-0",
+  "language": "malay",
+  "question": "Menurut petikan, bagaimanakah pengaturan tersebut mempengaruhi AOL?",
+  "context": "Sehingga kini, AOL telah berjaya menggerakkan dan membangunkan pasaran IM dengan rentaknya sendiri, disebabkan penggunaannya yang meluas di Amerika Syarikat. Dengan pengaturan yang ada, kebabasan ini mungkin berakhir. Gabungan jumlah pengguna perkhidmatan Yahoo! dan Microsoft dapat bersaing dengan jumlah pelanggan AOL.",
+  "gold": "Jumlah pengguna AOL akan disaingi oleh pengguna Yahoo dan Microsoft ",
+  "answers": {
+   "qwen3": {
+    "qlora": {
+     "B_ce_lora": {
+      "generated": "Jumlah pengguna AOL akan disaingi oleh pengguna Yahoo dan Microsoft",
+      "em": 1.0,
+      "f1": 1.0
+     },
+     "C_composite_lora": {
+      "generated": "Jumlah pengguna AOL akan disaingi oleh pengguna Yahoo dan Microsoft",
+      "em": 1.0,
+      "f1": 1.0
+     }
+    },
+    "dora": {
+     "B_ce_lora": {
+      "generated": "Jumlah pengguna AOL akan disaingi oleh pengguna Yahoo dan Microsoft",
+      "em": 1.0,
+      "f1": 1.0
+     },
+     "C_composite_lora": {
+      "generated": "Jumlah pengguna AOL akan disaingi oleh pengguna Yahoo dan Microsoft",
+      "em": 1.0,
+      "f1": 1.0
+     }
+    }
+   },
+   "t5gemma2": {
+    "qlora": {
+     "B_ce_lora": {
+      "generated": "Jumlah pengguna AOL berkemungkinan meningkat ",
+      "em": 0.0,
+      "f1": 0.4
+     },
+     "C_composite_lora": {
+      "generated": "Jumlah pengguna AOL berkemungkinan meningkat ",
+      "em": 0.0,
+      "f1": 0.4
+     }
+    },
+    "dora": {
+     "B_ce_lora": {
+      "generated": "Jumlah pengguna AOL berkemungkinan meningkat ",
+      "em": 0.0,
+      "f1": 0.4
+     },
+     "C_composite_lora": {
+      "generated": "Jumlah pengguna AOL berkemungkinan meningkat ",
+      "em": 0.0,
+      "f1": 0.4
+     }
+    }
+   },
+   "mt5": {
+    "qlora": {
+     "B_ce_lora": {
+      "generated": "AOL tidak lagi akan digunakan di Amerika Syarikat",
+      "em": 0.0,
+      "f1": 0.2222
+     },
+     "C_composite_lora": {
+      "generated": "AOL tidak lagi akan digunakan di Amerika Syarikat",
+      "em": 0.0,
+      "f1": 0.2222
+     }
+    },
+    "dora": {
+     "B_ce_lora": {
+      "generated": "AOL tidak lagi akan digunakan di Amerika Syarikat",
+      "em": 0.0,
+      "f1": 0.2222
+     },
+     "C_composite_lora": {
+      "generated": "AOL tidak lagi akan digunakan di Amerika Syarikat",
+      "em": 0.0,
+      "f1": 0.2222
+     }
+    }
+   }
+  }
+ },
+ {
+  "id": "malay-1",
+  "language": "malay",
+  "question": "Manakah antara berikut mungkin tamat kerana pengaturan baharu?",
+  "context": "Sehingga kini, AOL telah berjaya menggerakkan dan membangunkan pasaran IM dengan rentaknya sendiri, disebabkan penggunaannya yang meluas di Amerika Syarikat. Dengan pengaturan yang ada, kebabasan ini mungkin berakhir. Gabungan jumlah pengguna perkhidmatan Yahoo! dan Microsoft dapat bersaing dengan jumlah pelanggan AOL.",
+  "gold": "Kebebasan AOL untuk membangunkan pasaran dengan rentaknya sendiri",
+  "answers": {
+   "qwen3": {
+    "qlora": {
+     "B_ce_lora": {
+      "generated": "Penggunaan pasaran IM",
+      "em": 0.0,
+      "f1": 0.1818
+     },
+     "C_composite_lora": {
+      "generated": "Penggunaan pasaran IM",
+      "em": 0.0,
+      "f1": 0.1818
+     }
+    },
+    "dora": {
+     "B_ce_lora": {
+      "generated": "Kebebasan AOL untuk membangunkan pasaran dengan rentaknya sendiri",
+      "em": 1.0,
+      "f1": 1.0
+     },
+     "C_composite_lora": {
+      "generated": "Kebebasan AOL untuk membangunkan pasaran dengan rentaknya sendiri",
+      "em": 1.0,
+      "f1": 1.0
+     }
+    }
+   },
+   "t5gemma2": {
+    "qlora": {
+     "B_ce_lora": {
+      "generated": "Kebebasan AOL untuk membangunkan pasaran dengan rentaknya sendiri",
+      "em": 1.0,
+      "f1": 1.0
+     },
+     "C_composite_lora": {
+      "generated": "Kebebasan AOL untuk membangun pasaran dengan rentaknya sendiri",
+      "em": 0.0,
+      "f1": 0.875
+     }
+    },
+    "dora": {
+     "B_ce_lora": {
+      "generated": "Kebebasan AOL untuk membangunkan pasaran dengan rentaknya sendiri",
+      "em": 1.0,
+      "f1": 1.0
+     },
+     "C_composite_lora": {
+      "generated": "Penggunaan pasaran IM",
+      "em": 0.0,
+      "f1": 0.1818
+     }
+    }
+   },
+   "mt5": {
+    "qlora": {
+     "B_ce_lora": {
+      "generated": "Kebebasan AOL untuk membangunkan pasaran dengan rentaknya sendiri",
+      "em": 1.0,
+      "f1": 1.0
+     },
+     "C_composite_lora": {
+      "generated": "Kebebasan AOL untuk membangunkan pasaran dengan rentaknya sendiri",
+      "em": 1.0,
+      "f1": 1.0
+     }
+    },
+    "dora": {
+     "B_ce_lora": {
+      "generated": "Kebebasan AOL untuk membangunkan pasaran dengan rentaknya sendiri",
+      "em": 1.0,
+      "f1": 1.0
+     },
+     "C_composite_lora": {
+      "generated": "Penggunaan pasaran IM",
+      "em": 0.0,
+      "f1": 0.1818
+     }
+    }
+   }
+  }
+ },
+ {
+  "id": "malay-2",
+  "language": "malay",
+  "question": "Berapa ramaikah orang yang terbunuh dalam serangan tersebut yang bukan pegawai polis?",
+  "context": "Sebuah bom kereta meletup di ibu pejabat polis di Gaziantep, Turki pagi semalam yang membunuh dua pegawai polis dan mencederakan lebih dari dua puluh mangsa yang lain. Pejabat gabenor berkata sembilan belas daripada yang tercedera adalah pegawai polis. Polis menyatakan bahawa mereka mengesyaki seorang yang disangka militan Daesh (ISIL) bertanggungjawab untuk serangan tersebut.",
+  "gold": "0",
+  "answers": {
+   "qwen3": {
+    "qlora": {
+     "B_ce_lora": {
+      "generated": "2",
+      "em": 0.0,
+      "f1": 0.0
+     },
+     "C_composite_lora": {
+      "generated": "2",
+      "em": 0.0,
+      "f1": 0.0
+     }
+    },
+    "dora": {
+     "B_ce_lora": {
+      "generated": "0",
+      "em": 1.0,
+      "f1": 1.0
+     },
+     "C_composite_lora": {
+      "generated": "2",
+      "em": 0.0,
+      "f1": 0.0
+     }
+    }
+   },
+   "t5gemma2": {
+    "qlora": {
+     "B_ce_lora": {
+      "generated": "2",
+      "em": 0.0,
+      "f1": 0.0
+     },
+     "C_composite_lora": {
+      "generated": "2",
+      "em": 0.0,
+      "f1": 0.0
+     }
+    },
+    "dora": {
+     "B_ce_lora": {
+      "generated": "0",
+      "em": 1.0,
+      "f1": 1.0
+     },
+     "C_composite_lora": {
+      "generated": "2",
+      "em": 0.0,
+      "f1": 0.0
+     }
+    }
+   },
+   "mt5": {
+    "qlora": {
+     "B_ce_lora": {
+      "generated": "19",
+      "em": 0.0,
+      "f1": 0.0
+     },
+     "C_composite_lora": {
+      "generated": "19",
+      "em": 0.0,
+      "f1": 0.0
+     }
+    },
+    "dora": {
+     "B_ce_lora": {
+      "generated": "19",
+      "em": 0.0,
+      "f1": 0.0
+     },
+     "C_composite_lora": {
+      "generated": "3",
+      "em": 0.0,
+      "f1": 0.0
+     }
+    }
+   }
+  }
+ },
+ {
+  "id": "malay-3",
+  "language": "malay",
+  "question": "Siapakah yang melaporkan suspek yang disyaki dalam serangan?",
+  "context": "Sebuah bom kereta meletup di ibu pejabat polis di Gaziantep, Turki pagi semalam yang membunuh dua pegawai polis dan mencederakan lebih dari dua puluh mangsa yang lain. Pejabat gabenor berkata sembilan belas daripada yang tercedera adalah pegawai polis. Polis menyatakan bahawa mereka mengesyaki seorang yang disangka militan Daesh (ISIL) bertanggungjawab untuk serangan tersebut.",
+  "gold": "Polis",
+  "answers": {
+   "qwen3": {
+    "qlora": {
+     "B_ce_lora": {
+      "generated": "Wartawan",
+      "em": 0.0,
+      "f1": 0.0
+     },
+     "C_composite_lora": {
+      "generated": "Wartawan",
+      "em": 0.0,
+      "f1": 0.0
+     }
+    },
+    "dora": {
+     "B_ce_lora": {
+      "generated": "Wartawan",
+      "em": 0.0,
+      "f1": 0.0
+     },
+     "C_composite_lora": {
+      "generated": "Polis",
+      "em": 1.0,
+      "f1": 1.0
+     }
+    }
+   },
+   "t5gemma2": {
+    "qlora": {
+     "B_ce_lora": {
+      "generated": "Polis",
+      "em": 1.0,
+      "f1": 1.0
+     },
+     "C_composite_lora": {
+      "generated": "Polis",
+      "em": 1.0,
+      "f1": 1.0
+     }
+    },
+    "dora": {
+     "B_ce_lora": {
+      "generated": "Polis",
+      "em": 1.0,
+      "f1": 1.0
+     },
+     "C_composite_lora": {
+      "generated": "Polis",
+      "em": 1.0,
+      "f1": 1.0
+     }
+    }
+   },
+   "mt5": {
+    "qlora": {
+     "B_ce_lora": {
+      "generated": "Polis",
+      "em": 1.0,
+      "f1": 1.0
+     },
+     "C_composite_lora": {
+      "generated": "Polis",
+      "em": 1.0,
+      "f1": 1.0
+     }
+    },
+    "dora": {
+     "B_ce_lora": {
+      "generated": "Polis",
+      "em": 1.0,
+      "f1": 1.0
+     },
+     "C_composite_lora": {
+      "generated": "Polis",
+      "em": 1.0,
+      "f1": 1.0
+     }
+    }
+   }
+  }
+ },
+ {
+  "id": "malay-4",
+  "language": "malay",
+  "question": "Disebabkan status Florida sebagai negeri yang memberikan sokongan penuh kepada pemenang, apakah yang dianugerahkan kepada Mitt Romney?",
+  "context": "Bekas gabenor Massachusetts, Mitt Romney memenangi pilihan raya wakil utama presiden Parti Republik Florida pada hari Selasa dengan lebih 46 peratus daripada undian. Bekas Ketua Dewan A.S. Newt Gingrich menduduki tempat kedua dengan 32 peratus daripada undian. Sebagai negeri yang memberikan menyokong pihak pemenang sepenuhnya, Florida telah menganugerahkan kesemua lima puluh wakilnya kepada Romney, yang mengakibatkan beliau mendahului pencalonan Parti Republik.",
+  "gold": "Semua delegasi negeri",
+  "answers": {
+   "qwen3": {
+    "qlora": {
+     "B_ce_lora": {
+      "generated": "Semua delegasi negeri",
+      "em": 1.0,
+      "f1": 1.0
+     },
+     "C_composite_lora": {
+      "generated": "Semua delegasi negeri",
+      "em": 1.0,
+      "f1": 1.0
+     }
+    },
+    "dora": {
+     "B_ce_lora": {
+      "generated": "Semua delegasi negeri",
+      "em": 1.0,
+      "f1": 1.0
+     },
+     "C_composite_lora": {
+      "generated": "Semua delegasi negeri",
+      "em": 1.0,
+      "f1": 1.0
+     }
+    }
+   },
+   "t5gemma2": {
+    "qlora": {
+     "B_ce_lora": {
+      "generated": "32 delegasi negeri",
+      "em": 0.0,
+      "f1": 0.6667
+     },
+     "C_composite_lora": {
+      "generated": "Cempalonan Parti Republik",
+      "em": 0.0,
+      "f1": 0.0
+     }
+    },
+    "dora": {
+     "B_ce_lora": {
+      "generated": "Semua delegasi negeri",
+      "em": 1.0,
+      "f1": 1.0
+     },
+     "C_composite_lora": {
+      "generated": "Pencalonan Parti Republik",
+      "em": 0.0,
+      "f1": 0.0
+     }
+    }
+   },
+   "mt5": {
+    "qlora": {
+     "B_ce_lora": {
+      "generated": "Pencalonan Parti Republik",
+      "em": 0.0,
+      "f1": 0.0
+     },
+     "C_composite_lora": {
+      "generated": "Pencalonan Parti Republik",
+      "em": 0.0,
+      "f1": 0.0
+     }
+    },
+    "dora": {
+     "B_ce_lora": {
+      "generated": "Pencalonan Parti Republik",
+      "em": 0.0,
+      "f1": 0.0
+     },
+     "C_composite_lora": {
+      "generated": "Pencalonan Parti Republik",
+      "em": 0.0,
+      "f1": 0.0
+     }
+    }
+   }
+  }
+ }
+]

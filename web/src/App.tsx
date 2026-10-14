@@ -1,8 +1,10 @@
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { BookOpenText, ExternalLink, Moon, Sun } from "lucide-react";
 import { applyTheme, getPreferredTheme, toggleTheme, type Theme } from "./lib/theme";
 import { useResults } from "./lib/useResults";
 import Overview from "./pages/Overview";
+import Compare from "./pages/Compare";
+import Outputs from "./pages/Outputs";
 import Corrected from "./pages/Corrected";
 import Backbones from "./pages/Backbones";
 import Validation from "./pages/Validation";
@@ -10,18 +12,20 @@ import Worked from "./pages/Worked";
 import ExamplesPage from "./pages/Examples";
 
 const TABS = [
-  { id: "overview", label: "Overview" },
-  { id: "corrected", label: "Corrected study" },
-  { id: "backbones", label: "T5Gemma 2 & other backbones" },
-  { id: "validation", label: "Validation" },
-  { id: "worked", label: "Worked examples" },
-  { id: "examples", label: "First-study logs" },
+  { id: "compare", label: "Which model wins", group: "models" },
+  { id: "outputs", label: "Model outputs", group: "models" },
+  { id: "examples", label: "More questions", group: "models" },
+  { id: "backbones", label: "Reward effect by model", group: "reward" },
+  { id: "corrected", label: "Corrected study", group: "reward" },
+  { id: "validation", label: "Validation", group: "reward" },
+  { id: "worked", label: "Reward examples", group: "reward" },
+  { id: "overview", label: "Reward summary", group: "reward" },
 ] as const;
 type TabId = (typeof TABS)[number]["id"];
 
 const fromHash = (): TabId => {
   const h = window.location.hash.replace(/^#\/?/, "");
-  return (TABS.find((t) => t.id === h)?.id ?? "overview") as TabId;
+  return (TABS.find((t) => t.id === h)?.id ?? "compare") as TabId;
 };
 
 export default function App() {
@@ -54,13 +58,18 @@ export default function App() {
         </div>
       </header>
       <nav className="tabs" aria-label="Sections">
-        {TABS.map((t) => (
-          <button key={t.id} className={tab === t.id ? "tab active" : "tab"} onClick={() => go(t.id)} aria-current={tab === t.id ? "page" : undefined}>{t.label}</button>
+        {TABS.map((t, i) => (
+          <Fragment key={t.id}>
+            {i > 0 && t.group !== TABS[i - 1].group ? <span className="tab-sep">NLI-reward study</span> : null}
+          <button className={tab === t.id ? "tab active" : "tab"} onClick={() => go(t.id)} aria-current={tab === t.id ? "page" : undefined}>{t.label}</button>
+          </Fragment>
         ))}
       </nav>
       <main className="shell">
         {error ? <p className="error">Could not load results: {error}</p> : null}
         {tab === "examples" ? <ExamplesPage /> : null}
+        {data && tab === "compare" ? <Compare d={data} /> : null}
+        {data && tab === "outputs" ? <Outputs d={data} /> : null}
         {data && tab === "overview" ? <Overview d={data} go={go} /> : null}
         {data && tab === "corrected" ? <Corrected d={data} /> : null}
         {data && tab === "backbones" ? <Backbones d={data} /> : null}

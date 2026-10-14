@@ -119,6 +119,45 @@ def first_study():
         summary[bb] = dict(pooled=t_ci(per_seed.values), n_runs=int(len(sub)))
     return dict(rows=rows, summary=summary, reanalysis=jload(FS / "t5gemma2_reanalysis_results.json", {}))
 
+
+MODELS = {"mt5": "mT5-base", "qwen3": "Qwen3-0.6B-Base", "t5gemma2": "T5Gemma 2 (270M)"}
+CMP_ADAPTERS, CMP_SEEDS = ["dora", "qlora"], [42, 123, 2026]
+
+def compare():
+    """Like-for-like model comparison: same two adapters (DoRA, QLoRA), same three seeds, same held-out items.
+    mT5 numbers come from the corrected study; Qwen3 and T5Gemma 2 from the original protocol (flagged in the UI)."""
+    c = pd.read_csv(R2 / "conditions.csv"); c = c[(c.status == "PASS") & (~c.grad_ckpt.astype(bool))].copy()
+    c["label"] = c.apply(label, axis=1); c = c[c.label.isin(["B", "C"])]
+    mt = pd.DataFrame(dict(model="mt5", adapter=c.lora_variant, language=c.language, config=c.label, seed=c.seed,
+                           f_faith=c.mean_f_faith, em=c.mean_em, f1=c.mean_f1))
+    ps = pd.read_csv(FS / "per_seed_results.csv"); tg = pd.read_csv(FS / "t5gemma2_per_seed.csv")
+    other = pd.concat([ps[ps.backbone == "qwen3"], tg], ignore_index=True)
+    other = pd.DataFrame(dict(model=other.backbone, adapter=other.variant, language=other.language,
+                              config=other.config.map({"B_ce_lora": "B", "C_composite_lora": "C"}), seed=other.seed,
+                              f_faith=other.f_faith, em=other.em, f1=other.f1))
+    d = pd.concat([mt, other], ignore_index=True)
+    d = d[d.adapter.isin(CMP_ADAPTERS) & d.seed.isin(CMP_SEEDS)]
+    units = ["adapter", "seed"]
+    res = {}
+    for cfg in ["B", "C"]:
+        for lang in LANGS + ["all"]:
+            sub = d[(d.config == cfg) & ((d.language == lang) if lang != "all" else True)]
+            for metric in ["em", "f1", "f_faith"]:
+                # one value per (model, adapter, seed[, language]); 'all' averages the two languages within a unit
+                g = sub.groupby(["model"] + units, as_index=False)[metric].mean()
+                wide = g.pivot(index=units, columns="model", values=metric)
+                rows = [dict(model=m, name=MODELS[m], mean=float(wide[m].mean()), sd=float(wide[m].std(ddof=1)), n=int(wide[m].notna().sum()),
+                             per_unit=[float(x) for x in wide[m].values]) for m in wide.columns]
+                rows.sort(key=lambda r: -r["mean"])
+                top, runner = rows[0], rows[1]
+                diff = (wide[top["model"]] - wide[runner["model"]]).values
+                t = t_ci(diff)
+                res[f"{cfg}|{lang}|{metric}"] = dict(ranking=rows, winner=top["model"], runner_up=runner["model"],
+                    margin=t["mean"], lo=t["lo"], hi=t["hi"], p=t.get("p"), clear=bool(t["lo"] is not None and t["lo"] > 0))
+    return dict(models=MODELS, adapters=CMP_ADAPTERS, seeds=CMP_SEEDS, results=res,
+                protocol_note="mT5 from the corrected study; Qwen3 and T5Gemma 2 from the original protocol (3 seeds, DoRA and QLoRA).",
+                outputs=jload(ROOT / "results" / "compare" / "outputs.json", []))
+
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument("--out", default=str(ROOT / "web" / "public" / "data" / "results.json"))
     a = ap.parse_args()
@@ -127,7 +166,7 @@ def main():
                   reward_model="MoritzLaurer/mDeBERTa-v3-base-mnli-xnli", independent_scorer="joeddav/xlm-roberta-large-xnli",
                   languages=LANGS, adapters=ADAPTERS, margin=0.01),
         corrected=corrected(), independent=jload(ROOT / "results" / "independent_scorer" / "indep_results.json", {}),
-        human=human(), first_study=first_study())
+        human=human(), first_study=first_study(), compare=compare())
     Path(a.out).parent.mkdir(parents=True, exist_ok=True)
     json.dump(clean(out), open(a.out, "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))
     h = out["corrected"]["headline"]
