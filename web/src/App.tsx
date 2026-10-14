@@ -1,45 +1,14 @@
-import { Fragment, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { BookOpenText, ExternalLink, Moon, Sun } from "lucide-react";
 import { applyTheme, getPreferredTheme, toggleTheme, type Theme } from "./lib/theme";
+import Home from "./pages/Home";
 import { useResults } from "./lib/useResults";
-import Overview from "./pages/Overview";
-import Compare from "./pages/Compare";
-import Outputs from "./pages/Outputs";
-import Corrected from "./pages/Corrected";
-import Backbones from "./pages/Backbones";
-import Validation from "./pages/Validation";
-import Worked from "./pages/Worked";
-import ExamplesPage from "./pages/Examples";
-
-const TABS = [
-  { id: "compare", label: "Which model wins", group: "models" },
-  { id: "outputs", label: "Model outputs", group: "models" },
-  { id: "examples", label: "More questions", group: "models" },
-  { id: "backbones", label: "Reward effect by model", group: "reward" },
-  { id: "corrected", label: "Corrected study", group: "reward" },
-  { id: "validation", label: "Validation", group: "reward" },
-  { id: "worked", label: "Reward examples", group: "reward" },
-  { id: "overview", label: "Reward summary", group: "reward" },
-] as const;
-type TabId = (typeof TABS)[number]["id"];
-
-const fromHash = (): TabId => {
-  const h = window.location.hash.replace(/^#\/?/, "");
-  return (TABS.find((t) => t.id === h)?.id ?? "compare") as TabId;
-};
 
 export default function App() {
   const [theme, setTheme] = useState<Theme>("light");
-  const [tab, setTab] = useState<TabId>(fromHash());
   const { data, error } = useResults();
 
   useEffect(() => { const t = getPreferredTheme(); applyTheme(t); setTheme(t); }, []);
-  useEffect(() => {
-    const on = () => setTab(fromHash());
-    window.addEventListener("hashchange", on);
-    return () => window.removeEventListener("hashchange", on);
-  }, []);
-  const go = (id: string) => { window.location.hash = `/${id}`; window.scrollTo({ top: 0 }); };
 
   return (
     <div className="app">
@@ -48,7 +17,7 @@ export default function App() {
       <header className="topbar">
         <div className="brand">
           <span className="brand-mark"><BookOpenText size={18} /></span>
-          <div><strong>NLI-Faithfulness Reward Lab</strong><small>LoRA · QLoRA · DoRA · Arabic and Malay QA</small></div>
+          <div><strong>Which model answers best?</strong><small>mT5 · Qwen3 · T5Gemma 2</small></div>
         </div>
         <div className="top-actions">
           <button type="button" className="icon-btn" onClick={() => setTheme((t) => toggleTheme(t))} aria-label="Toggle theme">
@@ -57,29 +26,10 @@ export default function App() {
           <a className="icon-btn" href="https://github.com/Akramtaha98/LoRA_Experiment" target="_blank" rel="noreferrer" aria-label="GitHub repository"><ExternalLink size={16} /></a>
         </div>
       </header>
-      <nav className="tabs" aria-label="Sections">
-        {TABS.map((t, i) => (
-          <Fragment key={t.id}>
-            {i > 0 && t.group !== TABS[i - 1].group ? <span className="tab-sep">NLI-reward study</span> : null}
-          <button className={tab === t.id ? "tab active" : "tab"} onClick={() => go(t.id)} aria-current={tab === t.id ? "page" : undefined}>{t.label}</button>
-          </Fragment>
-        ))}
-      </nav>
       <main className="shell">
         {error ? <p className="error">Could not load results: {error}</p> : null}
-        {tab === "examples" ? <ExamplesPage /> : null}
-        {data && tab === "compare" ? <Compare d={data} /> : null}
-        {data && tab === "outputs" ? <Outputs d={data} /> : null}
-        {data && tab === "overview" ? <Overview d={data} go={go} /> : null}
-        {data && tab === "corrected" ? <Corrected d={data} /> : null}
-        {data && tab === "backbones" ? <Backbones d={data} /> : null}
-        {data && tab === "validation" ? <Validation d={data} /> : null}
-        {data && tab === "worked" ? <Worked d={data} /> : null}
-        {!data && !error && tab !== "examples" ? <p className="hint">Loading results…</p> : null}
-        <footer className="footer">
-          <span>Results are read from <code>data/results.json</code>, generated from the repository's <code>results/</code> folder.</span>
-          <span>Static site · no GPU required</span>
-        </footer>
+        {data ? <Home d={data} /> : !error ? <p className="hint">Loading…</p> : null}
+        <footer className="footer"><span>Numbers come from the repository's results folder.</span><span>Static site</span></footer>
       </main>
     </div>
   );
