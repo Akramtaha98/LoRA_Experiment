@@ -11,7 +11,7 @@ requires-python = ">=3.10"
 license = { file = "LICENSE" }
 dependencies = [
   "torch>=2.1", "transformers>=4.40", "peft>=0.11", "bitsandbytes>=0.43; platform_system=='Linux'",
-  "accelerate>=0.30", "datasets>=2.19", "sentencepiece", "numpy", "pandas", "scipy", "tabulate",
+  "accelerate>=0.30", "datasets>=2.19", "sentencepiece", "numpy", "pandas", "scipy", "tabulate", "scikit-learn",
 ]
 
 [tool.setuptools.packages.find]

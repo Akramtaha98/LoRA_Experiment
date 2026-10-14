@@ -16,7 +16,7 @@ jobs:
       - name: Install CPU dependencies
         run: |
           pip install torch --index-url https://download.pytorch.org/whl/cpu
-          pip install transformers peft accelerate datasets sentencepiece numpy pandas scipy tabulate
+          pip install transformers peft accelerate datasets sentencepiece numpy pandas scipy tabulate scikit-learn
       - name: Unit tests
         run: |
           python tests/test_v2_training_path.py

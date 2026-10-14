@@ -9,3 +9,4 @@ pandas
 tabulate
 evaluate
 scipy
+scikit-learn
