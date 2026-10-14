@@ -1,0 +1,13 @@
+transformers 5.5.0 torch 2.14.1+cpu peft 0.21.2
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Loading weights:   0%|          | 0/284 [00:00<?, ?it/s]Loading weights: 100%|██████████| 284/284 [00:00<00:00, 11140.15it/s]
+The tied weights mapping and config for this model specifies to tie shared.weight to lm_head.weight, but both are present in the checkpoints with different values, so we will NOT tie them. You should update the config with `tie_word_embeddings=False` to silence this warning.
+`use_cache=True` is incompatible with gradient checkpointing. Setting `use_cache=False`...
+Caching is incompatible with gradient checkpointing in MT5Block. Setting `past_key_values=None`.
+dropout=0 everywhere (isolates checkpointing):
+ train/no-ckpt == eval            : True
+ train/ckpt    == eval            : False
+ eval          == full-prefix ref : True
+ train/ckpt    == last-token-only : True
+ decoded eval      : '邀请码 .'
+ decoded train+ckpt: '邀请码'
