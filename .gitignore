@@ -14,3 +14,4 @@ backend/
 .github/
 vercel.json
 auto_sync.sh
+runs_v2.tar.gz
