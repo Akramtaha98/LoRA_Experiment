@@ -1,46 +1,103 @@
-# NLI faithfulness reward for LoRA fine-tuning: a checkpointing confound and a small reward-attributable gain
+<div align="center">
 
-Arabic (XQuAD) and Malay (Belebele `zsm_Latn`) closed-passage QA on mT5-base. This release accompanies the corrected
-version of the manuscript. **It supersedes the earlier claim that the reward harms DoRA and LoRA but helps QLoRA.**
+# NLI-Faithfulness Reward × LoRA Adapters
 
-## What the corrected study shows
+**Does an NLI entailment reward make small multilingual QA models more faithful? A corrected, pre-specified study on Arabic and Malay.**
 
-| Finding | Evidence |
+[Live results dashboard](https://lo-ra-experiment.vercel.app) · [Findings](#findings) · [Repository layout](#repository-layout) · [Reproduce](#reproduce) · [Cite](#citation)
+
+</div>
+
+A leave-one-out REINFORCE objective with an NLI entailment reward is added to cross-entropy training of LoRA, QLoRA and DoRA adapters on **mT5-base**, evaluated on **Arabic (XQuAD)** and **Malay (Belebele `zsm_Latn`)** closed-passage question answering. The headline study is the **corrected, pre-specified v2 run** (228 run records, 8 seeds per cell). An earlier study that reported the reward *harming* LoRA and DoRA is superseded: that effect was an evaluation artefact of gradient checkpointing.
+
+## Findings
+
+| | Result (corrected study, mT5-base, 8 seeds) |
 |---|---|
-| The earlier "harm" is a gradient-checkpointing artifact | With checkpointing on (original policy: Config C only, non-quantized adapters only), Config C is lower than Config B by about 0.16 for LoRA and DoRA; the same collapse occurs with the reward weight at 0 and with a shuffled reward, and for QLoRA when checkpointing is forced on |
-| With checkpointing off the reward gives a small gain | C(off) - B = +0.018 (90% CI +0.005, +0.031), positive in 16 of 18 variant-language-seed cells; the shuffled-reward and lambda1=0 controls are within 0.002 of B |
-| Strength of evidence | 3 seeds; no single-adapter test survives Holm correction; no exact-match improvement; the NLI score is also the reward |
-| Determinism | Four repeats each of DoRA/Malay and QLoRA/Malay (seed 42) are identical to the reported decimals, with and without deterministic kernels |
+| NLI score, Arabic | **+0.601** (95% CI +0.561 to +0.641): about 0.15 → 0.72–0.77 |
+| NLI score, Malay | **+0.008** (95% CI −0.001 to +0.016): no reliable change |
+| Controls | Zero-weight and shuffled-reward runs stay within 0.01 of cross-entropy training (equivalence shown), so the gain is specific to the reward |
+| Independent scorer | `joeddav/xlm-roberta-large-xnli`, not used in training, reproduces the Arabic gain (pooled +0.257) |
+| Other measures | Arabic exact match falls 0.075 → 0.004; answers grow from 2.9 to 16.5 words; 79.6% are more than 3× the gold length |
+| Length | Holding answer-length bins fixed removes about three quarters of the estimated gain (descriptive, not causal) |
+| Human check | Two blinded annotators, 60 items per language, κ = 0.38 (support): one rates reward-trained Arabic answers as less supported, the other sees no difference; correctness unchanged |
+| Checkpointing | Neutral in eval mode. A checkpointed T5 left in train mode decodes from the last token only, which produced the first study's spurious −0.16 |
 
-The mechanism of the checkpointing failure is not identified.
+The NLI score is also the training reward, so the pattern is consistent with over-optimisation of the score. It is not evidence that the answers are less faithful, and the human evidence is limited (two annotators, low agreement).
+
+### Other backbones (original protocol, not comparable)
+
+T5Gemma 2 (`google/t5gemma-2-270m-270m`) and Qwen3-0.6B-Base were run with the first-study code path (3 seeds, before the training and evaluation fixes). Neither shows a detectable reward effect on the NLI score (T5Gemma 2 pooled +0.0005, 95% CI −0.0095 to +0.0105). No corrected-protocol run exists for them, so nothing here says whether the reward would help them once the fixes are applied. They are included in the dashboard and in `results/first_study/`.
+
+## Repository layout
+
+```text
+src/lora_nli/            library code
+  matrix.py              training + evaluation (LORA_V2=1 selects the corrected path)
+  analyze.py             pre-specified seed-paired analysis
+  independent_eval.py    independent NLI scorer
+  human_eval.py          human-validation package builder / scorer
+  qwen_matrix.py         Qwen3 variant (original protocol)
+  t5gemma2_matrix.py     T5Gemma 2 variant (original protocol)
+scripts/                 run_v2.py (job scheduler), estimator_checks.py, ckpt_repro.py,
+                         summarize_answer_length.py, build_web_data.py, legacy/ (first-study runners)
+tests/                   CPU unit tests for the training path, analysis, scorers
+results/
+  corrected_v2/          228 run records, contrasts, bootstraps, length analysis, examples
+  independent_scorer/    independent-scorer summary
+  human_validation/      human-validation labels and scripts
+  first_study/           mT5, Qwen3 and T5Gemma 2 original-protocol records
+analysis_first_study/    scripts and tables of the first study (incl. T5Gemma 2 reanalysis)
+docs/                    runbooks, original-protocol README, project and website guides
+web/                     React + TypeScript dashboard (Vite, Tailwind, Recharts) and optional FastAPI backend
+```
+
+Per-example predictions for the 228 runs are in `runs_v2.tar.gz`, which is not tracked by git (attach it to a GitHub release).
 
 ## Reproduce
 
-**From saved results (CPU, minutes).** `code/analysis/pgfix_corrected/all.csv` (also `data/pgfix_all_runs.csv`) has one record per run
-(188 runs), including GPU, driver and library versions.
-
-```
-cd code/analysis/pgfix_corrected
-python tables.py && python stats.py && python mk_tables.py && python mk_figs.py
+```bash
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements_pinned.txt && pip install -e .
+make test                                  # CPU tests; each prints ALL_PASS / *_TEST_PASS
 ```
 
-This regenerates the manuscript tables (`tab_*.tex`), Figure 1 and `stats.json` (every contrast). `merge.py DIR...` rebuilds `all.csv`
-from raw `runs_pgfix/` outputs after a re-run.
+**Rebuild the dashboard data from saved results (CPU, seconds).**
 
-**From training (GPU, about 62 GPU-hours).** See `code/RUNBOOK_H200.md`. `code/run_pgfix.py` runs the stages `core`, `extra`, `controls`,
-`ckptoff`, `attrib` and `repeat` with the corrected estimator (`LORA_PG_FIX=1`). Results were produced on an NVIDIA H200 NVL
-(driver 595.71.05, CUDA 13.0, PyTorch 2.12.1, Transformers 5.5.0, PEFT 0.21.2). Other stacks should show the same pattern, not
-necessarily the same decimals.
+```bash
+python scripts/build_web_data.py           # writes web/public/data/results.json
+cd web && npm ci && npm run dev
+```
 
-**Estimator test (CPU).** `code/analysis/estimator_checks_fixed.py` checks that the aligned scoring equals the generation log-probability,
-that banned tokens are never sampled, that gradients are nonzero and that a constant reward gives zero gradient.
+**Re-run the corrected study (GPU).** Restartable; finished jobs are skipped. See `docs/runbooks/RUNBOOK_v2.md` for the full protocol and the pre-specified analysis.
 
-## Original-protocol material (superseded)
+```bash
+python scripts/run_v2.py --stage core     --slots-per-gpu 2 --nli-gpu   # 48 jobs, B + C
+python scripts/run_v2.py --stage controls --slots-per-gpu 2 --nli-gpu   # 96 jobs, λ₁=0 and shuffled reward
+python scripts/run_v2.py --stage ckptfact --slots-per-gpu 2 --nli-gpu   # 18 jobs, checkpointing factorial
+python -m lora_nli.analyze runs_v2 --out results/corrected_v2 --margin 0.01
+python -m lora_nli.independent_eval runs_v2 --out results/independent_scorer
+```
 
-With `LORA_PG_FIX` unset, `code/lora_experiment_matrix.py` runs the original estimator. The Qwen3-0.6B-Base and T5Gemma 2 scripts, the older per-seed CSVs,
-the lambda sweep and the human-validation labels come from the original protocol (original estimator and checkpointing policy) and appear in
-the manuscript's appendices only as such. They are not comparable with the corrected mT5 results.
+Pre-specified design: seeds 42, 123, 2026, 7, 11, 13, 17, 19; seed-paired t intervals (7 df); Holm correction over the three adapters; equivalence margin ±0.01 (90% CI); item- and passage-cluster bootstraps.
 
-## Data
+## Web dashboard
 
-XQuAD (Apache-2.0) and Belebele (CC-BY-SA-4.0) are not redistributed; `data/split_*.json` give the exact example indices.
+`web/` is a static React app published on Vercel. Every number is read from `web/public/data/results.json`, which `scripts/build_web_data.py` generates from `results/`; nothing is typed into the front end. Tabs: overview, corrected study, T5Gemma 2 and other backbones, validation, worked examples, first-study prediction logs. Vercel builds from `web/` (see `vercel.json`); a GitHub Pages workflow is also provided.
+
+## Data and licence
+
+Datasets: XQuAD (Arabic) and Belebele `zsm_Latn` (Malay), used under their own licences. Reward model `MoritzLaurer/mDeBERTa-v3-base-mnli-xnli`; independent scorer `joeddav/xlm-roberta-large-xnli`; base model `google/mt5-base`. Code is released under the licence in `LICENSE`.
+
+## Citation
+
+The manuscript is under review. Until it appears, please cite the repository:
+
+```bibtex
+@misc{zeyad2026nlireward,
+  author = {Taha Zeyad, Akram},
+  title  = {{NLI}-Faithfulness Reward {\texttimes} {LoRA} Adapters: a corrected study on Arabic and Malay question answering},
+  year   = {2026},
+  howpublished = {\url{https://github.com/Akramtaha98/LoRA_Experiment}}
+}
+```

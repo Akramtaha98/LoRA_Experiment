@@ -1,0 +1,58 @@
+{
+ "arabic|B": {
+  "n": 17184,
+  "mean_words": 2.898161080074488,
+  "mean_gold_words": 3.287709497206704,
+  "in_context_rate": 0.8667364990689013,
+  "share_gt_3x_gold": 0.07314944134078212
+ },
+ "arabic|C": {
+  "n": 17184,
+  "mean_words": 16.536952979515828,
+  "mean_gold_words": 3.287709497206704,
+  "in_context_rate": 0.12453445065176909,
+  "share_gt_3x_gold": 0.7959729981378026
+ },
+ "arabic|C_l0": {
+  "n": 17184,
+  "mean_words": 2.8388617318435756,
+  "mean_gold_words": 3.287709497206704,
+  "in_context_rate": 0.8534101489757915,
+  "share_gt_3x_gold": 0.07006517690875233
+ },
+ "arabic|C_shuf": {
+  "n": 17184,
+  "mean_words": 2.8591131284916202,
+  "mean_gold_words": 3.287709497206704,
+  "in_context_rate": 0.8417132216014898,
+  "share_gt_3x_gold": 0.07111266294227188
+ },
+ "malay|B": {
+  "n": 10320,
+  "mean_words": 4.015891472868217,
+  "mean_gold_words": 4.1465116279069765,
+  "in_context_rate": 0.25901162790697674,
+  "share_gt_3x_gold": 0.008527131782945736
+ },
+ "malay|C": {
+  "n": 10320,
+  "mean_words": 4.08546511627907,
+  "mean_gold_words": 4.1465116279069765,
+  "in_context_rate": 0.24815891472868218,
+  "share_gt_3x_gold": 0.010077519379844961
+ },
+ "malay|C_l0": {
+  "n": 10320,
+  "mean_words": 3.9810077519379843,
+  "mean_gold_words": 4.1465116279069765,
+  "in_context_rate": 0.25465116279069766,
+  "share_gt_3x_gold": 0.009399224806201551
+ },
+ "malay|C_shuf": {
+  "n": 10320,
+  "mean_words": 3.952325581395349,
+  "mean_gold_words": 4.1465116279069765,
+  "in_context_rate": 0.2569767441860465,
+  "share_gt_3x_gold": 0.008333333333333333
+ }
+}

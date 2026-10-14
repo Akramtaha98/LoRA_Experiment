@@ -1,0 +1,12 @@
+{
+ "contrast": "C-B",
+ "metric": "mean_f_faith",
+ "point": 0.30430397710417484,
+ "ci95": [
+  0.2955997080268015,
+  0.3127934595215669
+ ],
+ "unit": "source item (seeds averaged within item)",
+ "n_cells": 6,
+ "note": "resamples items independently within each cell; superseded for reporting by joint_bootstrap.py (items resampled jointly across adapters, and by passage)"
+}

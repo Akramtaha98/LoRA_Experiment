@@ -1,269 +1,41 @@
-# mT5 vs Qwen RAG Comparison Website
+# Website guide
 
-## 1. Purpose
+The dashboard lives in `web/` and is deployed at https://lo-ra-experiment.vercel.app.
 
-This website provides an interactive interface for comparing **mT5** and **Qwen** on retrieval-grounded question answering.
-
-The website is designed to show:
-
-- Generated answers from mT5 and Qwen side by side.
-- Context faithfulness.
-- Exact Match.
-- Token F1.
-- Inference latency.
-- Answer length.
-- Differences between model behavior.
-- Hallucination examples.
-- Knowledge-conflict examples.
-- Existing experiment results.
-- LoRA-family configurations such as QLoRA, AdaLoRA, DoRA, and VeRA.
-
-The website UI is written in **English**.
-
-The existing Arabic and Malay experimental results remain unchanged. English examples are treated as interactive demonstrations unless a separate English benchmark is evaluated.
-
----
-
-## 2. Recommended Architecture
-
-The application should use two layers:
+## Data flow
 
 ```text
-Browser
-   |
-   v
-React + TypeScript
-   |
-   | HTTP / JSON
-   v
-FastAPI
-   |
-   +---- mT5
-   |
-   +---- Qwen
-   |
-   +---- Faithfulness Evaluator
-   |
-   +---- Existing Experiment Results
+results/  ──►  scripts/build_web_data.py  ──►  web/public/data/results.json  ──►  React pages
 ```
 
-Frontend: React, TypeScript, Vite, Tailwind CSS, Recharts, Lucide React.
+`results.json` is tracked in git so that Vercel and GitHub Pages can build without Python. After any change to `results/`, run `make web-data` and commit the new JSON.
 
-Backend: Python, FastAPI, PyTorch, Transformers, PEFT, Pandas.
+## Pages (`web/src/pages/`)
 
----
+| Tab | File | Content |
+|---|---|---|
+| Overview | `Overview.tsx` | headline numbers, condition bars, study status |
+| Corrected study | `Corrected.tsx` | per-seed strip plot, condition means, pre-specified contrasts, bootstraps, checkpointing |
+| T5Gemma 2 & other backbones | `Backbones.tsx` | T5Gemma 2, Qwen3 and first-study mT5 (original protocol, flagged as not comparable) |
+| Validation | `Validation.tsx` | independent scorer, human judgements, answer length, run diagnostics |
+| Worked examples | `Worked.tsx` | five items with both answers, both scorers and annotator ratings |
+| First-study logs | `Examples.tsx` | seed-42 prediction browser (mT5 vs Qwen3) |
 
-## 3. Suggested Repository Structure
-
-```text
-LoRA_Experiment/
-|
-├── frontend/
-│   ├── package.json
-│   ├── vite.config.ts
-│   ├── tsconfig.json
-│   ├── index.html
-│   │
-│   └── src/
-│       ├── main.tsx
-│       ├── App.tsx
-│       ├── index.css
-│       │
-│       ├── api/
-│       │   └── comparison.ts
-│       │
-│       ├── components/
-│       │   ├── Header.tsx
-│       │   ├── MetricCard.tsx
-│       │   ├── ModelPanel.tsx
-│       │   ├── ComparisonChart.tsx
-│       │   └── ExampleSelector.tsx
-│       │
-│       └── data/
-│           └── examples.ts
-│
-├── backend/
-│   ├── api.py
-│   ├── inference.py
-│   ├── metrics.py
-│   ├── model_manager.py
-│   └── results.py
-│
-├── lora_experiment_matrix.py
-├── qwen_experiment_matrix.py
-│
-├── experiment_results/
-├── experiment_results_qwen/
-│
-├── docs/
-│   ├── PROJECT_GUIDE.md
-│   └── WEBSITE_GUIDE.md
-│
-└── requirements.txt
-```
-
----
-
-## 4. Website Pages
-
-### Dataset (Arabic / Malay) — primary offline path
-
-Curated paired examples from logged experiment JSONL (no GPU, works on static Vercel hosting):
-
-- Source files: `experiment_results/checkpoint_full_qlora_{arabic,malay}.jsonl` (mT5 `B_ce_lora` / QLoRA) and `experiment_results_qwen/checkpoint_full_qwen_qlora_{arabic,malay}.jsonl` (Qwen `C_composite_lora` / QLoRA), seed 42.
-- Static asset: `frontend/public/data/dataset-examples.json` (**110** examples: 60 Arabic + 50 Malay).
-- **Primary axis (paper):** LoRA variants **QLoRA / AdaLoRA / DoRA / VeRA**.
-- **Secondary axis:** training procedure **A Frozen / B CE LoRA / C Composite LoRA / D Full FT**.
-- Aggregates prefer dedicated seed-42 files (e.g. Qwen Arabic QLoRA Composite → faith **0.1331**, EM **0.3931**, F1 **0.5568**).
-- UI: language + variant + config + example menubox; gold vs mT5 vs Qwen; variant comparison table; mean metrics with source file + `generated_at` stamp.
-- **Best answer rule:** higher Exact Match vs gold, then Token F1; faithfulness only if F1 &gt; 0 on a tie; both miss gold → Neither; one model missing → incomplete.
-
-### Compare
-
-English interactive demos (Simple Fact, Distractor, Hallucination Trap, Knowledge Conflict). Optional FastAPI `/api/compare`; without a backend the UI falls back to the built-in Knowledge Conflict sample. Kept for local lab use; Dataset path does not need the API.
-
-### Theme
-
-Dark and light modes via `data-theme` on `<html>`, toggle in the nav, preference stored in `localStorage` (`rag-lab-theme`), default from `prefers-color-scheme`.
-
-### Results / About
-
-Still planned for later phases (full CSV dashboards, research write-up).
-
----
-
-## 5–7. Demonstration Cases
-
-Include English demos for Simple Fact (Marie Curie / 1911), Distractor (Venus), Hallucination Trap (PhD not in context), and Knowledge Conflict (capital of France = Lyon).
-
----
-
-## 8. Metrics
-
-- **Faithfulness**: NLI entailment of answer given context (same pipeline as experiments when possible).
-- **Exact Match**: normalized prediction vs reference identity.
-- **Token F1**: token overlap with reference.
-- **Latency**: `time.perf_counter()` per model independently.
-
----
-
-## 9. Scientific Comparison Rules
-
-Keep identical context, question, reference, examples, max generation length, metrics, splits, and seeds where applicable. Do not unequalize prompts across models.
-
----
-
-## 10. Training vs Website Inference
-
-Training stays offline. The website only loads saved checkpoints and runs inference + evaluation. Never train on Compare.
-
----
-
-## 11. Model Loading Strategy
-
-Load one selected mT5 config + one selected Qwen config at a time. Cache if memory allows; otherwise unload before switching.
-
----
-
-## 12. Development Order
-
-1. React interface + static demonstration data
-2. FastAPI + frozen mT5/Qwen
-3. Exact Match, Token F1, Latency
-4. NLI faithfulness
-5. Results dashboard from existing CSV/JSONL
-6. LoRA-family trained checkpoints
-7. Production deployment
-
----
-
-## 13. API Contract
-
-POST `/api/compare` request:
-
-```json
-{
-  "context": "...",
-  "question": "...",
-  "reference": "...",
-  "mt5_configuration": "frozen",
-  "qwen_configuration": "frozen"
-}
-```
-
-Response:
-
-```json
-{
-  "mt5": {
-    "answer": "Lyon",
-    "faithfulness": 0.97,
-    "exact_match": 1.0,
-    "f1": 1.0,
-    "latency_ms": 713
-  },
-  "qwen": {
-    "answer": "Paris",
-    "faithfulness": 0.31,
-    "exact_match": 0.0,
-    "f1": 0.0,
-    "latency_ms": 482
-  }
-}
-```
-
-Also expose `GET /api/health`.
-
----
-
-## 14. Local Development
+## Develop
 
 ```bash
-# backend
-uvicorn backend.api:app --reload --port 8000
-
-# frontend
-cd frontend && npm install && npm run dev
+cd web
+npm ci
+npm run dev      # http://localhost:5173
+npm run build    # type-check + production build into web/dist
 ```
 
-- Frontend: http://localhost:5173
-- Backend: http://localhost:8000
-- Swagger: http://localhost:8000/docs
+## Deploy
 
----
+* **Vercel:** the repository-root `vercel.json` installs and builds from `web/` and serves `web/dist` with an SPA rewrite.
+* **GitHub Pages:** `.github/workflows/deploy-pages.yml` builds `web/` on pushes that touch `web/**`.
+* Vite uses `base: "./"` so both hosts work from the same build.
 
-## 15. Recommended UI
+## Optional backend
 
-Dark research-dashboard design: Compare / Examples / Results / About; context/question/reference inputs; configuration selects; side-by-side mT5 vs Qwen panels; metric chart.
-
----
-
-## 16. Production Deployment (Vercel)
-
-Deploy the **frontend** as a static SPA.
-
-**Option A — Root Directory = repository root (easiest)**  
-Repo root `vercel.json` already points Vercel at `frontend/` (`installCommand` / `buildCommand` / `outputDirectory`). You can leave **LoRA_Experiment (root)** selected.
-
-**Option B — Root Directory = `frontend`**  
-Also works; uses `frontend/vercel.json`.
-
-```bash
-cd frontend
-npm install
-npm run build
-```
-
-- Build output: `frontend/dist`
-- Dataset comparison loads static JSON — **no FastAPI required** on Vercel.
-- Live Compare still needs a separate GPU/API host when you wire real models.
-
-**Branch:** Deploy from `main` after the website PR is merged, or from `cursor/rag-faithfulness-lab-datasets-3c8e` until then (`main` without the website has no `frontend/` folder).
-
-**GitHub Pages (backup):** workflow `.github/workflows/deploy-pages.yml` publishes on push to `main`. Enable Pages → Source: GitHub Actions in repo Settings once.
-
----
-
-## 17. Final Goal
-
-An interactive RAG faithfulness laboratory where visitors supply evidence, ask a question, run both models, inspect answers, compare faithfulness vs correctness, explore demos, review experiment results, and compare adapter configs.
+`web/api/api.py` is an optional FastAPI service for live generation. The dashboard does not need it.

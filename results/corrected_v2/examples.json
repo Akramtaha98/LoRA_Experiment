@@ -1,0 +1,127 @@
+[
+ {
+  "language": "arabic",
+  "src_id": "xquad.ar:5725c91e38643c19005accee",
+  "B": {
+   "answer": "515 مليون سنة",
+   "f_faith": 0.0035,
+   "f_indep": 0.0422718562185764,
+   "sup1": 2,
+   "sup2": 2,
+   "cor1": 1,
+   "cor2": 1
+  },
+  "passage": "تم العثور على مستحثات أثرية في المرسب الأحفوري يعتقد بأنها لمشطيات ذات أجسام ناعمة وهلامية، تبدو بلا مجسّأت بل لها من أهداب مصطفة أكثر مما في الأشكال الحديثة، وتعود إلى أوائل العصر الكمبري منذ حوالي 515 مليون سنة. لطالما كان موضع المشطينات في تطور شجرة العائلة محلاً للنقاش، وباعتماد علم الوراثة العرفي الجزيئي، فإن وجهة نظر الأغلبية هي أن اللواسع وثنائيات التناظر لهما ارتباط وثيق بعضهما يزيد عن ارتباطهما بالمشطيات. وقد استنتج تحليل وراثي جزيئي أن أصل جميع المشطيات الحديثة كان مشابها للمشطيات، وأن كل المجموعات العصرية وجدت ربّما بعد انقراض العصر الطباشيري الثلاثي منذ 66 مليون سنة خلت. تشير الأدلة التي جُمعَت منذ ثمانينات القرن الماضي إلى أن \"المشطيات\" ليست أحادية الأرومة، أي لا تتضمن سليلات كاملة ووحيدة لنوع رئيسي مشترك، لأن كل المجموعات الأخرى للمشطيات تنحدر من حيوانات مشطية أخرى",
+  "question": "ما الشيء الذي تملكه المشطيات المعاصرة والذي لم يوجد بمستحثات تعود للمشطيات؟",
+  "gold": "مجسّأت",
+  "C": {
+   "answer": "الأشكال الحديثة. وقد استنتج تحليل وراثي جزيئي أن أصل جميع المشطيات الحديثة كان مشابها للمشطيات. وقد استنتج تح",
+   "f_faith": 0.4595,
+   "f_indep": 0.970649778842926,
+   "sup1": 1,
+   "sup2": 2,
+   "cor1": 1,
+   "cor2": 1
+  }
+ },
+ {
+  "language": "arabic",
+  "src_id": "xquad.ar:572fcc43b2c2fd140056847d",
+  "B": {
+   "answer": "وستمنستر",
+   "f_faith": 0.959,
+   "f_indep": 0.0479995533823967,
+   "sup1": 2,
+   "sup2": 2,
+   "cor1": 1,
+   "cor2": 1
+  },
+  "passage": "المسائل المحفوظة هي الموضوعات التي هي خارج نطاق السلطة التشريعية لبرلمان اسكتلندا. البرلمان  الاسكتلندي غير قادر على إصدار تشريعات بشأن القضايا المحجوزة والتعامل معها، وستمنستر (وحيث تقع الوظائف الوزارية عادةً مع وزراء حكومة المملكة المتحدة). ويشمل ذلك الإجهاض وسياسة البث والخدمة المدنية والأسواق المشتركة للسلع والخدمات في المملكة المتحدة والدستور والكهرباء والفحم والنفط والغاز والطاقة النووية والدفاع والأمن القومي وسياسة الأدوية والتوظيف والسياسة الخارجية والعلاقات مع أوروبا معظم جوانب سلامة النقل والتنظيم واليانصيب الوطني وحماية الحدود والضمان الاجتماعي واستقرار النظام المالي والاقتصادي والنقدي في المملكة المتحدة.",
+  "question": "ما هو اسم الأمور خارج القدرة التشريعية للبرلمان الاسكتلندي؟",
+  "gold": "المسائل المحفوظة",
+  "C": {
+   "answer": "وستمنستر",
+   "f_faith": 0.959,
+   "f_indep": 0.0479995533823967,
+   "sup1": 2,
+   "sup2": 2,
+   "cor1": 1,
+   "cor2": 1
+  }
+ },
+ {
+  "language": "arabic",
+  "src_id": "xquad.ar:57264f18f1498d1400e8dbb0",
+  "B": {
+   "answer": "فرنسا وفرنسا",
+   "f_faith": 0.6289,
+   "f_indep": 0.2242285758256912,
+   "sup1": 1,
+   "sup2": 2,
+   "cor1": 1,
+   "cor2": 1
+  },
+  "passage": "كما وجدت الدراسة أنه كان هنالك فرعان حيويان (مجموعات جينية وحيدة الأصل) لم تسبق معرفتهما ولكنهما مرتبطين بجينوم بكتيريا اليرسينيا الطاعونية ذات الصلة بالقبور الجماعية في العصور الوسطى. اتضح أن هذين الفرعين الحيويين (الذين يعتقد أنهما انقرضا) من أسلاف المستفردات الحديثة لسلالات اليرسينيا الطاعونية الحديثة يرسينيا بيستيس أوريانتاليس ويرسينيا بيستيس ميديفاليس، مما يشير إلى أن الطاعون قد يكون قد دخل أوروبا في موجتين. تشير عمليات المسح لبقايا الطاعون في فرنسا وإنجلترا إلى أن المتغير الأول دخل أوروبا عبر ميناء مارسيليا حوالي العام 1347 وانتشر في أرجاء فرنسا على مدى العامين التاليين، فوصل إنجلترا في النهاية في ربيع العام 1349 حيث تفشى في جميع أنحاء البلاد في ثلاثة أوبئة. أظهرت عمليات المسح لبقايا الطاعون من بلدة بيرخن أوب زووم الهولندية أن التركيب الوراثي يرسينيا بيستيس المسؤول عن الوباء الذي انتشر عبر البلدان المنخفضة منذ عام 1350 كان يختلف عن ذلك الموجود في بريطانيا وفرنسا، مما يشير إلى أن بيرخن أوب زووم (وأجزاء أخرى محتملة من جنوب هولندا) لم تصب بالعدوى مباشرة من إنجلترا أو فرنسا في عام 1349، مما يشير إلى احتمال حدوث موجة ثانية من الطاعون مختلفة عن تلك الموجودة في بريطانيا وفرنسا قد انتقلت إلى البلدان المنخفضة من النرويج أو المدن الهانزية أو موقعٍ آخر.",
+  "question": "ما الذي تشير إليه سلالات يرسينيا الطاعونية بشأن الطاعون؟",
+  "gold": "الطاعون قد يكون قد دخل أوروبا في موجتين",
+  "C": {
+   "answer": "ثلاثة أوبئة. تشير عمليات المسح لبقايا الطاعون في فرنسا وفرنسا",
+   "f_faith": 0.9961,
+   "f_indep": 0.4402468502521515,
+   "sup1": 1,
+   "sup2": 2,
+   "cor1": 1,
+   "cor2": 1
+  }
+ },
+ {
+  "language": "malay",
+  "src_id": "belebele.zsm:https://en.wikinews.org/wiki/Scientists_say_the_moon_is_slowly_shrinking#2",
+  "B": {
+   "answer": "Pembentukan permukaan dicipta sejak dahulu",
+   "f_faith": 0.0016,
+   "f_indep": 0.0019278472755104,
+   "sup1": 0,
+   "sup2": 1,
+   "cor1": 0,
+   "cor2": 1
+  },
+  "passage": "Para saintis telah menemui bentuk muka bumi yang berselarak pada permukaan bulan yang dipanggil tubir lobat yang disebabkan oleh bulan yang mengecut dengan amat perlahan. Serpihan ini telah ditemui di serata permukaan bulan dan masih kurang terjejas oleh faktor persekitaran, yakni secara geologinya menunjukkan bahan tersebut adalah baharu terbentuk. Teori ini bercanggah dengan dakwaan bahawa bulan adalah sepenuhnya tanpa aktiviti geologi.",
+  "question": "Menurut petikan, teori manakah berkaitan pembentukan permukaan yang menandakan bahawa terdapat aktiviti geologi yang berlaku di bulan?",
+  "gold": "Pembentukan permukaan dicipta dalam tempoh yang agak baru",
+  "C": {
+   "answer": "Pembentukan permukaan dicipta sejak dahulu",
+   "f_faith": 0.0016,
+   "f_indep": 0.0019278472755104,
+   "sup1": 0,
+   "sup2": 1,
+   "cor1": 0,
+   "cor2": 1
+  }
+ },
+ {
+  "language": "malay",
+  "src_id": "belebele.zsm:https://en.wikivoyage.org/wiki/Tokyo_2020#1",
+  "B": {
+   "answer": "Mac 2020",
+   "f_faith": 0.0162,
+   "f_indep": 0.0206519532948732,
+   "sup1": 1,
+   "sup2": 2,
+   "cor1": 1,
+   "cor2": 1
+  },
+  "passage": "Paralimpik akan berlangsung dari 24hb Ogos hingga 5hb September 2021. Sebilangan acara akan diadakan di lokasi lain di seluruh Jepun. Tokyo akan menjadi satu-satunya bandar Asia untuk menjadi tuan rumah Olimpik musim panas dua kali, setelah pernah menjadi tuan rumah pada tahun 1964. Jika anda menempah penerbangan dan penginapan anda pada 2020 sebelum penangguhan diumumkan, anda mungkin menghadapi situasi yang sukar. Polisi pembatalan berbeza-beza, tetapi pada akhir bulan Mac kebanyakan dasar pembatalan berasaskan korfonavirus tidak berlaku sehingga Julai 2020 ketika Olimpik telah dijadualkan. Adalah dijangka tiket peristiwa sebahagian besar akan berharga di antara ¥2,500 dan ¥130,000, dengan biasa tiket berharga sekitar ¥7,000.",
+  "question": "Bilakah Olimpik musim panas dijadualkan berlangsung pada asalnya? ",
+  "gold": "Julai 2020",
+  "C": {
+   "answer": "September 2021",
+   "f_faith": 0.0097,
+   "f_indep": 0.0145914480090141,
+   "sup1": 2,
+   "sup2": 2,
+   "cor1": 0,
+   "cor2": 1
+  }
+ }
+]

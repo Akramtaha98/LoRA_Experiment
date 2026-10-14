@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "lora-nli"
+version = "2.0.0"
+description = "NLI-faithfulness reward x LoRA adapter choice: Arabic and Malay closed-passage QA"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+dependencies = [
+  "torch>=2.1", "transformers>=4.40", "peft>=0.11", "bitsandbytes>=0.43; platform_system=='Linux'",
+  "accelerate>=0.30", "datasets>=2.19", "sentencepiece", "numpy", "pandas", "scipy", "tabulate",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]

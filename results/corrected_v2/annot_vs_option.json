@@ -1,0 +1,22 @@
+{
+ "n_answers": 81,
+ "share_option_correct": 0.2345679012345679,
+ "c1": {
+  "share_correct": 0.19753086419753085,
+  "agreement_with_option": 0.6666666666666666,
+  "kappa_vs_option": 0.01796138302649305,
+  "tp": 4,
+  "tn": 50,
+  "fp": 12,
+  "fn": 15
+ },
+ "c2": {
+  "share_correct": 0.9135802469135802,
+  "agreement_with_option": 0.24691358024691357,
+  "kappa_vs_option": -0.046600296547341706,
+  "tp": 16,
+  "tn": 4,
+  "fp": 58,
+  "fn": 3
+ }
+}

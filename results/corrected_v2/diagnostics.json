@@ -1,0 +1,34 @@
+{
+ "sanitize_total": {
+  "gen_calls": 5776478,
+  "gen_nan": 0,
+  "gen_posinf": 0,
+  "score_calls": 229392,
+  "score_nan": 0,
+  "score_posinf": 0
+ },
+ "runs_with_nonfinite_logits": 0,
+ "frac_eval_prompt_truncated": {
+  "mean": 0.022899999999999997,
+  "max": 0.0458
+ },
+ "frac_train_prompt_truncated": {
+  "mean": 0.022350000000000002,
+  "max": 0.0447
+ },
+ "n_passage_overlap_excluded": {
+  "mean": 2.0,
+  "max": 4.0
+ },
+ "legacy_eval_state_minus_headline_by_label": {
+  "B": -0.0195,
+  "B_ckpt": -0.1811,
+  "C": -0.302,
+  "C_ckpt": -0.492,
+  "C_l0": -0.0156,
+  "C_shuf": -0.0186
+ },
+ "adalora_rank_first_last": [],
+ "n_failed_runs": 0,
+ "n_runs": 228
+}

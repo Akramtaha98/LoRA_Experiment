@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  python-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install CPU dependencies
+        run: |
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install transformers peft accelerate datasets sentencepiece numpy pandas scipy tabulate
+      - name: Unit tests
+        run: |
+          python tests/test_v2_training_path.py
+          python tests/test_analysis.py
+          python tests/test_human_eval.py
+          python tests/test_independent_eval.py
+          python scripts/estimator_checks.py
+
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: pip install numpy pandas scipy
+      - name: results.json is up to date
+        run: |
+          python scripts/build_web_data.py --out /tmp/results.json
+          diff <(python -c "import json;print(json.dumps(json.load(open('/tmp/results.json')),sort_keys=True))") \
+               <(python -c "import json;print(json.dumps(json.load(open('web/public/data/results.json')),sort_keys=True))")
+      - run: npm ci && npm run build
+        working-directory: web
