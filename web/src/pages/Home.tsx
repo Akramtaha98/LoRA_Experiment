@@ -1,175 +1,805 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Check, ChevronDown, Search, Trophy, X } from "lucide-react";
-import type { ResultsFile } from "../data/results";
+import { useEffect, useMemo, useState } from "react";
+import {
+  ArrowDown,
+  BookOpen,
+  Check,
+  ChevronDown,
+  Download,
+  Search,
+} from "lucide-react";
+import type { OutputAnswer, OutputItem, ResultsFile } from "../data/results";
+import {
+  MODELS,
+  answerVerdict,
+  englishGuide,
+  evidenceExcerpt,
+  explainAnswer,
+  guidedExample,
+  highlightParts,
+  matchesFilter,
+  trainingChange,
+  type AnswerFilter,
+  type Language,
+  type Model,
+  type SavedAnswer,
+  type SavedExample,
+} from "../lib/evidence";
 
-type Lang = "all" | "arabic" | "malay";
-const LANG_LABEL: Record<Lang, string> = { all: "Both languages", arabic: "Arabic", malay: "Malay" };
-const COLOR: Record<string, string> = { qwen3: "var(--accent)", t5gemma2: "var(--accent-2)", mt5: "var(--gold)" };
-const pct = (x: number) => Math.round(x * 100);
+const COLOR: Record<Model, string> = {
+  qwen3: "var(--accent)",
+  t5gemma2: "var(--accent-2)",
+  mt5: "var(--gold)",
+};
+const CONFIG: Record<string, string> = {
+  B_ce_lora: "Standard training (B)",
+  C_composite_lora: "NLI-reward training (C)",
+};
+const percent = (n: number) => `${(n * 100).toFixed(2)}%`;
+const signed = (n: number | null | undefined) =>
+  n == null ? "Unavailable" : `${n >= 0 ? "+" : ""}${n.toFixed(4)}`;
+const FILTERS: { id: AnswerFilter; label: string }[] = [
+  { id: "all", label: "All examples" },
+  { id: "matched", label: "All exact matches" },
+  { id: "missed", label: "All miss the reference" },
+  { id: "disagree", label: "Different answers" },
+  { id: "qwen3", label: "Qwen3 matches" },
+  { id: "mt5", label: "mT5 matches" },
+  { id: "t5gemma2", label: "T5Gemma matches" },
+];
 
-interface Ans { a: string; em: number; f1: number }
-interface Ex { id: string; config?: string; language: "arabic" | "malay"; question: string; context: string; gold: string; answers: Record<string, Ans> }
-
-/** Counts up from 0 to `to` when mounted or when `to` changes. */
-function CountUp({ to, suffix = "" }: { to: number; suffix?: string }) {
-  const [v, setV] = useState(0);
-  useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) { setV(to); return; }
-    let raf = 0; const t0 = performance.now(), dur = 900;
-    const tick = (t: number) => { const p = Math.min(1, (t - t0) / dur); setV(Math.round(to * (1 - Math.pow(1 - p, 3)))); if (p < 1) raf = requestAnimationFrame(tick); };
-    raf = requestAnimationFrame(tick); return () => cancelAnimationFrame(raf);
-  }, [to]);
-  return <>{v}{suffix}</>;
-}
-
-/** Fades/slides children in when they scroll into view. */
-function Reveal({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) {
-  const ref = useRef<HTMLDivElement>(null); const [on, setOn] = useState(false);
-  useEffect(() => {
-    const el = ref.current; if (!el) return;
-    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setOn(true); io.disconnect(); } }, { threshold: 0.12 });
-    io.observe(el); return () => io.disconnect();
-  }, []);
-  return <div ref={ref} className={`reveal ${on ? "in" : ""} ${className}`} style={{ transitionDelay: `${delay}ms` }}>{children}</div>;
-}
-
-function useExamples() {
-  const [ex, setEx] = useState<Ex[] | null>(null);
-  useEffect(() => { fetch(`${import.meta.env.BASE_URL}data/compare-examples.json`).then((r) => r.json()).then(setEx).catch(() => setEx([])); }, []);
-  return ex;
-}
-
-const FILTERS = [
-  { id: "all", label: "All" },
-  { id: "qwen", label: "Qwen3 right" },
-  { id: "mt5", label: "mT5 right" },
-  { id: "none", label: "Both wrong" },
-] as const;
-type Filter = (typeof FILTERS)[number]["id"];
-
-function Browser({ names, onComplete, onConfig }: { names: Record<string, string>; onComplete: (v: boolean) => void; onConfig: (c?: string) => void }) {
-  const all = useExamples();
-  const [lang, setLang] = useState<"arabic" | "malay">("arabic");
-  const [filter, setFilter] = useState<Filter>("all");
-  const [q, setQ] = useState("");
-  const [shown, setShown] = useState(10);
-  const [open, setOpen] = useState<string | null>(null);
-
-  const inLang = useMemo(() => (all ?? []).filter((e) => e.language === lang), [all, lang]);
-  const list = useMemo(() => inLang.filter((e) => {
-    const qw = e.answers.qwen3.em === 1, m = e.answers.mt5.em === 1;
-    if (filter === "qwen" && !qw) return false;
-    if (filter === "mt5" && !m) return false;
-    if (filter === "none" && (qw || m)) return false;
-    return !q || (e.question + e.gold + Object.values(e.answers).map((a) => a.a).join(" ")).toLowerCase().includes(q.toLowerCase());
-  }), [inLang, filter, q]);
-  const score = (m: string) => inLang.filter((e) => e.answers[m]?.em === 1).length;
-  useEffect(() => setShown(10), [lang, filter, q]);
-  const full3 = !!all && all.length > 0 && all.every((e) => e.answers.t5gemma2);
-  useEffect(() => onComplete(full3), [full3, onComplete]);
-  const cfg0 = all?.[0]?.config;
-  useEffect(() => onConfig(cfg0), [cfg0, onConfig]);
-
-  if (!all) return <p className="hint">Loading questions…</p>;
-  const order = ["qwen3", "mt5", "t5gemma2"];
-
+function Highlight({
+  text,
+  reference,
+  answer = "",
+}: {
+  text: string;
+  reference: string;
+  answer?: string;
+}) {
   return (
     <>
-      <div className="s-tools">
-        <div className="s-seg small">{(["arabic", "malay"] as const).map((l) => <button key={l} className={lang === l ? "on" : ""} onClick={() => setLang(l)}>{l === "arabic" ? "Arabic" : "Malay"} · 50</button>)}</div>
-        <label className="s-search"><Search size={15} /><input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search questions or answers" /></label>
-      </div>
-      <div className="s-score">
-        <div><b style={{ color: COLOR.qwen3 }}><CountUp key={lang + "q"} to={score("qwen3")} />/50</b><span>{names.qwen3} correct</span></div>
-        <div><b style={{ color: COLOR.mt5 }}><CountUp key={lang + "m"} to={score("mt5")} />/50</b><span>{names.mt5} correct</span></div>
-        {full3 ? <div><b style={{ color: COLOR.t5gemma2 }}><CountUp key={lang + "t"} to={score("t5gemma2")} />/50</b><span>{names.t5gemma2} correct</span></div> : null}
-      </div>
-      <div className="s-chips">{FILTERS.map((f) => <button key={f.id} className={filter === f.id ? "s-chip on" : "s-chip"} onClick={() => setFilter(f.id)}>{f.label}</button>)}</div>
-
-      <div className="s-list" key={`${lang}-${filter}-${q}`}>
-        {list.slice(0, shown).map((e, n) => (
-          <article className="s-ex" key={e.id} style={{ animationDelay: `${Math.min(n, 9) * 45}ms` }}>
-            <div className="s-ex-top"><span className="s-num">#{Number(e.id.split("-")[1]) + 1}</span><h3 dir="auto">{e.question}</h3></div>
-            <p className="s-gold" dir="auto"><span>Correct answer</span><strong>{e.gold}</strong></p>
-            <div className="s-answers">
-              {order.filter((m) => e.answers[m]).map((m) => {
-                const a = e.answers[m];
-                return (
-                  <div key={m} className={a.em ? "s-ans best" : "s-ans"}>
-                    <div className="s-ans-head"><i style={{ background: COLOR[m] }} />{names[m]}{a.em ? <Trophy size={14} /> : null}</div>
-                    <p dir="auto" className="s-ans-text">{a.a || "(no answer)"}</p>
-                    <span className={a.em ? "s-tag ok" : a.f1 > 0 ? "s-tag part" : "s-tag no"}>{a.em ? <><Check size={13} /> Correct</> : a.f1 > 0 ? "Partly right" : <><X size={13} /> Wrong</>}</span>
-                  </div>
-                );
-              })}
-            </div>
-            <button className="s-link" onClick={() => setOpen(open === e.id ? null : e.id)}>{open === e.id ? "Hide passage" : "Show passage"} <ChevronDown size={14} className={open === e.id ? "flip" : ""} /></button>
-            {open === e.id ? <div className="s-passage" dir="auto">{e.context}</div> : null}
-          </article>
-        ))}
-        {list.length === 0 ? <p className="hint">No questions match.</p> : null}
-      </div>
-      {shown < list.length ? <button className="s-more" onClick={() => setShown((s) => s + 10)}>Show 10 more ({list.length - shown} left)</button> : null}
+      {highlightParts(text, reference, answer).map((p, i) =>
+        p.kind ? (
+          <mark key={i} className={`e-mark ${p.kind}`}>
+            {p.text}
+          </mark>
+        ) : (
+          <span key={i}>{p.text}</span>
+        ),
+      )}
     </>
   );
 }
 
-export default function Home({ d }: { d: ResultsFile }) {
-  const cmp = d.compare, names = cmp.models;
-  const [lang, setLang] = useState<Lang>("all");
-  const em = cmp.results[`B|${lang}|em`];
-  const f1 = (m: string) => cmp.results[`B|${lang}|f1`].ranking.find((r) => r.model === m)!.mean;
-  const top = em.ranking[0].mean;
-  const winner = em.winner;
-  const [complete, setComplete] = useState(false);
-  const [reward, setReward] = useState(true);
+function Evidence({ example }: { example: SavedExample }) {
+  const [model, setModel] = useState<Model>("qwen3");
+  const answer = example.answers[model]?.a ?? "";
+  const excerpt = evidenceExcerpt(example.context, example.gold, answer);
+  return (
+    <section className="e-evidence" aria-label="Evidence for this question">
+      <div className="e-evidence-head">
+        <h4>
+          <BookOpen size={17} /> Evidence from the passage
+        </h4>
+        <label>
+          Highlight a model’s wording
+          <select
+            value={model}
+            onChange={(e) => setModel(e.target.value as Model)}
+          >
+            <option value="qwen3">Qwen3</option>
+            <option value="mt5">mT5</option>
+            <option value="t5gemma2">T5Gemma 2</option>
+          </select>
+        </label>
+      </div>
+      <p className="e-legend">
+        <span>
+          <i className="e-mark reference" /> Reference wording
+        </span>
+        <span>
+          <i className="e-mark answer" /> Selected model’s wording
+        </span>
+      </p>
+      <blockquote dir="auto">
+        <Highlight text={excerpt} reference={example.gold} answer={answer} />
+      </blockquote>
+      {!example.context.includes(example.gold) && (
+        <p className="e-caption">
+          The reference does not appear verbatim in this passage. The excerpt is
+          context, not a verified supporting span.
+        </p>
+      )}
+      {answer && !example.context.includes(answer) && (
+        <p className="e-caption">
+          This model’s complete output does not appear verbatim in the passage.
+          That alone does not establish whether its meaning is supported.
+        </p>
+      )}
+      <details>
+        <summary>
+          Read full passage <ChevronDown size={14} />
+        </summary>
+        <p className="e-full-passage" dir="auto">
+          <Highlight
+            text={example.context}
+            reference={example.gold}
+            answer={answer}
+          />
+        </p>
+      </details>
+    </section>
+  );
+}
 
+function AnswerCard({
+  example,
+  answer,
+  model,
+  name,
+}: {
+  example: SavedExample;
+  answer: SavedAnswer | undefined;
+  model: Model;
+  name: string;
+}) {
+  return (
+    <article className={`s-ans ${answer?.em === 1 ? "best" : ""}`}>
+      <div className="s-ans-head">
+        <i style={{ background: COLOR[model] }} />
+        {name}
+      </div>
+      {answer ? (
+        <>
+          <p dir="auto" className="s-ans-text">
+            {answer.a || "(Empty saved output)"}
+          </p>
+          <span className={`s-tag ${answer.em === 1 ? "ok" : "neutral"}`}>
+            {answer.em === 1 && <Check size={13} />}
+            {answerVerdict(answer)}
+          </span>
+          <div className="e-explanation">
+            <h4>What happened?</h4>
+            <p>{explainAnswer(example, answer)}</p>
+          </div>
+          <details className="e-answer-scores">
+            <summary>Recorded scores</summary>
+            <dl>
+              <div>
+                <dt>Exact match</dt>
+                <dd>{answer.em}</dd>
+              </div>
+              <div>
+                <dt>Token F1</dt>
+                <dd>{answer.f1.toFixed(3)}</dd>
+              </div>
+            </dl>
+            <p className="e-caption">
+              Token F1 measures word overlap, not semantic correctness or
+              factual support.
+            </p>
+          </details>
+        </>
+      ) : (
+        <p className="e-caption">
+          This model’s answer is not available in the saved export.
+        </p>
+      )}
+    </article>
+  );
+}
+
+function ExampleCard({
+  example,
+  names,
+  featured = false,
+}: {
+  example: SavedExample;
+  names: Record<string, string>;
+  featured?: boolean;
+}) {
+  const guide = englishGuide(example);
+  return (
+    <article
+      className={`s-ex ${featured ? "e-featured" : ""}`}
+      data-example-id={example.id}
+    >
+      <div className="s-ex-top">
+        <span className="s-num">
+          {featured ? "Guided example" : example.id}
+        </span>
+        <h3 dir="auto">{example.question}</h3>
+      </div>
+      <p className="s-gold">
+        <span>Reference answer</span>
+        <strong dir="auto">{example.gold}</strong>
+      </p>
+      {guide && (
+        <details className="e-english">
+          <summary>English guide to this example</summary>
+          <p>
+            <strong>Question:</strong> {guide.question}
+          </p>
+          <p>
+            <strong>Reference:</strong> {guide.reference}
+          </p>
+          <p>
+            <strong>Passage summary:</strong> {guide.evidence}
+          </p>
+          <p className="e-caption">
+            Human-written English guide. Original questions, outputs and scores
+            remain unchanged.
+          </p>
+        </details>
+      )}
+      <div className="s-answers">
+        {MODELS.map((model) => (
+          <AnswerCard
+            key={model}
+            example={example}
+            answer={example.answers[model]}
+            model={model}
+            name={names[model]}
+          />
+        ))}
+      </div>
+      <Evidence example={example} />
+      <details className="e-provenance">
+        <summary>Example source and saved record</summary>
+        <p>
+          Record: <code>{example.id}</code> ·{" "}
+          {CONFIG[example.config ?? ""] ??
+            "Training configuration not specified in this export"}
+          .
+        </p>
+        <p>
+          Exported example setup: QLoRA, seed 42. The original export does not
+          include per-answer run IDs or source-log paths. Consult the build
+          script for lineage.
+        </p>
+        <a
+          href="https://github.com/Akramtaha98/LoRA_Experiment/blob/main/scripts/build_compare_examples.py"
+          target="_blank"
+          rel="noreferrer"
+        >
+          Example export script
+        </a>
+        <pre>{JSON.stringify(example, null, 2)}</pre>
+      </details>
+    </article>
+  );
+}
+
+function TrainingComparison({
+  items,
+  language,
+  names,
+}: {
+  items: OutputItem[];
+  language: Language;
+  names: Record<string, string>;
+}) {
+  const [model, setModel] = useState<Model>("qwen3"),
+    [adapter, setAdapter] = useState("qlora"),
+    [index, setIndex] = useState(0);
+  const available = items.filter((i) => i.language === language);
+  const item = available[Math.min(index, Math.max(0, available.length - 1))];
+  const pair = item?.answers[model]?.[adapter];
+  const before = pair?.B_ce_lora,
+    after = pair?.C_composite_lora;
+  function result(answer: OutputAnswer | undefined, title: string) {
+    return (
+      <article className="e-training-answer">
+        <h3>{title}</h3>
+        {answer ? (
+          <>
+            <p dir="auto" className="e-output">
+              {answer.generated || "(Empty saved output)"}
+            </p>
+            <dl>
+              <div>
+                <dt>Exact match</dt>
+                <dd>{answer.em}</dd>
+              </div>
+              <div>
+                <dt>Token F1</dt>
+                <dd>{answer.f1.toFixed(3)}</dd>
+              </div>
+            </dl>
+          </>
+        ) : (
+          <p>No matching saved output is available.</p>
+        )}
+      </article>
+    );
+  }
+  return (
+    <section id="training" className="s-section e-training">
+      <span className="e-kicker">Training comparison</span>
+      <h2>What changes with the NLI reward?</h2>
+      <p className="s-lead">
+        The same model, question, adapter and seed. These are saved answers, not
+        a live generation demo.
+      </p>
+      <div className="e-controls">
+        <label>
+          Model
+          <select
+            value={model}
+            onChange={(e) => setModel(e.target.value as Model)}
+          >
+            {MODELS.map((m) => (
+              <option key={m} value={m}>
+                {names[m]}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label>
+          Adapter
+          <select value={adapter} onChange={(e) => setAdapter(e.target.value)}>
+            <option value="qlora">QLoRA</option>
+            <option value="dora">DoRA</option>
+          </select>
+        </label>
+        <label className="e-question-select">
+          Saved question
+          <select
+            value={Math.min(index, Math.max(0, available.length - 1))}
+            onChange={(e) => setIndex(Number(e.target.value))}
+          >
+            {available.map((x, i) => (
+              <option key={x.id} value={i}>
+                {i + 1}. {x.question}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
+      <p className="e-caption">
+        {available.length} exported pairs of questions for this language · Seed
+        42 ·{" "}
+        {model === "mt5"
+          ? "Corrected mT5 protocol"
+          : "Original protocol; these runs are not a corrected-protocol rerun"}
+        . Claims about the reward stay within each protocol.
+      </p>
+      {item ? (
+        <>
+          <p className="s-gold">
+            <span>Reference answer</span>
+            <strong dir="auto">{item.gold}</strong>
+          </p>
+          <div className="e-training-grid">
+            {result(before, "B · Standard training")}
+            {result(after, "C · NLI-reward training")}
+          </div>
+          <p className="e-change" role="status">
+            {trainingChange(before, after)}
+          </p>
+          <details className="e-provenance">
+            <summary>Training pair source</summary>
+            <p>
+              <code>
+                results.json → compare.outputs → {item.id} → {model} → {adapter}
+              </code>
+              . These records use seed 42 according to{" "}
+              <a
+                href="https://github.com/Akramtaha98/LoRA_Experiment/blob/main/scripts/build_compare_outputs.py"
+                target="_blank"
+                rel="noreferrer"
+              >
+                the export script
+              </a>
+              .
+            </p>
+            <pre>
+              {JSON.stringify(
+                { id: item.id, model, adapter, seed: 42, before, after },
+                null,
+                2,
+              )}
+            </pre>
+          </details>
+        </>
+      ) : (
+        <p>No saved comparison is available for this language.</p>
+      )}
+    </section>
+  );
+}
+
+export default function Home({ d }: { d: ResultsFile }) {
+  const [language, setLanguage] = useState<Language>("arabic"),
+    [filter, setFilter] = useState<AnswerFilter>("all"),
+    [query, setQuery] = useState(""),
+    [page, setPage] = useState(1);
+  const [examples, setExamples] = useState<SavedExample[] | null>(null),
+    [error, setError] = useState<string | null>(null),
+    [attempt, setAttempt] = useState(0);
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch(`${import.meta.env.BASE_URL}data/compare-examples.json`, {
+      signal: controller.signal,
+    })
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        return r.json();
+      })
+      .then((value: SavedExample[]) => {
+        setExamples(value);
+        setError(null);
+      })
+      .catch((e: Error) => {
+        if (e.name !== "AbortError") setError(e.message);
+      });
+    return () => controller.abort();
+  }, [attempt]);
+  const names = d.compare.models;
+  const inLanguage = useMemo(
+    () => (examples ?? []).filter((e) => e.language === language),
+    [examples, language],
+  );
+  const filtered = useMemo(
+    () =>
+      inLanguage.filter(
+        (e) =>
+          matchesFilter(e, filter) &&
+          (!query.trim() ||
+            [
+              e.question,
+              e.gold,
+              e.context,
+              ...Object.values(e.answers).map((a) => a?.a ?? ""),
+            ]
+              .join(" ")
+              .toLocaleLowerCase()
+              .includes(query.trim().toLocaleLowerCase())),
+      ),
+    [inLanguage, filter, query],
+  );
+  const featured = guidedExample(examples ?? [], language);
+  const rank = d.compare.results[`B|${language}|em`];
+  const pages = Math.max(1, Math.ceil(filtered.length / 5)),
+    currentPage = Math.min(page, pages);
+  function changeLanguage(value: Language) {
+    setLanguage(value);
+    setPage(1);
+  }
+  function download() {
+    const blob = new Blob([JSON.stringify(filtered, null, 2)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob),
+      link = document.createElement("a");
+    link.href = url;
+    link.download = `saved-answers-${language}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+  }
   return (
     <>
-      <section className="s-hero">
-        <span className="s-eyebrow s-in" style={{ animationDelay: "0ms" }}>Arabic and Malay question answering</span>
-        <h1 className="s-in" style={{ animationDelay: "90ms" }}><span className="s-grad">{names[winner]}</span> is the best model</h1>
-        <p className="s-in" style={{ animationDelay: "180ms" }}>Three small language models were fine-tuned the same way and asked the same questions. The one with the most correct answers wins.</p>
+      <section className="s-hero e-hero">
+        <span className="s-eyebrow">Arabic and Malay question answering</span>
+        <h1>
+          One question.
+          <br />
+          <span className="s-grad">Three model answers.</span>
+        </h1>
+        <p>
+          Read what each model actually answered, find the evidence in the
+          passage, and explore what changes with an NLI training reward.
+        </p>
+        <nav className="e-hero-links" aria-label="Page sections">
+          <a href="#guided">
+            Explore an example <ArrowDown size={16} />
+          </a>
+          <a href="#training">Compare training</a>
+          <a href="#results">Overall results</a>
+        </nav>
       </section>
-
-      <div className="s-seg s-in" style={{ animationDelay: "260ms" }} role="tablist" aria-label="Language">
-        {(Object.keys(LANG_LABEL) as Lang[]).map((l) => <button key={l} className={lang === l ? "on" : ""} onClick={() => setLang(l)}>{LANG_LABEL[l]}</button>)}
+      <div className="e-language">
+        <span>Language for every section</span>
+        <div className="s-seg" role="group" aria-label="Language">
+          {(["arabic", "malay"] as const).map((l) => (
+            <button
+              key={l}
+              type="button"
+              aria-pressed={language === l}
+              className={language === l ? "on" : ""}
+              onClick={() => changeLanguage(l)}
+            >
+              {l === "arabic" ? "Arabic" : "Malay"}
+            </button>
+          ))}
+        </div>
       </div>
-
-      <section className="s-podium" aria-label="Ranking" key={lang}>
-        {em.ranking.map((r, n) => (
-          <article key={r.model} className={n === 0 ? "s-model first s-in" : "s-model s-in"} style={{ animationDelay: `${320 + n * 110}ms` }}>
-            <div className="s-rank">{n === 0 ? <><Trophy size={15} className="s-trophy" /> Winner</> : `#${n + 1}`}</div>
-            <h2>{names[r.model]}</h2>
-            <div className="s-big"><CountUp to={pct(r.mean)} suffix="%" /></div>
-            <div className="s-big-l">of answers exactly right</div>
-            <div className="s-bar"><div className="s-fill" style={{ ["--w" as string]: `${(r.mean / top) * 100}%`, background: COLOR[r.model], animationDelay: `${500 + n * 110}ms` }} /></div>
-            <div className="s-sub">Word overlap with the correct answer: <strong>{pct(f1(r.model))}%</strong></div>
-          </article>
-        ))}
+      <section id="guided" className="s-section e-guide">
+        <span className="e-kicker">Start with the evidence</span>
+        <h2>What did each model do?</h2>
+        <p className="s-lead">
+          The explanations describe visible outputs, not the model’s hidden
+          reasoning. Exact match and word overlap are separate from human
+          judgments of meaning.
+        </p>
+        {error ? (
+          <div className="e-load-error" role="alert">
+            <p>Saved examples could not be loaded: {error}</p>
+            <button
+              onClick={() => {
+                setError(null);
+                setAttempt((a) => a + 1);
+              }}
+            >
+              Retry loading examples
+            </button>
+          </div>
+        ) : !examples ? (
+          <p role="status">Loading saved answers…</p>
+        ) : featured ? (
+          <ExampleCard
+            key={featured.id}
+            example={featured}
+            names={names}
+            featured
+          />
+        ) : (
+          <p>No saved examples are available for this language.</p>
+        )}
       </section>
-      <p className="s-note">{names[winner]} leads {names[em.runner_up]} by {Math.round(em.margin * 100)} points{em.clear ? " — a clear win, not a fluke of random seeds" : ""}. It also has the best word overlap.</p>
-
-      <section className="s-section">
-        <Reveal>
-          <h2>Browse 100 real questions</h2>
-          <p className="s-lead">The first 50 Arabic and 50 Malay test questions, with each model's answer. Nothing is cherry-picked.</p>
-          <div className="s-info"><b>Which runs are these?</b> {complete ? (reward ? "All three models answered every question below. These runs were trained with the NLI reward (QLoRA, seed 42), because that is the setup where every model's answers were saved in full. The ranking above uses standard training." : "All three models were fine-tuned the standard way (QLoRA, seed 42) and answered every question below, the same setup as the ranking above.") : "Only Qwen3 and mT5 saved every answer, and only for the NLI-reward training, so these answers come from that setup (QLoRA, seed 42). T5Gemma 2 saved just its first 5 answers per language, so it appears on those only. The ranking above uses standard training and every question."}</div>
-        </Reveal>
-        <Browser names={names} onComplete={setComplete} onConfig={(c) => setReward(c !== "B_ce_lora")} />
+      <section
+        className="s-section e-how"
+        aria-label="How the experiment works"
+      >
+        <h2>How does this work?</h2>
+        <ol>
+          <li>
+            <strong>A question and a passage</strong>
+            <p>
+              Every example supplies the source text. These are closed-passage
+              tests, so the model does not browse the web here.
+            </p>
+          </li>
+          <li>
+            <strong>Two training objectives</strong>
+            <p>
+              Standard training rewards the reference text. The composite
+              objective adds an NLI entailment reward. LoRA-family adapters
+              train a small set of model parameters.
+            </p>
+          </li>
+          <li>
+            <strong>Saved outputs, separate checks</strong>
+            <p>
+              Exact match checks the normalized reference. Token F1 checks word
+              overlap. NLI checks entailment according to a scorer; a higher
+              score alone does not prove a better answer.
+            </p>
+          </li>
+        </ol>
       </section>
-
-      <Reveal>
+      <TrainingComparison
+        key={language}
+        items={d.compare.outputs}
+        language={language}
+        names={names}
+      />
+      <section id="examples" className="s-section">
+        <span className="e-kicker">Explore the saved sample</span>
+        <h2>Browse every exported example</h2>
+        <p className="s-lead">
+          {examples?.length ?? "…"} saved questions across both languages. The
+          example export is a subset of the held-out evaluation, not the full
+          benchmark.
+        </p>
+        <p className="e-caption">
+          {[
+            ...new Set(
+              inLanguage.map(
+                (e) => CONFIG[e.config ?? ""] ?? "Unspecified configuration",
+              ),
+            ),
+          ].join(", ")}{" "}
+          · QLoRA · seed 42. The overall ranking below uses standard-training
+          averages over adapters and seeds.
+        </p>
+        <div className="s-tools">
+          <label className="s-search">
+            <Search size={15} aria-hidden />
+            <span className="e-sr-only">
+              Search saved questions, answers or passages
+            </span>
+            <input
+              type="search"
+              value={query}
+              onChange={(e) => {
+                setQuery(e.target.value);
+                setPage(1);
+              }}
+              placeholder="Search questions, answers or evidence"
+            />
+          </label>
+          <button
+            className="e-secondary"
+            disabled={!filtered.length}
+            onClick={download}
+          >
+            <Download size={15} /> Download filtered records
+          </button>
+        </div>
+        <div className="s-score">
+          {MODELS.map((m) => {
+            const available = inLanguage.filter((e) => e.answers[m]);
+            return (
+              <div key={m}>
+                <b style={{ color: COLOR[m] }}>
+                  {available.filter((e) => e.answers[m]?.em === 1).length}/
+                  {available.length}
+                </b>
+                <span>
+                  {names[m]} exact matches in this language’s exported sample
+                </span>
+              </div>
+            );
+          })}
+        </div>
+        <div className="s-chips" role="group" aria-label="Filter model matches">
+          {FILTERS.map((f) => (
+            <button
+              type="button"
+              key={f.id}
+              aria-pressed={filter === f.id}
+              className={`s-chip ${filter === f.id ? "on" : ""}`}
+              onClick={() => {
+                setFilter(f.id);
+                setPage(1);
+              }}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
+        <p role="status" className="e-caption">
+          {filtered.length} matching examples · counts above describe the full{" "}
+          {language === "arabic" ? "Arabic" : "Malay"} exported sample.
+        </p>
+        <div className="s-list">
+          {filtered.slice((currentPage - 1) * 5, currentPage * 5).map((e) => (
+            <ExampleCard key={e.id} example={e} names={names} />
+          ))}
+        </div>
+        {examples && !filtered.length && (
+          <p className="e-empty">
+            No examples match these filters.{" "}
+            <button
+              onClick={() => {
+                setFilter("all");
+                setQuery("");
+                setPage(1);
+              }}
+            >
+              Clear filters
+            </button>
+          </p>
+        )}
+        {pages > 1 && (
+          <nav className="e-pagination" aria-label="Example pages">
+            <button
+              disabled={currentPage === 1}
+              onClick={() => setPage(currentPage - 1)}
+            >
+              Previous
+            </button>
+            <span>
+              Page {currentPage} of {pages}
+            </span>
+            <button
+              disabled={currentPage === pages}
+              onClick={() => setPage(currentPage + 1)}
+            >
+              Next
+            </button>
+          </nav>
+        )}
+      </section>
+      <section id="results" className="s-section">
+        <span className="e-kicker">Full held-out evaluation</span>
+        <h2>Overall exact-match results</h2>
+        <p className="s-lead">
+          {language === "arabic"
+            ? "Arabic · XQuAD · 716"
+            : "Malay · Belebele · 430"}{" "}
+          held-out questions. Standard training, averaged over QLoRA and DoRA
+          and three seeds.
+        </p>
+        <p className="e-protocol-note">
+          {d.compare.protocol_note} These scores describe the tested systems
+          under their recorded protocols; they do not isolate architecture or
+          the training reward.
+        </p>
+        <section className="s-podium" aria-label="Overall exact-match scores">
+          {rank.ranking.map((r, i) => (
+            <article key={r.model} className="s-model">
+              <div className="s-rank">#{i + 1} in this evaluation</div>
+              <h3>{names[r.model]}</h3>
+              <div className="s-big">{percent(r.mean)}</div>
+              <p className="s-big-l">Exact reference match</p>
+              <div className="s-bar" aria-hidden>
+                <div
+                  style={{
+                    width: `${r.mean * 100}%`,
+                    background: COLOR[r.model as Model],
+                  }}
+                />
+              </div>
+              <p className="e-caption">Common scale: 0–100%</p>
+              <p className="s-sub">
+                Token F1:{" "}
+                <strong>
+                  {percent(
+                    d.compare.results[`B|${language}|f1`].ranking.find(
+                      (x) => x.model === r.model,
+                    )!.mean,
+                  )}
+                </strong>
+              </p>
+            </article>
+          ))}
+        </section>
         <details className="s-fine">
-          <summary>How was this tested?</summary>
-          <ul>
-            <li>Ranking: each model was fine-tuned the standard way (QLoRA and DoRA adapters) with the same three random seeds, then scored on held-out Arabic (716) and Malay (430) questions.</li>
-            <li>“Exactly right” means the answer equals the correct answer after normalisation. Scores are averages over adapters and seeds.</li>
-            <li>The models differ in size and design, so this ranks the fine-tuned systems, not the architectures.</li>
-          </ul>
-          <p><a href="https://github.com/Akramtaha98/LoRA_Experiment" target="_blank" rel="noreferrer">Code, data and full results on GitHub</a></p>
+          <summary>Research details, uncertainty and data sources</summary>
+          <p>
+            Scores below retain the stored numeric precision. The
+            combined-language results in the source use equal language
+            weighting; they are not a pooled question count.
+          </p>
+          <pre>{JSON.stringify(rank, null, 2)}</pre>
+          <h3>Separate corrected mT5 study</h3>
+          <p>
+            {d.corrected.n_runs} run records. Primary B-versus-C comparisons use{" "}
+            {d.corrected.seeds.length} seeds. These contrasts measure the NLI
+            reward, rather than a comparison between model architectures.
+          </p>
+          <p>
+            NLI score change: {signed(d.corrected.headline[language].mean)} (95%
+            CI {signed(d.corrected.headline[language].lo)} to{" "}
+            {signed(d.corrected.headline[language].hi)}). Exact-match change:{" "}
+            {signed(d.corrected.headline[`em_${language}`].mean)}. Both are on a
+            0–1 scale.
+          </p>
+          <p>
+            Arabic is extractive QA. Malay uses Belebele multiple-choice
+            references, so the tasks differ. The NLI reward scorer can be
+            over-optimized; correctness and independent evaluation must be
+            examined separately.
+          </p>
+          <p>
+            <a
+              href={`${import.meta.env.BASE_URL}data/results.json`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Full stored results JSON
+            </a>{" "}
+            ·{" "}
+            <a
+              href={`${import.meta.env.BASE_URL}data/compare-examples.json`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              All exported answers
+            </a>{" "}
+            ·{" "}
+            <a
+              href="https://github.com/Akramtaha98/LoRA_Experiment/tree/main/results/corrected_v2"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Corrected-study source files
+            </a>
+          </p>
         </details>
-      </Reveal>
+      </section>
     </>
   );
 }

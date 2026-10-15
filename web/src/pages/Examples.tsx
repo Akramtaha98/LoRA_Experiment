@@ -167,7 +167,7 @@ export default function ExamplesPage() {
 
   const configDefs = file?.config_defs ?? [];
   const variantDefs = file?.variant_defs ?? [];
-  const examples = file?.examples ?? [];
+  const examples = useMemo(() => file?.examples ?? [], [file]);
 
   const filtered = useMemo(
     () => examples.filter((e) => e.language === language),
