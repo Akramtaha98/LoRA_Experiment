@@ -8,7 +8,7 @@ const COLOR: Record<string, string> = { qwen3: "var(--accent)", t5gemma2: "var(-
 const pct = (x: number) => Math.round(x * 100);
 
 interface Ans { a: string; em: number; f1: number }
-interface Ex { id: string; language: "arabic" | "malay"; question: string; context: string; gold: string; answers: Record<string, Ans> }
+interface Ex { id: string; config?: string; language: "arabic" | "malay"; question: string; context: string; gold: string; answers: Record<string, Ans> }
 
 /** Counts up from 0 to `to` when mounted or when `to` changes. */
 function CountUp({ to, suffix = "" }: { to: number; suffix?: string }) {
@@ -47,7 +47,7 @@ const FILTERS = [
 ] as const;
 type Filter = (typeof FILTERS)[number]["id"];
 
-function Browser({ names, onComplete }: { names: Record<string, string>; onComplete: (v: boolean) => void }) {
+function Browser({ names, onComplete, onConfig }: { names: Record<string, string>; onComplete: (v: boolean) => void; onConfig: (c?: string) => void }) {
   const all = useExamples();
   const [lang, setLang] = useState<"arabic" | "malay">("arabic");
   const [filter, setFilter] = useState<Filter>("all");
@@ -67,6 +67,8 @@ function Browser({ names, onComplete }: { names: Record<string, string>; onCompl
   useEffect(() => setShown(10), [lang, filter, q]);
   const full3 = !!all && all.length > 0 && all.every((e) => e.answers.t5gemma2);
   useEffect(() => onComplete(full3), [full3, onComplete]);
+  const cfg0 = all?.[0]?.config;
+  useEffect(() => onConfig(cfg0), [cfg0, onConfig]);
 
   if (!all) return <p className="hint">Loading questions…</p>;
   const order = ["qwen3", "mt5", "t5gemma2"];
@@ -120,6 +122,7 @@ export default function Home({ d }: { d: ResultsFile }) {
   const top = em.ranking[0].mean;
   const winner = em.winner;
   const [complete, setComplete] = useState(false);
+  const [reward, setReward] = useState(true);
 
   return (
     <>
@@ -151,9 +154,9 @@ export default function Home({ d }: { d: ResultsFile }) {
         <Reveal>
           <h2>Browse 100 real questions</h2>
           <p className="s-lead">The first 50 Arabic and 50 Malay test questions, with each model's answer. Nothing is cherry-picked.</p>
-          <div className="s-info"><b>Which runs are these?</b> {complete ? "All three models were fine-tuned the standard way (QLoRA, seed 42) and answered every question below, the same setup as the ranking above." : "Only Qwen3 and mT5 saved every answer, and only for the NLI-reward training, so these answers come from that setup (QLoRA, seed 42). T5Gemma 2 saved just its first 5 answers per language, so it appears on those only. The ranking above uses standard training and every question."}</div>
+          <div className="s-info"><b>Which runs are these?</b> {complete ? (reward ? "All three models answered every question below. These runs were trained with the NLI reward (QLoRA, seed 42), because that is the setup where every model's answers were saved in full. The ranking above uses standard training." : "All three models were fine-tuned the standard way (QLoRA, seed 42) and answered every question below, the same setup as the ranking above.") : "Only Qwen3 and mT5 saved every answer, and only for the NLI-reward training, so these answers come from that setup (QLoRA, seed 42). T5Gemma 2 saved just its first 5 answers per language, so it appears on those only. The ranking above uses standard training and every question."}</div>
         </Reveal>
-        <Browser names={names} onComplete={setComplete} />
+        <Browser names={names} onComplete={setComplete} onConfig={(c) => setReward(c !== "B_ce_lora")} />
       </section>
 
       <Reveal>

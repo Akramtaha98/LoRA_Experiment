@@ -47,7 +47,7 @@ def main():
                    "mt5": dict(a=m["generated"], em=int(m["em"]), f1=round(m["f1"], 3))}
             t = t5full.get(s["question"]) if base else t5.get(s["gold"])
             if t: ans["t5gemma2"] = dict(a=t["generated"], em=int(t["em"]), f1=round(t["f1"], 3))
-            out.append(dict(id=f"{lang}-{s['example_index']}", language=lang, question=s["question"], context=s["context"], gold=s["gold"], answers=ans))
+            out.append(dict(id=f"{lang}-{s['example_index']}", config=cfg, language=lang, question=s["question"], context=s["context"], gold=s["gold"], answers=ans))
     for p in [ROOT / "results/compare/examples.json", ROOT / "web/public/data/compare-examples.json"]:
         p.parent.mkdir(parents=True, exist_ok=True); json.dump(out, open(p, "w", encoding="utf-8"), ensure_ascii=False)
     for lang in ["arabic", "malay"]:
