@@ -4,15 +4,17 @@ The website lives in `web/` and is deployed at https://lo-ra-experiment.vercel.a
 
 ## Visitor experience
 
-The landing page (`web/src/pages/Home.tsx`) is a guided answer explorer. One Arabic/Malay control updates every section:
+The main application is a simple three-tab interface in `web/src/pages/Home.tsx`:
 
-1. A featured question shows unchanged saved outputs for all three models, reference-match labels, observed-output explanations, and highlighted evidence. Featured examples include an optional human-written English guide.
-2. A short explanation introduces closed-passage QA, standard versus NLI-reward training, and the difference between exact match, token F1 and entailment.
-3. The training comparison uses existing matched B/C records for the same question, model, adapter and seed 42. Ten exported questions are available (five per language), with QLoRA and DoRA. Missing pairs stay explicitly unavailable. Original and corrected protocols are labelled separately.
-4. The example browser exposes the full saved sample, five examples per page. Search includes questions, references, outputs and passages. Filters cover every model symmetrically. All-model reference-match filters require all three outputs. “Different answers” compares output wording, not semantic correctness. Downloads contain the original records selected by the filters.
-5. Overall results show the full evaluation with bars on a common 0–100% scale. Research details retain the complete stored precision and explain the separate corrected mT5 study and protocol limitations.
+- **Start here** introduces the task and offers a direct button into all 100 saved examples or a guided example. Label explanations, training background and full evaluation results stay collapsed until requested.
+- **100 examples** shows one question at a time and all three model outputs together. All 100 source records are present in the question picker by default. Users can jump directly to any question, use Previous/Next at either end of the card, search, filter by language (50 Arabic and 50 Malay), or filter by model/reference-match outcomes. Each answer's explanation and scores open under “Why this result?”. Evidence, English guides for featured examples, raw records and downloads are optional expandable sections. Outputs are never truncated or regenerated.
+- **Training comparison** retains the existing ten saved matched B/C questions with model and adapter selectors. These are separate from the 100-question example export; missing pairs remain explicitly unavailable. Model protocols and seed 42 remain labelled.
 
-Explanations describe observable text and scores. They do not assert internal model reasoning. Word overlap is never labelled “partly correct.” An output occurring in the passage is not automatically a correct answer to the question. Highlighted spans show literal matches, not a claim of semantic entailment. The Gingrich/Romney example has a specific reviewed explanation; other examples use conservative descriptions of matches, output length and passage overlap. No generative explanation service runs on the site.
+Tabs support arrow keys, Home/End and direct `#examples` / `#training` links. Switching tabs preserves the selected example, filters and training controls. The sticky tab bar keeps navigation accessible while reading long answers. Panel and question changes use short slide/fade transitions, the question-position indicator animates between selections, and controls have gentle hover feedback. All motion switches off for `prefers-reduced-motion`.
+
+The language selector is shared between the examples and training tabs. The “all” setting exposes all 100 examples and both languages in the saved training question picker. Filters compare recorded scores or output wording and never invent semantic correctness. Literal reference and answer highlights preserve the entire source text. Explanations describe visible output behaviour rather than hidden model reasoning.
+
+The main page deliberately avoids a long stack of questions and visible research controls. Detailed results, protocol limitations, stored precision and source links remain accessible through expandable sections.
 
 ## Data flow and integrity
 

@@ -1,6 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import {
-  ArrowDown,
+  ArrowRight,
+  ChevronLeft,
+  ChevronRight,
+  Layers,
+  Play,
   BookOpen,
   Check,
   ChevronDown,
@@ -10,16 +14,16 @@ import {
 import type { OutputAnswer, OutputItem, ResultsFile } from "../data/results";
 import {
   MODELS,
-  answerVerdict,
   englishGuide,
   evidenceExcerpt,
   explainAnswer,
   guidedExample,
+  selectExamples,
+  selectedExampleIndex,
+  type ExampleLanguage,
   highlightParts,
-  matchesFilter,
   trainingChange,
   type AnswerFilter,
-  type Language,
   type Model,
   type SavedAnswer,
   type SavedExample,
@@ -35,13 +39,17 @@ const CONFIG: Record<string, string> = {
   C_composite_lora: "NLI-reward training (C)",
 };
 const percent = (n: number) => `${(n * 100).toFixed(2)}%`;
-const signed = (n: number | null | undefined) =>
-  n == null ? "Unavailable" : `${n >= 0 ? "+" : ""}${n.toFixed(4)}`;
+type Tab = "start" | "examples" | "training";
+const TABS: { id: Tab; label: string }[] = [
+  { id: "start", label: "Start here" },
+  { id: "examples", label: "100 examples" },
+  { id: "training", label: "Training comparison" },
+];
 const FILTERS: { id: AnswerFilter; label: string }[] = [
-  { id: "all", label: "All examples" },
-  { id: "matched", label: "All exact matches" },
-  { id: "missed", label: "All miss the reference" },
+  { id: "all", label: "Every question" },
   { id: "disagree", label: "Different answers" },
+  { id: "matched", label: "All three match" },
+  { id: "missed", label: "None match" },
   { id: "qwen3", label: "Qwen3 matches" },
   { id: "mt5", label: "mT5 matches" },
   { id: "t5gemma2", label: "T5Gemma matches" },
@@ -156,27 +164,27 @@ function AnswerCard({
           </p>
           <span className={`s-tag ${answer.em === 1 ? "ok" : "neutral"}`}>
             {answer.em === 1 && <Check size={13} />}
-            {answerVerdict(answer)}
+            {answer.em === 1
+              ? "Matches reference"
+              : answer.f1 > 0
+                ? "Some shared words"
+                : "Different answer"}
           </span>
-          <div className="e-explanation">
-            <h4>What happened?</h4>
+          <details className="simple-answer-detail">
+            <summary>Why this result?</summary>
             <p>{explainAnswer(example, answer)}</p>
-          </div>
-          <details className="e-answer-scores">
-            <summary>Recorded scores</summary>
             <dl>
               <div>
-                <dt>Exact match</dt>
-                <dd>{answer.em}</dd>
+                <dt>Exact reference match</dt>
+                <dd>{answer.em === 1 ? "Yes" : "No"}</dd>
               </div>
               <div>
-                <dt>Token F1</dt>
+                <dt>Word overlap (token F1)</dt>
                 <dd>{answer.f1.toFixed(3)}</dd>
               </div>
             </dl>
             <p className="e-caption">
-              Token F1 measures word overlap, not semantic correctness or
-              factual support.
+              Shared words alone do not establish a correct meaning.
             </p>
           </details>
         </>
@@ -206,7 +214,11 @@ function ExampleCard({
     >
       <div className="s-ex-top">
         <span className="s-num">
-          {featured ? "Guided example" : example.id}
+          {featured
+            ? "Guided example"
+            : example.language === "arabic"
+              ? "Arabic"
+              : "Malay"}
         </span>
         <h3 dir="auto">{example.question}</h3>
       </div>
@@ -243,7 +255,12 @@ function ExampleCard({
           />
         ))}
       </div>
-      <Evidence example={example} />
+      <details className="simple-evidence">
+        <summary>
+          <BookOpen size={16} /> Show passage evidence
+        </summary>
+        <Evidence example={example} />
+      </details>
       <details className="e-provenance">
         <summary>Example source and saved record</summary>
         <p>
@@ -276,13 +293,15 @@ function TrainingComparison({
   names,
 }: {
   items: OutputItem[];
-  language: Language;
+  language: ExampleLanguage;
   names: Record<string, string>;
 }) {
   const [model, setModel] = useState<Model>("qwen3"),
     [adapter, setAdapter] = useState("qlora"),
     [index, setIndex] = useState(0);
-  const available = items.filter((i) => i.language === language);
+  const available = items.filter(
+    (i) => language === "all" || i.language === language,
+  );
   const item = available[Math.min(index, Math.max(0, available.length - 1))];
   const pair = item?.answers[model]?.[adapter];
   const before = pair?.B_ce_lora,
@@ -314,12 +333,11 @@ function TrainingComparison({
     );
   }
   return (
-    <section id="training" className="s-section e-training">
-      <span className="e-kicker">Training comparison</span>
-      <h2>What changes with the NLI reward?</h2>
+    <section id="training" className="simple-training">
+      <h2>Does training change the answer?</h2>
       <p className="s-lead">
-        The same model, question, adapter and seed. These are saved answers, not
-        a live generation demo.
+        Compare a saved answer from standard training with one from NLI-reward
+        training.
       </p>
       <div className="e-controls">
         <label>
@@ -335,7 +353,7 @@ function TrainingComparison({
             ))}
           </select>
         </label>
-        <label>
+        <label className="simple-adapter">
           Adapter
           <select value={adapter} onChange={(e) => setAdapter(e.target.value)}>
             <option value="qlora">QLoRA</option>
@@ -350,15 +368,15 @@ function TrainingComparison({
           >
             {available.map((x, i) => (
               <option key={x.id} value={i}>
-                {i + 1}. {x.question}
+                {i + 1}. {x.language === "arabic" ? "Arabic" : "Malay"} ·{" "}
+                {x.question}
               </option>
             ))}
           </select>
         </label>
       </div>
       <p className="e-caption">
-        {available.length} exported pairs of questions for this language · Seed
-        42 ·{" "}
+        {available.length} saved questions · Seed 42 ·{" "}
         {model === "mt5"
           ? "Corrected mT5 protocol"
           : "Original protocol; these runs are not a corrected-protocol rerun"}
@@ -371,8 +389,8 @@ function TrainingComparison({
             <strong dir="auto">{item.gold}</strong>
           </p>
           <div className="e-training-grid">
-            {result(before, "B · Standard training")}
-            {result(after, "C · NLI-reward training")}
+            {result(before, "Standard training")}
+            {result(after, "With NLI reward")}
           </div>
           <p className="e-change" role="status">
             {trainingChange(before, after)}
@@ -409,11 +427,92 @@ function TrainingComparison({
   );
 }
 
+function ResearchDetails({ d }: { d: ResultsFile }) {
+  return (
+    <details className="simple-research">
+      <summary>Overall results and research details</summary>
+      <p>
+        These scores use the full held-out tests. The 100 browsable examples are
+        a smaller saved sample and can use a different training objective.
+      </p>
+      <p>
+        {d.compare.protocol_note} The recorded protocols differ, so these
+        results do not isolate architecture or a training effect.
+      </p>
+      <div className="simple-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Language</th>
+              <th>Model</th>
+              <th>Exact match</th>
+              <th>Token F1</th>
+            </tr>
+          </thead>
+          <tbody>
+            {(["arabic", "malay"] as const).flatMap((language) =>
+              d.compare.results[`B|${language}|em`].ranking.map((row) => (
+                <tr key={language + row.model}>
+                  <td>{language === "arabic" ? "Arabic" : "Malay"}</td>
+                  <td>{d.compare.models[row.model]}</td>
+                  <td>{percent(row.mean)}</td>
+                  <td>
+                    {percent(
+                      d.compare.results[`B|${language}|f1`].ranking.find(
+                        (r) => r.model === row.model,
+                      )!.mean,
+                    )}
+                  </td>
+                </tr>
+              )),
+            )}
+          </tbody>
+        </table>
+      </div>
+      <p>
+        Arabic: 716 XQuAD questions. Malay: 430 Belebele questions.
+        Standard-training scores average QLoRA and DoRA across three seeds.
+        Exact match compares normalized wording; token F1 measures word overlap.
+      </p>
+      <p>
+        The separate corrected mT5 study contains {d.corrected.n_runs} run
+        records, with {d.corrected.seeds.length} seeds in the main training
+        comparisons. An increased NLI score alone does not prove improved
+        correctness.
+      </p>
+      <p>
+        <a
+          href={`${import.meta.env.BASE_URL}data/results.json`}
+          target="_blank"
+          rel="noreferrer"
+        >
+          Full scores, intervals and seed values
+        </a>{" "}
+        ·{" "}
+        <a
+          href={`${import.meta.env.BASE_URL}data/compare-examples.json`}
+          target="_blank"
+          rel="noreferrer"
+        >
+          Original saved examples
+        </a>
+      </p>
+    </details>
+  );
+}
+
 export default function Home({ d }: { d: ResultsFile }) {
-  const [language, setLanguage] = useState<Language>("arabic"),
-    [filter, setFilter] = useState<AnswerFilter>("all"),
+  const [tab, setTab] = useState<Tab>(() =>
+      window.location.hash === "#examples"
+        ? "examples"
+        : window.location.hash === "#training"
+          ? "training"
+          : "start",
+    ),
+    [language, setLanguage] = useState<ExampleLanguage>("all"),
     [query, setQuery] = useState(""),
-    [page, setPage] = useState(1);
+    [filter, setFilter] = useState<AnswerFilter>("all"),
+    [selectedId, setSelectedId] = useState("");
   const [examples, setExamples] = useState<SavedExample[] | null>(null),
     [error, setError] = useState<string | null>(null),
     [attempt, setAttempt] = useState(0);
@@ -435,371 +534,367 @@ export default function Home({ d }: { d: ResultsFile }) {
       });
     return () => controller.abort();
   }, [attempt]);
-  const names = d.compare.models;
-  const inLanguage = useMemo(
-    () => (examples ?? []).filter((e) => e.language === language),
-    [examples, language],
-  );
   const filtered = useMemo(
-    () =>
-      inLanguage.filter(
-        (e) =>
-          matchesFilter(e, filter) &&
-          (!query.trim() ||
-            [
-              e.question,
-              e.gold,
-              e.context,
-              ...Object.values(e.answers).map((a) => a?.a ?? ""),
-            ]
-              .join(" ")
-              .toLocaleLowerCase()
-              .includes(query.trim().toLocaleLowerCase())),
-      ),
-    [inLanguage, filter, query],
+    () => selectExamples(examples ?? [], language, query, filter),
+    [examples, language, query, filter],
   );
-  const featured = guidedExample(examples ?? [], language);
-  const rank = d.compare.results[`B|${language}|em`];
-  const pages = Math.max(1, Math.ceil(filtered.length / 5)),
-    currentPage = Math.min(page, pages);
-  function changeLanguage(value: Language) {
-    setLanguage(value);
-    setPage(1);
+  const index = selectedExampleIndex(filtered, selectedId),
+    example = filtered[index];
+  const counts = {
+    all: examples?.length ?? 0,
+    arabic: examples?.filter((e) => e.language === "arabic").length ?? 0,
+    malay: examples?.filter((e) => e.language === "malay").length ?? 0,
+  };
+  function navigateTab(next: Tab) {
+    setTab(next);
+    window.history.replaceState(null, "", `#${next}`);
+  }
+  function openExamples(featured = false) {
+    navigateTab("examples");
+    if (featured && examples) {
+      const item = guidedExample(
+        examples,
+        language === "malay" ? "malay" : "arabic",
+      );
+      setQuery("");
+      setFilter("all");
+      if (item) setSelectedId(item.id);
+    }
   }
   function download() {
     const blob = new Blob([JSON.stringify(filtered, null, 2)], {
-      type: "application/json",
-    });
-    const url = URL.createObjectURL(blob),
+        type: "application/json",
+      }),
+      url = URL.createObjectURL(blob),
       link = document.createElement("a");
     link.href = url;
-    link.download = `saved-answers-${language}.json`;
+    link.download = "saved-model-answers.json";
+    document.body.append(link);
     link.click();
-    URL.revokeObjectURL(url);
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 0);
+  }
+  function move(amount: number) {
+    const next = filtered[index + amount];
+    if (next) {
+      setSelectedId(next.id);
+      document
+        .getElementById("question-navigation")
+        ?.scrollIntoView({
+          block: "start",
+          behavior: window.matchMedia("(prefers-reduced-motion: reduce)")
+            .matches
+            ? "auto"
+            : "smooth",
+        });
+    }
   }
   return (
-    <>
-      <section className="s-hero e-hero">
-        <span className="s-eyebrow">Arabic and Malay question answering</span>
-        <h1>
-          One question.
-          <br />
-          <span className="s-grad">Three model answers.</span>
-        </h1>
-        <p>
-          Read what each model actually answered, find the evidence in the
-          passage, and explore what changes with an NLI training reward.
-        </p>
-        <nav className="e-hero-links" aria-label="Page sections">
-          <a href="#guided">
-            Explore an example <ArrowDown size={16} />
-          </a>
-          <a href="#training">Compare training</a>
-          <a href="#results">Overall results</a>
-        </nav>
-      </section>
-      <div className="e-language">
-        <span>Language for every section</span>
-        <div className="s-seg" role="group" aria-label="Language">
-          {(["arabic", "malay"] as const).map((l) => (
-            <button
-              key={l}
-              type="button"
-              aria-pressed={language === l}
-              className={language === l ? "on" : ""}
-              onClick={() => changeLanguage(l)}
-            >
-              {l === "arabic" ? "Arabic" : "Malay"}
-            </button>
-          ))}
+    <div className="simple-app">
+      <header className="simple-heading">
+        <div>
+          <span className="e-kicker">Real questions. Saved answers.</span>
+          <h1>Compare three AI models</h1>
+          <p>Choose a question and read each model’s answer.</p>
         </div>
+        <span className="simple-count">
+          <Layers size={16} />
+          {examples ? `${examples.length} examples` : "Loading examples…"}
+        </span>
+      </header>
+      <div className="simple-tabs" role="tablist" aria-label="Website sections">
+        {TABS.map((t, i) => (
+          <button
+            key={t.id}
+            id={`tab-${t.id}`}
+            type="button"
+            role="tab"
+            aria-selected={tab === t.id}
+            aria-controls={`panel-${t.id}`}
+            tabIndex={tab === t.id ? 0 : -1}
+            onClick={() => navigateTab(t.id)}
+            onKeyDown={(e) => {
+              let next: number | undefined;
+              if (e.key === "ArrowRight") next = (i + 1) % TABS.length;
+              if (e.key === "ArrowLeft")
+                next = (i + TABS.length - 1) % TABS.length;
+              if (e.key === "Home") next = 0;
+              if (e.key === "End") next = TABS.length - 1;
+              if (next !== undefined) {
+                e.preventDefault();
+                navigateTab(TABS[next].id);
+                document.getElementById(`tab-${TABS[next].id}`)?.focus();
+              }
+            }}
+          >
+            {t.label}
+          </button>
+        ))}
       </div>
-      <section id="guided" className="s-section e-guide">
-        <span className="e-kicker">Start with the evidence</span>
-        <h2>What did each model do?</h2>
-        <p className="s-lead">
-          The explanations describe visible outputs, not the model’s hidden
-          reasoning. Exact match and word overlap are separate from human
-          judgments of meaning.
-        </p>
-        {error ? (
-          <div className="e-load-error" role="alert">
-            <p>Saved examples could not be loaded: {error}</p>
+      <section
+        id="panel-start"
+        role="tabpanel"
+        aria-labelledby="tab-start"
+        hidden={tab !== "start"}
+        className="simple-panel"
+      >
+        <div className="simple-welcome">
+          <div className="simple-play" aria-hidden>
+            <Play size={23} />
+          </div>
+          <h2>Start with one question</h2>
+          <p>
+            Every example shows the reference answer and the answers saved from
+            Qwen3, mT5 and T5Gemma 2.
+          </p>
+          <ol className="simple-steps">
+            <li>
+              <span>1</span>Choose a question
+            </li>
+            <li>
+              <span>2</span>Compare the three answers
+            </li>
+            <li>
+              <span>3</span>Open the passage if you want to check
+            </li>
+          </ol>
+          <div className="simple-actions">
+            <button className="simple-primary" onClick={() => openExamples()}>
+              Explore all {counts.all || 100} examples <ArrowRight size={17} />
+            </button>
             <button
-              onClick={() => {
-                setError(null);
-                setAttempt((a) => a + 1);
+              className="simple-secondary"
+              onClick={() => openExamples(true)}
+            >
+              Show me a guided example
+            </button>
+          </div>
+        </div>
+        <details className="simple-help">
+          <summary>What do the answer labels mean?</summary>
+          <p>
+            <strong>Matches reference:</strong> the saved answer matches the
+            expected wording after normalization.
+          </p>
+          <p>
+            <strong>Some shared words:</strong> it overlaps the reference, but
+            its meaning may still be wrong.
+          </p>
+          <p>
+            <strong>Different answer:</strong> it does not match the reference
+            under the recorded scoring rule.
+          </p>
+        </details>
+        <details className="simple-help">
+          <summary>What is the training comparison?</summary>
+          <p>
+            Standard training learns from reference answers. NLI-reward training
+            also rewards answers judged to follow from the passage. The training
+            tab shows saved examples where you can compare the two objectives
+            for the same model, question, adapter and seed.
+          </p>
+        </details>
+        <ResearchDetails d={d} />
+      </section>
+      <section
+        id="panel-examples"
+        role="tabpanel"
+        aria-labelledby="tab-examples"
+        hidden={tab !== "examples"}
+        className="simple-panel"
+      >
+        <div className="simple-toolbar">
+          <label>
+            Language
+            <select
+              aria-label="Example language"
+              value={language}
+              onChange={(e) => {
+                setLanguage(e.target.value as ExampleLanguage);
+                setSelectedId("");
               }}
             >
-              Retry loading examples
+              <option value="all">All {counts.all} examples</option>
+              <option value="arabic">Arabic · {counts.arabic}</option>
+              <option value="malay">Malay · {counts.malay}</option>
+            </select>
+          </label>
+          <label className="simple-search">
+            <span>Find a question</span>
+            <div>
+              <Search size={16} />
+              <input
+                type="search"
+                placeholder="Search questions or answers"
+                value={query}
+                onChange={(e) => {
+                  setQuery(e.target.value);
+                  setSelectedId("");
+                }}
+              />
+            </div>
+          </label>
+          <label>
+            Show
+            <select
+              aria-label="Example filter"
+              value={filter}
+              onChange={(e) => {
+                setFilter(e.target.value as AnswerFilter);
+                setSelectedId("");
+              }}
+            >
+              {FILTERS.map((f) => (
+                <option key={f.id} value={f.id}>
+                  {f.label}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+        {error ? (
+          <div className="e-load-error" role="alert">
+            <p>We couldn’t load the examples: {error}</p>
+            <button
+              className="simple-secondary"
+              onClick={() => {
+                setError(null);
+                setAttempt((n) => n + 1);
+              }}
+            >
+              Try again
             </button>
           </div>
         ) : !examples ? (
           <p role="status">Loading saved answers…</p>
-        ) : featured ? (
-          <ExampleCard
-            key={featured.id}
-            example={featured}
-            names={names}
-            featured
-          />
+        ) : example ? (
+          <>
+            <div id="question-navigation" className="simple-question-nav">
+              <button
+                type="button"
+                aria-label="Previous example"
+                disabled={index === 0}
+                onClick={() => move(-1)}
+              >
+                <ChevronLeft size={18} />
+                <span>Previous</span>
+              </button>
+              <label>
+                <span role="status">
+                  Question {index + 1} of {filtered.length}
+                </span>
+                <select
+                  aria-label="Choose a question"
+                  value={example.id}
+                  onChange={(e) => setSelectedId(e.target.value)}
+                >
+                  {filtered.map((item, i) => (
+                    <option key={item.id} value={item.id}>
+                      {i + 1}. {item.language === "arabic" ? "Arabic" : "Malay"}{" "}
+                      · {item.question}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <button
+                type="button"
+                aria-label="Next example"
+                disabled={index === filtered.length - 1}
+                onClick={() => move(1)}
+              >
+                <span>Next</span>
+                <ChevronRight size={18} />
+              </button>
+            </div>
+            <div className="simple-progress" aria-hidden>
+              <div
+                style={{ width: `${((index + 1) / filtered.length) * 100}%` }}
+              />
+            </div>
+            <div key={example.id} className="simple-question-stage">
+              <ExampleCard example={example} names={d.compare.models} />
+            </div>
+            <nav className="simple-bottom-nav" aria-label="Continue browsing">
+              <button
+                className="simple-secondary"
+                aria-label="Previous question"
+                disabled={index === 0}
+                onClick={() => move(-1)}
+              >
+                <ChevronLeft size={16} /> Previous
+              </button>
+              <span>
+                {index + 1} / {filtered.length}
+              </span>
+              <button
+                className="simple-primary"
+                aria-label="Next question"
+                disabled={index === filtered.length - 1}
+                onClick={() => move(1)}
+              >
+                Next question <ChevronRight size={16} />
+              </button>
+            </nav>
+            <p className="simple-footnote">
+              {example.language === "arabic" ? "Arabic" : "Malay"} ·{" "}
+              {CONFIG[example.config ?? ""] ?? "Saved training run"} · All
+              answers are the original saved outputs.
+            </p>
+            <details className="simple-help">
+              <summary>Sample details and download</summary>
+              <p>
+                This export contains {examples.length} saved questions, not the
+                complete evaluation. The example export uses QLoRA and seed 42
+                according to its build script. Different objectives and
+                protocols should be compared within matching conditions.
+              </p>
+              <button className="simple-secondary" onClick={download}>
+                <Download size={15} /> Download these {filtered.length} records
+              </button>
+            </details>
+          </>
         ) : (
-          <p>No saved examples are available for this language.</p>
+          <div className="simple-empty">
+            <h2>No questions found</h2>
+            <p>Try a different search or show every question.</p>
+            <button
+              className="simple-primary"
+              onClick={() => {
+                setQuery("");
+                setFilter("all");
+                setLanguage("all");
+              }}
+            >
+              Show all examples
+            </button>
+          </div>
         )}
       </section>
       <section
-        className="s-section e-how"
-        aria-label="How the experiment works"
+        id="panel-training"
+        role="tabpanel"
+        aria-labelledby="tab-training"
+        hidden={tab !== "training"}
+        className="simple-panel"
       >
-        <h2>How does this work?</h2>
-        <ol>
-          <li>
-            <strong>A question and a passage</strong>
-            <p>
-              Every example supplies the source text. These are closed-passage
-              tests, so the model does not browse the web here.
-            </p>
-          </li>
-          <li>
-            <strong>Two training objectives</strong>
-            <p>
-              Standard training rewards the reference text. The composite
-              objective adds an NLI entailment reward. LoRA-family adapters
-              train a small set of model parameters.
-            </p>
-          </li>
-          <li>
-            <strong>Saved outputs, separate checks</strong>
-            <p>
-              Exact match checks the normalized reference. Token F1 checks word
-              overlap. NLI checks entailment according to a scorer; a higher
-              score alone does not prove a better answer.
-            </p>
-          </li>
-        </ol>
-      </section>
-      <TrainingComparison
-        key={language}
-        items={d.compare.outputs}
-        language={language}
-        names={names}
-      />
-      <section id="examples" className="s-section">
-        <span className="e-kicker">Explore the saved sample</span>
-        <h2>Browse every exported example</h2>
-        <p className="s-lead">
-          {examples?.length ?? "…"} saved questions across both languages. The
-          example export is a subset of the held-out evaluation, not the full
-          benchmark.
-        </p>
-        <p className="e-caption">
-          {[
-            ...new Set(
-              inLanguage.map(
-                (e) => CONFIG[e.config ?? ""] ?? "Unspecified configuration",
-              ),
-            ),
-          ].join(", ")}{" "}
-          · QLoRA · seed 42. The overall ranking below uses standard-training
-          averages over adapters and seeds.
-        </p>
-        <div className="s-tools">
-          <label className="s-search">
-            <Search size={15} aria-hidden />
-            <span className="e-sr-only">
-              Search saved questions, answers or passages
-            </span>
-            <input
-              type="search"
-              value={query}
-              onChange={(e) => {
-                setQuery(e.target.value);
-                setPage(1);
-              }}
-              placeholder="Search questions, answers or evidence"
-            />
-          </label>
-          <button
-            className="e-secondary"
-            disabled={!filtered.length}
-            onClick={download}
+        <label className="simple-training-language">
+          Question language
+          <select
+            aria-label="Training language"
+            value={language}
+            onChange={(e) => setLanguage(e.target.value as ExampleLanguage)}
           >
-            <Download size={15} /> Download filtered records
-          </button>
-        </div>
-        <div className="s-score">
-          {MODELS.map((m) => {
-            const available = inLanguage.filter((e) => e.answers[m]);
-            return (
-              <div key={m}>
-                <b style={{ color: COLOR[m] }}>
-                  {available.filter((e) => e.answers[m]?.em === 1).length}/
-                  {available.length}
-                </b>
-                <span>
-                  {names[m]} exact matches in this language’s exported sample
-                </span>
-              </div>
-            );
-          })}
-        </div>
-        <div className="s-chips" role="group" aria-label="Filter model matches">
-          {FILTERS.map((f) => (
-            <button
-              type="button"
-              key={f.id}
-              aria-pressed={filter === f.id}
-              className={`s-chip ${filter === f.id ? "on" : ""}`}
-              onClick={() => {
-                setFilter(f.id);
-                setPage(1);
-              }}
-            >
-              {f.label}
-            </button>
-          ))}
-        </div>
-        <p role="status" className="e-caption">
-          {filtered.length} matching examples · counts above describe the full{" "}
-          {language === "arabic" ? "Arabic" : "Malay"} exported sample.
-        </p>
-        <div className="s-list">
-          {filtered.slice((currentPage - 1) * 5, currentPage * 5).map((e) => (
-            <ExampleCard key={e.id} example={e} names={names} />
-          ))}
-        </div>
-        {examples && !filtered.length && (
-          <p className="e-empty">
-            No examples match these filters.{" "}
-            <button
-              onClick={() => {
-                setFilter("all");
-                setQuery("");
-                setPage(1);
-              }}
-            >
-              Clear filters
-            </button>
-          </p>
-        )}
-        {pages > 1 && (
-          <nav className="e-pagination" aria-label="Example pages">
-            <button
-              disabled={currentPage === 1}
-              onClick={() => setPage(currentPage - 1)}
-            >
-              Previous
-            </button>
-            <span>
-              Page {currentPage} of {pages}
-            </span>
-            <button
-              disabled={currentPage === pages}
-              onClick={() => setPage(currentPage + 1)}
-            >
-              Next
-            </button>
-          </nav>
-        )}
+            <option value="all">Arabic and Malay</option>
+            <option value="arabic">Arabic</option>
+            <option value="malay">Malay</option>
+          </select>
+        </label>
+        <TrainingComparison
+          items={d.compare.outputs}
+          language={language}
+          names={d.compare.models}
+        />
       </section>
-      <section id="results" className="s-section">
-        <span className="e-kicker">Full held-out evaluation</span>
-        <h2>Overall exact-match results</h2>
-        <p className="s-lead">
-          {language === "arabic"
-            ? "Arabic · XQuAD · 716"
-            : "Malay · Belebele · 430"}{" "}
-          held-out questions. Standard training, averaged over QLoRA and DoRA
-          and three seeds.
-        </p>
-        <p className="e-protocol-note">
-          {d.compare.protocol_note} These scores describe the tested systems
-          under their recorded protocols; they do not isolate architecture or
-          the training reward.
-        </p>
-        <section className="s-podium" aria-label="Overall exact-match scores">
-          {rank.ranking.map((r, i) => (
-            <article key={r.model} className="s-model">
-              <div className="s-rank">#{i + 1} in this evaluation</div>
-              <h3>{names[r.model]}</h3>
-              <div className="s-big">{percent(r.mean)}</div>
-              <p className="s-big-l">Exact reference match</p>
-              <div className="s-bar" aria-hidden>
-                <div
-                  style={{
-                    width: `${r.mean * 100}%`,
-                    background: COLOR[r.model as Model],
-                  }}
-                />
-              </div>
-              <p className="e-caption">Common scale: 0–100%</p>
-              <p className="s-sub">
-                Token F1:{" "}
-                <strong>
-                  {percent(
-                    d.compare.results[`B|${language}|f1`].ranking.find(
-                      (x) => x.model === r.model,
-                    )!.mean,
-                  )}
-                </strong>
-              </p>
-            </article>
-          ))}
-        </section>
-        <details className="s-fine">
-          <summary>Research details, uncertainty and data sources</summary>
-          <p>
-            Scores below retain the stored numeric precision. The
-            combined-language results in the source use equal language
-            weighting; they are not a pooled question count.
-          </p>
-          <pre>{JSON.stringify(rank, null, 2)}</pre>
-          <h3>Separate corrected mT5 study</h3>
-          <p>
-            {d.corrected.n_runs} run records. Primary B-versus-C comparisons use{" "}
-            {d.corrected.seeds.length} seeds. These contrasts measure the NLI
-            reward, rather than a comparison between model architectures.
-          </p>
-          <p>
-            NLI score change: {signed(d.corrected.headline[language].mean)} (95%
-            CI {signed(d.corrected.headline[language].lo)} to{" "}
-            {signed(d.corrected.headline[language].hi)}). Exact-match change:{" "}
-            {signed(d.corrected.headline[`em_${language}`].mean)}. Both are on a
-            0–1 scale.
-          </p>
-          <p>
-            Arabic is extractive QA. Malay uses Belebele multiple-choice
-            references, so the tasks differ. The NLI reward scorer can be
-            over-optimized; correctness and independent evaluation must be
-            examined separately.
-          </p>
-          <p>
-            <a
-              href={`${import.meta.env.BASE_URL}data/results.json`}
-              target="_blank"
-              rel="noreferrer"
-            >
-              Full stored results JSON
-            </a>{" "}
-            ·{" "}
-            <a
-              href={`${import.meta.env.BASE_URL}data/compare-examples.json`}
-              target="_blank"
-              rel="noreferrer"
-            >
-              All exported answers
-            </a>{" "}
-            ·{" "}
-            <a
-              href="https://github.com/Akramtaha98/LoRA_Experiment/tree/main/results/corrected_v2"
-              target="_blank"
-              rel="noreferrer"
-            >
-              Corrected-study source files
-            </a>
-          </p>
-        </details>
-      </section>
-    </>
+    </div>
   );
 }

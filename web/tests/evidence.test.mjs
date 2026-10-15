@@ -9,6 +9,8 @@ import {
   trainingChange,
   guidedExample,
   englishGuide,
+  selectExamples,
+  selectedExampleIndex,
 } from "../src/lib/evidence.ts";
 const examples = JSON.parse(
   fs.readFileSync(
@@ -126,6 +128,36 @@ const allExact = {
 };
 assert.equal(matchesFilter(allExact, "matched"), true);
 assert.equal(matchesFilter(allExact, "disagree"), false);
+const allExamples = selectExamples(examples, "all");
+assert.equal(examples.length,100,"the full requested 100-example set must remain available");
+assert.ok(examples.every(e=>["qwen3","mt5","t5gemma2"].every(m=>e.answers[m])),"each saved example must show all three models");
+assert.equal(allExamples.length, examples.length);
+assert.equal(
+  new Set(allExamples.map((e) => e.id)).size,
+  examples.length,
+  "every question must be selectable exactly once",
+);
+for (const language of ["arabic", "malay"]) {
+  const filtered = selectExamples(examples, language);
+  assert.equal(
+    filtered.length,
+    examples.filter((e) => e.language === language).length,
+  );
+  filtered.forEach((e) => assert.equal(e.language, language));
+}
+for (const [index, e] of allExamples.entries())
+  assert.equal(selectedExampleIndex(allExamples, e.id), index);
+assert.equal(selectedExampleIndex(allExamples, "no-longer-selected"), 0);
+assert.deepEqual(
+  selectExamples(examples, "all", "no-such-question-xyz-97654"),
+  [],
+);
+assert.ok(selectExamples(examples, "all", "Gingrich").length > 0);
+assert.ok(
+  selectExamples(examples, "all", "", "missed").every((e) =>
+    Object.values(e.answers).every((a) => a.em !== 1),
+  ),
+);
 console.log(
   `evidence behavior checks passed (${examples.length} source examples, ${pairs} saved training pairs)`,
 );

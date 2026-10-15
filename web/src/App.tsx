@@ -29,7 +29,7 @@ export default function App() {
       <main className="shell">
         {error ? <p className="error">Could not load results: {error}</p> : null}
         {data ? <Home d={data} /> : !error ? <p className="hint">Loading…</p> : null}
-        <footer className="footer"><span>Saved experimental outputs and scores from the repository.</span><span>Static site</span></footer>
+        <footer className="footer"><span>Saved experimental outputs and scores from the repository.</span><span>Arabic and Malay QA</span></footer>
       </main>
     </div>
   );

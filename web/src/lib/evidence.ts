@@ -169,3 +169,36 @@ export function englishGuide(
     };
   return undefined;
 }
+
+export type ExampleLanguage = Language | "all";
+export function selectExamples(
+  examples: SavedExample[],
+  language: ExampleLanguage,
+  query = "",
+  filter: AnswerFilter = "all",
+): SavedExample[] {
+  const term = query.trim().toLocaleLowerCase();
+  return examples.filter(
+    (example) =>
+      (language === "all" || example.language === language) &&
+      matchesFilter(example, filter) &&
+      (!term ||
+        [
+          example.question,
+          example.gold,
+          example.context,
+          ...Object.values(example.answers).map((answer) => answer?.a ?? ""),
+        ]
+          .join(" ")
+          .toLocaleLowerCase()
+          .includes(term)),
+  );
+}
+
+export function selectedExampleIndex(
+  examples: SavedExample[],
+  id: string,
+): number {
+  const index = examples.findIndex((example) => example.id === id);
+  return index < 0 ? 0 : index;
+}
