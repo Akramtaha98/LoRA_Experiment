@@ -47,7 +47,7 @@ const FILTERS = [
 ] as const;
 type Filter = (typeof FILTERS)[number]["id"];
 
-function Browser({ names }: { names: Record<string, string> }) {
+function Browser({ names, onComplete }: { names: Record<string, string>; onComplete: (v: boolean) => void }) {
   const all = useExamples();
   const [lang, setLang] = useState<"arabic" | "malay">("arabic");
   const [filter, setFilter] = useState<Filter>("all");
@@ -65,6 +65,8 @@ function Browser({ names }: { names: Record<string, string> }) {
   }), [inLang, filter, q]);
   const score = (m: string) => inLang.filter((e) => e.answers[m]?.em === 1).length;
   useEffect(() => setShown(10), [lang, filter, q]);
+  const full3 = !!all && all.length > 0 && all.every((e) => e.answers.t5gemma2);
+  useEffect(() => onComplete(full3), [full3, onComplete]);
 
   if (!all) return <p className="hint">Loading questions…</p>;
   const order = ["qwen3", "mt5", "t5gemma2"];
@@ -78,6 +80,7 @@ function Browser({ names }: { names: Record<string, string> }) {
       <div className="s-score">
         <div><b style={{ color: COLOR.qwen3 }}><CountUp key={lang + "q"} to={score("qwen3")} />/50</b><span>{names.qwen3} correct</span></div>
         <div><b style={{ color: COLOR.mt5 }}><CountUp key={lang + "m"} to={score("mt5")} />/50</b><span>{names.mt5} correct</span></div>
+        {full3 ? <div><b style={{ color: COLOR.t5gemma2 }}><CountUp key={lang + "t"} to={score("t5gemma2")} />/50</b><span>{names.t5gemma2} correct</span></div> : null}
       </div>
       <div className="s-chips">{FILTERS.map((f) => <button key={f.id} className={filter === f.id ? "s-chip on" : "s-chip"} onClick={() => setFilter(f.id)}>{f.label}</button>)}</div>
 
@@ -116,6 +119,7 @@ export default function Home({ d }: { d: ResultsFile }) {
   const f1 = (m: string) => cmp.results[`B|${lang}|f1`].ranking.find((r) => r.model === m)!.mean;
   const top = em.ranking[0].mean;
   const winner = em.winner;
+  const [complete, setComplete] = useState(false);
 
   return (
     <>
@@ -147,9 +151,9 @@ export default function Home({ d }: { d: ResultsFile }) {
         <Reveal>
           <h2>Browse 100 real questions</h2>
           <p className="s-lead">The first 50 Arabic and 50 Malay test questions, with each model's answer. Nothing is cherry-picked.</p>
-          <div className="s-info"><b>Which runs are these?</b> Only Qwen3 and mT5 saved every answer, and only for the NLI-reward training, so these answers come from that setup (QLoRA, seed 42). T5Gemma 2 saved just its first 5 answers per language, so it appears on those only. The ranking above uses standard training and every question.</div>
+          <div className="s-info"><b>Which runs are these?</b> {complete ? "All three models were fine-tuned the standard way (QLoRA, seed 42) and answered every question below, the same setup as the ranking above." : "Only Qwen3 and mT5 saved every answer, and only for the NLI-reward training, so these answers come from that setup (QLoRA, seed 42). T5Gemma 2 saved just its first 5 answers per language, so it appears on those only. The ranking above uses standard training and every question."}</div>
         </Reveal>
-        <Browser names={names} />
+        <Browser names={names} onComplete={setComplete} />
       </section>
 
       <Reveal>
