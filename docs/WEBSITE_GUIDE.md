@@ -46,3 +46,5 @@ Tests cover third-model filter handling, missing outputs, exact-match versus ove
 The repository-root `vercel.json` builds `web/` and serves `web/dist`. Vercel can create a preview from a pull-request branch; merging to the configured production branch updates the production site. The GitHub Pages workflow also runs on qualifying pushes to main. Vite uses relative asset paths for compatibility with both hosts.
 
 The optional FastAPI backend is not required: all comparisons on the landing page use saved experimental outputs.
+
+Training comparison now shows changed/total counts for the selected model, adapter and language. Model and adapter choices use buttons. The initial view selects T5Gemma 2 + DoRA and changed answers; users can view all pairs, including identical outputs. The saved sample has 23 changed and 37 unchanged pairs across 60 comparisons. These wording changes do not by themselves establish improvement. Selects use consistent custom styling, with the native menu and keyboard behavior retained.

@@ -7,6 +7,8 @@ import {
   highlightParts,
   evidenceExcerpt,
   trainingChange,
+  trainingPairs,
+  trainingSummary,
   guidedExample,
   englishGuide,
   selectExamples,
@@ -129,8 +131,17 @@ const allExact = {
 assert.equal(matchesFilter(allExact, "matched"), true);
 assert.equal(matchesFilter(allExact, "disagree"), false);
 const allExamples = selectExamples(examples, "all");
-assert.equal(examples.length,100,"the full requested 100-example set must remain available");
-assert.ok(examples.every(e=>["qwen3","mt5","t5gemma2"].every(m=>e.answers[m])),"each saved example must show all three models");
+assert.equal(
+  examples.length,
+  100,
+  "the full requested 100-example set must remain available",
+);
+assert.ok(
+  examples.every((e) =>
+    ["qwen3", "mt5", "t5gemma2"].every((m) => e.answers[m]),
+  ),
+  "each saved example must show all three models",
+);
 assert.equal(allExamples.length, examples.length);
 assert.equal(
   new Set(allExamples.map((e) => e.id)).size,
@@ -160,4 +171,41 @@ assert.ok(
 );
 console.log(
   `evidence behavior checks passed (${examples.length} source examples, ${pairs} saved training pairs)`,
+);
+
+const expectedChanges = {
+  qwen3: { qlora: 0, dora: 3 },
+  mt5: { qlora: 5, dora: 7 },
+  t5gemma2: { qlora: 4, dora: 4 },
+};
+for (const [model, adapters] of Object.entries(expectedChanges)) {
+  for (const [adapter, changed] of Object.entries(adapters)) {
+    assert.deepEqual(trainingSummary(data.compare.outputs, model, adapter), {
+      total: 10,
+      changed,
+      unchanged: 10 - changed,
+    });
+    const filtered = trainingPairs(data.compare.outputs, model, adapter, true);
+    assert.equal(filtered.length, changed);
+    assert.ok(
+      filtered.every(
+        (item) =>
+          item.answers[model][adapter].B_ce_lora.generated !==
+          item.answers[model][adapter].C_composite_lora.generated,
+      ),
+    );
+  }
+}
+assert.deepEqual(trainingSummary(data.compare.outputs, "missing", "qlora"), {
+  total: 0,
+  changed: 0,
+  unchanged: 0,
+});
+assert.equal(
+  trainingPairs(
+    [{ answers: { qwen3: { qlora: { B_ce_lora: { generated: "a" } } } } }],
+    "qwen3",
+    "qlora",
+  ).length,
+  0,
 );

@@ -23,6 +23,8 @@ import {
   type ExampleLanguage,
   highlightParts,
   trainingChange,
+  trainingPairs,
+  trainingSummary,
   type AnswerFilter,
   type Model,
   type SavedAnswer,
@@ -296,12 +298,20 @@ function TrainingComparison({
   language: ExampleLanguage;
   names: Record<string, string>;
 }) {
-  const [model, setModel] = useState<Model>("qwen3"),
-    [adapter, setAdapter] = useState("qlora"),
+  const [model, setModel] = useState<Model>("t5gemma2"),
+    [adapter, setAdapter] = useState("dora"),
+    [changedOnly, setChangedOnly] = useState(true),
     [index, setIndex] = useState(0);
-  const available = items.filter(
+  const inLanguage = items.filter(
     (i) => language === "all" || i.language === language,
   );
+  const summary = trainingSummary(inLanguage, model, adapter);
+  const overall = MODELS.flatMap((m) =>
+    ["qlora", "dora"].map((a) => trainingSummary(items, m, a)),
+  );
+  const total = overall.reduce((n, s) => n + s.total, 0);
+  const changed = overall.reduce((n, s) => n + s.changed, 0);
+  const available = trainingPairs(inLanguage, model, adapter, changedOnly);
   const item = available[Math.min(index, Math.max(0, available.length - 1))];
   const pair = item?.answers[model]?.[adapter];
   const before = pair?.B_ce_lora,
@@ -334,49 +344,119 @@ function TrainingComparison({
   }
   return (
     <section id="training" className="simple-training">
-      <h2>Does training change the answer?</h2>
+      <h2>What changed with NLI reward?</h2>
       <p className="s-lead">
-        Compare a saved answer from standard training with one from NLI-reward
-        training.
+        The same model and question, two training methods. A different answer
+        can be better, worse, or just different wording.
       </p>
-      <div className="e-controls">
-        <label>
-          Model
-          <select
-            value={model}
-            onChange={(e) => setModel(e.target.value as Model)}
-          >
-            {MODELS.map((m) => (
-              <option key={m} value={m}>
-                {names[m]}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="simple-adapter">
-          Adapter
-          <select value={adapter} onChange={(e) => setAdapter(e.target.value)}>
-            <option value="qlora">QLoRA</option>
-            <option value="dora">DoRA</option>
-          </select>
-        </label>
-        <label className="e-question-select">
-          Saved question
-          <select
-            value={Math.min(index, Math.max(0, available.length - 1))}
-            onChange={(e) => setIndex(Number(e.target.value))}
-          >
-            {available.map((x, i) => (
-              <option key={x.id} value={i}>
-                {i + 1}. {x.language === "arabic" ? "Arabic" : "Malay"} ·{" "}
-                {x.question}
-              </option>
-            ))}
-          </select>
-        </label>
+      <div className="training-overview">
+        <div>
+          <strong>
+            {changed}
+            <span> / {total}</span>
+          </strong>
+          <span>saved comparisons changed</span>
+        </div>
+        <p>
+          Some answers stay identical. This sample contains 10 questions × 3
+          models × 2 adapters, using seed 42. It does not establish a general
+          training benefit.
+        </p>
       </div>
+      <div className="training-pickers">
+        <fieldset className="choice-group">
+          <legend>1. Choose a model</legend>
+          <div>
+            {MODELS.map((m) => (
+              <button
+                type="button"
+                key={m}
+                aria-pressed={model === m}
+                onClick={() => {
+                  setModel(m);
+                  setIndex(0);
+                }}
+              >
+                {names[m]}
+              </button>
+            ))}
+          </div>
+        </fieldset>
+        <fieldset className="choice-group">
+          <legend>2. Choose an adapter</legend>
+          <div>
+            {["qlora", "dora"].map((a) => (
+              <button
+                type="button"
+                key={a}
+                aria-pressed={adapter === a}
+                onClick={() => {
+                  setAdapter(a);
+                  setIndex(0);
+                }}
+              >
+                {a === "qlora" ? "QLoRA" : "DoRA"}
+              </button>
+            ))}
+          </div>
+        </fieldset>
+      </div>
+      <div className="training-selection-summary" role="status">
+        <strong>
+          {summary.changed} of {summary.total} answers changed
+        </strong>
+        <span>
+          {" "}
+          {summary.unchanged} stayed the same for {names[model]} +{" "}
+          {adapter === "qlora" ? "QLoRA" : "DoRA"} in the selected language.
+        </span>
+      </div>
+      <fieldset className="choice-group training-view">
+        <legend>3. Choose what to explore</legend>
+        <div>
+          <button
+            type="button"
+            aria-pressed={changedOnly}
+            onClick={() => {
+              setChangedOnly(true);
+              setIndex(0);
+            }}
+          >
+            Changed answers · {summary.changed}
+          </button>
+          <button
+            type="button"
+            aria-pressed={!changedOnly}
+            onClick={() => {
+              setChangedOnly(false);
+              setIndex(0);
+            }}
+          >
+            All saved pairs · {summary.total}
+          </button>
+        </div>
+      </fieldset>
+      {available.length > 0 && (
+        <div className="e-controls training-question-control">
+          <label className="e-question-select">
+            Saved question
+            <select
+              value={Math.min(index, Math.max(0, available.length - 1))}
+              onChange={(e) => setIndex(Number(e.target.value))}
+            >
+              {available.map((x, i) => (
+                <option key={x.id} value={i}>
+                  {i + 1}. {x.language === "arabic" ? "Arabic" : "Malay"} ·{" "}
+                  {x.question}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+      )}
       <p className="e-caption">
-        {available.length} saved questions · Seed 42 ·{" "}
+        {available.length} {changedOnly ? "changed" : "saved"} questions · Seed
+        42 ·{" "}
         {model === "mt5"
           ? "Corrected mT5 protocol"
           : "Original protocol; these runs are not a corrected-protocol rerun"}
@@ -421,7 +501,23 @@ function TrainingComparison({
           </details>
         </>
       ) : (
-        <p>No saved comparison is available for this language.</p>
+        <div className="training-empty">
+          <h3>No changed answers in this selection</h3>
+          <p>
+            All {summary.total} saved pairs have identical wording. That is a
+            result of these saved runs, rather than a display error. Choose
+            another model or adapter to explore differences.
+          </p>
+          <button
+            className="simple-secondary"
+            onClick={() => {
+              setChangedOnly(false);
+              setIndex(0);
+            }}
+          >
+            View the unchanged pairs
+          </button>
+        </div>
       )}
     </section>
   );
@@ -578,15 +674,12 @@ export default function Home({ d }: { d: ResultsFile }) {
     const next = filtered[index + amount];
     if (next) {
       setSelectedId(next.id);
-      document
-        .getElementById("question-navigation")
-        ?.scrollIntoView({
-          block: "start",
-          behavior: window.matchMedia("(prefers-reduced-motion: reduce)")
-            .matches
-            ? "auto"
-            : "smooth",
-        });
+      document.getElementById("question-navigation")?.scrollIntoView({
+        block: "start",
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+          ? "auto"
+          : "smooth",
+      });
     }
   }
   return (

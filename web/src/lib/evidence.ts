@@ -1,3 +1,4 @@
+import type { OutputItem } from "../data/results.ts";
 export const MODELS = ["qwen3", "mt5", "t5gemma2"] as const;
 export type Model = (typeof MODELS)[number];
 export type Language = "arabic" | "malay";
@@ -201,4 +202,29 @@ export function selectedExampleIndex(
 ): number {
   const index = examples.findIndex((example) => example.id === id);
   return index < 0 ? 0 : index;
+}
+
+export function trainingPairs(
+  items: OutputItem[],
+  model: string,
+  adapter: string,
+  changedOnly = false,
+) {
+  return items.filter((item) => {
+    const pair = item.answers[model]?.[adapter];
+    const before = pair?.B_ce_lora,
+      after = pair?.C_composite_lora;
+    return (
+      before && after && (!changedOnly || before.generated !== after.generated)
+    );
+  });
+}
+export function trainingSummary(
+  items: OutputItem[],
+  model: string,
+  adapter: string,
+) {
+  const total = trainingPairs(items, model, adapter).length;
+  const changed = trainingPairs(items, model, adapter, true).length;
+  return { total, changed, unchanged: total - changed };
 }
