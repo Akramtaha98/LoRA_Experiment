@@ -8,5 +8,6 @@ test:  ## CPU unit tests (each prints ALL_PASS / *_TEST_PASS)
 	$(PY) scripts/estimator_checks.py
 web-data:  ## regenerate web/public/data/results.json from results/
 	$(PY) scripts/build_web_data.py
+	$(PY) scripts/build_experiment_catalog.py
 web-build: web-data
 	cd web && npm ci && npm run build

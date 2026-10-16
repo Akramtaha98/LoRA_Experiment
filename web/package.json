@@ -6,8 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "lint": "oxlint",
-    "preview": "vite preview"
+    "lint": "node scripts/lint.mjs",
+    "preview": "vite preview",
+    "test": "node --experimental-strip-types tests/explorer.test.mjs"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.3",

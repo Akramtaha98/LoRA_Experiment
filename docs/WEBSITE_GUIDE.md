@@ -1,41 +1,32 @@
-# Website guide
+# Results explorer
 
-The dashboard lives in `web/` and is deployed at https://lo-ra-experiment.vercel.app.
+The website presents saved results in four sections:
 
-## Data flow
+- **Overview** explains configurations A–D, available adapter methods, the scoped model comparison, and corrected-study findings. Coverage and validation details expand on demand.
+- **Experiments** filters by study, model, configuration, adapter and language. Each result includes overall exact-match, token-F1 and NLI-reward scores, seed coverage, available saved outputs, per-answer scores, and source links. A/D have no adapter. Impossible or missing selections are labelled as unavailable, never zero.
+- **Compare answers** compares two experiment cells within one study and language, with a warning when seed/evaluation coverage differs. Only records with the same seed, question, passage and reference are paired. Different-wording examples are shown first, with an option to inspect all matched pairs. A separate mode preserves all 100 shared questions with all three model outputs.
+- **Leaderboard** orders observed mean scores within one study and language. Exact match is the default. NLI reward ranking is explicitly labelled as a training-reward ranking, not correctness. A descriptive ordering does not imply statistical superiority.
 
-```text
-results/  ──►  scripts/build_web_data.py  ──►  web/public/data/results.json  ──►  React pages
-```
+## Data and provenance
 
-`results.json` is tracked in git so that Vercel and GitHub Pages can build without Python. After any change to `results/`, run `make web-data` and commit the new JSON.
+`python3 scripts/build_experiment_catalog.py` exports `web/public/data/experiments.json` and one lazily loaded answer file per original experiment cell in `web/public/data/experiment-examples/`.
 
-## Pages (`web/src/pages/`)
+Original B/C cells follow `analysis_first_study/per_seed_results.csv` and `t5gemma2_per_seed.csv`. Each source record must be PASS and match the analysis row's seed, model, adapter, language, objective and all three scores. A/D records come from the explicitly named full-evaluation baseline files. Smoke runs, failed retries, lambda sweeps and alternate evaluation fixes are not silently mixed into the primary original-study matrix.
 
-| Tab | File | Content |
-|---|---|---|
-| Overview | `Overview.tsx` | headline numbers, condition bars, study status |
-| Corrected study | `Corrected.tsx` | per-seed strip plot, condition means, pre-specified contrasts, bootstraps, checkpointing |
-| T5Gemma 2 & other backbones | `Backbones.tsx` | T5Gemma 2, Qwen3 and first-study mT5 (original protocol, flagged as not comparable) |
-| Validation | `Validation.tsx` | independent scorer, human judgements, answer length, run diagnostics |
-| Worked examples | `Worked.tsx` | five items with both answers, both scorers and annotator ratings |
-| First-study logs | `Examples.tsx` | seed-42 prediction browser (mT5 vs Qwen3) |
+The catalog contains 56 original-study cells and 36 corrected-study cells: 152 original seed runs and 228 corrected seed runs. Every actually saved sample from the selected original records is exported (11,465 answer records). Some early logs contain only reference, generated answer and scores; question/passage text is left absent. Samples are not assigned to questions by position or matching gold alone.
 
-## Develop
+Corrected scores come directly from all 36 cells in `web/public/data/results.json`. Their individual prediction archive is not tracked in this repository. The UI therefore shows scores with an explicit missing-predictions message. Five separate corrected-study worked examples retain their existing provenance and are shown under Study evidence, not assigned to arbitrary adapters or seeds.
 
-```bash
-cd web
-npm ci
-npm run dev      # http://localhost:5173
-npm run build    # type-check + production build into web/dist
-```
+The 100 shared questions remain a distinct original-protocol C/QLoRA/seed42 export. They are not presented as the examples behind every score.
 
-## Deploy
+The model comparison on Overview retains the recorded B/DoRA+QLoRA/three-seed summary, with its mixed-protocol limitation shown beside it. The corrected study supersedes original mT5 reward-effect claims; neither study's NLI training reward is treated as a measure of answer correctness.
 
-* **Vercel:** the repository-root `vercel.json` installs and builds from `web/` and serves `web/dist` with an SPA rewrite.
-* **GitHub Pages:** `.github/workflows/deploy-pages.yml` builds `web/` on pushes that touch `web/**`.
-* Vite uses `base: "./"` so both hosts work from the same build.
+Complete corrected results, seed summaries, contrasts, independent scorer results, human validation, length analysis, diagnostics and original reanalysis are available in expandable evidence sections and the downloadable complete analysis JSON. Raw source records remain linked to the repository.
 
-## Optional backend
+## Validation and deployment
 
-`web/api/api.py` is an optional FastAPI service for live generation. The dashboard does not need it.
+- `python3 tests/test_experiment_catalog.py` independently checks exported cells against analysis tables and source lines, including sample identity and score preservation.
+- `npm test --prefix web` checks missing combinations, compatible comparisons, verified question pairing, ranking order, and the existing 100-example evidence behavior.
+- `npm run build --prefix web` and `npm run lint --prefix web` validate the frontend.
+
+The Vercel build serves `web/dist`. Pull-request pushes create a preview; merging to the configured production branch updates the main website. No new experiments, translations, answers or ratings are generated by this redesign.

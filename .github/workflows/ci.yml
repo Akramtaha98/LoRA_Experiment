@@ -43,5 +43,7 @@ jobs:
           python scripts/build_web_data.py --out /tmp/results.json
           diff <(python -c "import json;print(json.dumps(json.load(open('/tmp/results.json')),sort_keys=True))") \
                <(python -c "import json;print(json.dumps(json.load(open('web/public/data/results.json')),sort_keys=True))")
-      - run: npm ci && npm run build
+      - name: Experiment catalog matches saved source records
+        run: python tests/test_experiment_catalog.py
+      - run: npm ci && npm test && npm run lint && npm run build
         working-directory: web

@@ -1,14 +1,15 @@
+import "./research.css";
 import { useEffect, useState } from "react";
 import { BookOpenText, ExternalLink, Moon, Sun } from "lucide-react";
 import { applyTheme, getPreferredTheme, toggleTheme, type Theme } from "./lib/theme";
-import Home from "./pages/Home";
+import ResearchDashboard from "./pages/ResearchDashboard";
 import { useResults } from "./lib/useResults";
 
 export default function App() {
-  const [theme, setTheme] = useState<Theme>("light");
+  const [theme, setTheme] = useState<Theme>(getPreferredTheme);
   const { data, error } = useResults();
 
-  useEffect(() => { const t = getPreferredTheme(); applyTheme(t); setTheme(t); }, []);
+  useEffect(() => { applyTheme(theme); }, [theme]);
 
   return (
     <div className="app">
@@ -17,7 +18,7 @@ export default function App() {
       <header className="topbar">
         <div className="brand">
           <span className="brand-mark"><BookOpenText size={18} /></span>
-          <div><strong>Which model answers best?</strong><small>mT5 · Qwen3 · T5Gemma 2</small></div>
+          <div><strong>The QA Experiment</strong><small>mT5 · Qwen3 · T5Gemma 2</small></div>
         </div>
         <div className="top-actions">
           <button type="button" className="icon-btn" onClick={() => setTheme((t) => toggleTheme(t))} aria-label="Toggle theme">
@@ -28,8 +29,8 @@ export default function App() {
       </header>
       <main className="shell">
         {error ? <p className="error">Could not load results: {error}</p> : null}
-        {data ? <Home d={data} /> : !error ? <p className="hint">Loading…</p> : null}
-        <footer className="footer"><span>Numbers come from the repository's results folder.</span><span>Static site</span></footer>
+        {data ? <ResearchDashboard d={data} /> : !error ? <p className="hint">Loading…</p> : null}
+        <footer className="footer"><span>Saved experimental outputs and scores from the repository.</span><span>Arabic and Malay QA</span></footer>
       </main>
     </div>
   );
