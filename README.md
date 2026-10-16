@@ -87,7 +87,9 @@ Pre-specified design: seeds 42, 123, 2026, 7, 11, 13, 17, 19; seed-paired t inte
 
 ## Web dashboard
 
-`web/` is a static React app published on Vercel. Every number is read from `web/public/data/results.json`, which `scripts/build_web_data.py` generates from `results/`; nothing is typed into the front end. Tabs: which model wins, model outputs, more questions, then the NLI-reward study (reward effect by model, corrected study, validation, reward examples, summary). Earlier tabs: T5Gemma 2 and other backbones, validation, worked examples, first-study prediction logs. Vercel builds from `web/` (see `vercel.json`); a GitHub Pages workflow is also provided.
+`web/` is a static React results explorer published on Vercel. Four sections — Overview, Experiments, Compare answers, and Leaderboard — expose the saved original A–D matrix and corrected mT5 conditions, with protocol labels, measured scores, source-linked examples, and explicit missing-data states. The 100 shared questions remain available in Compare answers. Study evidence includes controls, independent scoring, human validation, uncertainty and length analysis.
+
+`python scripts/build_web_data.py` rebuilds the analysis summary; `python scripts/build_experiment_catalog.py` rebuilds the experiment index and lazily loaded answer files. The latter follows the checked-in per-seed analysis tables and full-evaluation A/D logs, preserving all actually saved outputs. Corrected per-cell predictions require the untracked prediction archive and are labelled unavailable in the website. No missing combinations or answers are fabricated. See [the website guide](docs/WEBSITE_GUIDE.md) for provenance and checks.
 
 ## Data and licence
 

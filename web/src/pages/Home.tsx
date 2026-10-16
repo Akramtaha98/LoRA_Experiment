@@ -199,7 +199,7 @@ function AnswerCard({
   );
 }
 
-function ExampleCard({
+export function ExampleCard({
   example,
   names,
   featured = false,
