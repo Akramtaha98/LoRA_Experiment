@@ -1,0 +1,1 @@
+./finish.sh: line 11: progress.py: command not found
