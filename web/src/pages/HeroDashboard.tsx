@@ -62,7 +62,7 @@ export default function HeroDashboard({ data }: { data: HeroData }) {
     ].map(([key, label]) => <button role="tab" aria-selected={section === key} key={key} onClick={() => setSection(key as typeof section)}>{label}</button>)}</nav>
 
     {section === "verdict" && <section className="hero-section" aria-label="Result summary">
-      <div className="hero-section-heading"><div><span className="hero-kicker">THE RESULT</span><h2>Qwen3 leads in Arabic and Malay</h2><p>Average score over five runs. ± shows how much runs varied.</p></div></div>
+      <div className="hero-section-heading"><div><span className="hero-kicker">THE RESULT</span><h2>Qwen3 leads in Arabic and Malay</h2><p>Average across five runs · ± shows variation.</p></div></div>
       <div className="hero-card-grid">{models.flatMap((model) => (["arabic", "malay"] as Language[]).map((lang) => {
         const b = data.cells[model][lang].B.metrics, c = data.cells[model][lang].C.metrics;
         return <article className={`hero-result-card ${winner(lang) === model ? "winner" : ""}`} key={`${model}-${lang}`}>
