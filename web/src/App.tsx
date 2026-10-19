@@ -29,7 +29,7 @@ export default function App() {
       <header className="topbar">
         <div className="brand">
           <span className="brand-mark"><BookOpenText size={18} /></span>
-          <div><strong>Which model answers best?</strong><small>Arabic · Malay · model and reward comparison</small></div>
+          <div><strong>The QA study</strong><small>Arabic & Malay</small></div>
         </div>
         <div className="top-actions">
           <button type="button" className="icon-btn" onClick={() => setTheme((t) => toggleTheme(t))} aria-label="Toggle theme">
@@ -40,8 +40,8 @@ export default function App() {
       </header>
       <main className="shell">
         <div className="study-switch" role="tablist" aria-label="Study"><button role="tab" aria-selected={study === "current"} onClick={() => setStudy("current")}>Current results <span>Qwen3 · T5Gemma 2</span></button><button role="tab" aria-selected={study === "earlier"} onClick={() => setStudy("earlier")}>Earlier study <span>mT5 baseline</span></button></div>
-        {study === "current" ? (hero ? <HeroDashboard data={hero}/> : heroError ? <p className="error">Could not load current results: {heroError}</p> : <p className="hint">Loading current results…</p>) : <div className="earlier-study"><div className="earlier-note"><strong>Earlier study · mT5 baseline</strong><span>This separate section contains the previous mT5 experiment. Its results use a different model set and protocol, so read them as an earlier study rather than as part of the current comparison.</span></div>{error ? <p className="error">Could not load earlier results: {error}</p> : data ? <Home d={data}/> : <p className="hint">Loading earlier results…</p>}</div>}
-        <footer className="footer"><span>Numbers come from saved experiment results.</span><span>Static site</span></footer>
+        {study === "current" ? (hero ? <HeroDashboard data={hero}/> : heroError ? <p className="error">Could not load current results: {heroError}</p> : <p className="hint">Loading current results…</p>) : <div className="earlier-study"><div className="earlier-note"><strong>Earlier study · mT5 baseline</strong><span>Earlier experiments with a different setup. Compare these separately.</span></div>{error ? <p className="error">Could not load earlier results: {error}</p> : data ? <Home d={data}/> : <p className="hint">Loading earlier results…</p>}</div>}
+        <footer className="footer"><span>Numbers come from saved experiment results.</span><span>Saved experiment results</span></footer>
       </main>
     </div>
   );
