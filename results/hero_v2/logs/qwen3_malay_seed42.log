@@ -1,0 +1,83 @@
+[1mDebertaV2ForSequenceClassification LOAD REPORT[0m from: MoritzLaurer/mDeBERTa-v3-base-mnli-xnli
+Key                             | Status     |  | 
+--------------------------------+------------+--+-
+deberta.embeddings.position_ids | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+[1mXLMRobertaForSequenceClassification LOAD REPORT[0m from: joeddav/xlm-roberta-large-xnli
+Key                             | Status     |  | 
+--------------------------------+------------+--+-
+roberta.embeddings.position_ids | UNEXPECTED |  | 
+roberta.pooler.dense.bias       | UNEXPECTED |  | 
+roberta.pooler.dense.weight     | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+
+=== qwen3 / malay: train=470 eval=430 overlap_eval=0
+  skip qwen3/malay/A_frozen/seed42 (done)
+  skip qwen3/malay/B/seed42 (done)
+  RUN qwen3/malay/C/seed42
+    [C s42] step 50/1416 ce=0.319 rew=0.18402500450611115 81s
+    [C s42] step 100/1416 ce=0.295 rew=0.12334374338388443 141s
+    [C s42] step 150/1416 ce=0.280 rew=0.2533000111579895 203s
+    [C s42] step 200/1416 ce=0.002 rew=0.005425000097602606 263s
+    [C s42] step 250/1416 ce=0.025 rew=0.4688437879085541 322s
+    [C s42] step 300/1416 ce=0.126 rew=0.024418752640485764 377s
+    [C s42] step 350/1416 ce=0.099 rew=0.14204375445842743 432s
+    [C s42] step 400/1416 ce=0.011 rew=0.0382625013589859 486s
+    [C s42] step 450/1416 ce=0.002 rew=0.6266499757766724 539s
+    [C s42] step 500/1416 ce=0.002 rew=0.19852499663829803 597s
+    [C s42] step 550/1416 ce=0.000 rew=0.004500000271946192 649s
+    [C s42] step 600/1416 ce=0.001 rew=0.7044812440872192 707s
+    [C s42] step 650/1416 ce=0.000 rew=0.24972498416900635 762s
+    [C s42] step 700/1416 ce=0.000 rew=0.7117999792098999 817s
+    [C s42] step 750/1416 ce=0.000 rew=0.21527500450611115 871s
+    [C s42] step 800/1416 ce=0.000 rew=0.33719998598098755 926s
+    [C s42] step 850/1416 ce=0.000 rew=0.24757501482963562 979s
+    [C s42] step 900/1416 ce=0.001 rew=0.45307502150535583 1031s
+    [C s42] step 950/1416 ce=0.000 rew=0.15972499549388885 1086s
+    [C s42] step 1000/1416 ce=0.001 rew=0.1965000033378601 1141s
+    [C s42] step 1050/1416 ce=0.032 rew=0.43089374899864197 1194s
+    [C s42] step 1100/1416 ce=0.017 rew=0.10551249235868454 1252s
+    [C s42] step 1150/1416 ce=0.000 rew=0.25102499127388 1307s
+    [C s42] step 1200/1416 ce=0.000 rew=0.0012499999720603228 1361s
+    [C s42] step 1250/1416 ce=0.000 rew=0.240775004029274 1413s
+    [C s42] step 1300/1416 ce=0.000 rew=0.2885499894618988 1467s
+    [C s42] step 1350/1416 ce=0.000 rew=0.006049999967217445 1522s
+    [C s42] step 1400/1416 ce=0.000 rew=0.24969999492168427 1577s
+    [C s42] step 1416/1416 ce=0.000 rew=0.0017000000225380063 1594s
+  DONE qwen3/malay/C/seed42: faith=0.303 f1=0.617 em=0.549 words=4.1
+  RUN qwen3/malay/C_l0/seed42
+    [C_l0 s42] step 50/1416 ce=0.266 rew=0.31008750200271606 73s
+    [C_l0 s42] step 100/1416 ce=0.308 rew=0.0013749999925494194 133s
+    [C_l0 s42] step 150/1416 ce=0.161 rew=0.005100000184029341 194s
+    [C_l0 s42] step 200/1416 ce=0.017 rew=0.06327500194311142 251s
+    [C_l0 s42] step 250/1416 ce=0.017 rew=0.4778437614440918 309s
+    [C_l0 s42] step 300/1416 ce=0.007 rew=0.01002500019967556 362s
+    [C_l0 s42] step 350/1416 ce=0.066 rew=0.03998124599456787 418s
+    [C_l0 s42] step 400/1416 ce=0.000 rew=0.038325000554323196 471s
+    [C_l0 s42] step 450/1416 ce=0.000 rew=0.6266499757766724 524s
+    [C_l0 s42] step 500/1416 ce=0.000 rew=0.19852499663829803 581s
+    [C_l0 s42] step 550/1416 ce=0.000 rew=0.004500000271946192 633s
+    [C_l0 s42] step 600/1416 ce=0.000 rew=0.7597249746322632 690s
+    [C_l0 s42] step 650/1416 ce=0.000 rew=0.24972498416900635 745s
+    [C_l0 s42] step 700/1416 ce=0.000 rew=0.7117999792098999 799s
+    [C_l0 s42] step 750/1416 ce=0.000 rew=0.21527500450611115 853s
+    [C_l0 s42] step 800/1416 ce=0.000 rew=0.33719998598098755 908s
+    [C_l0 s42] step 850/1416 ce=0.000 rew=0.24757501482963562 961s
+    [C_l0 s42] step 900/1416 ce=0.000 rew=0.45307502150535583 1012s
+    [C_l0 s42] step 950/1416 ce=0.000 rew=0.15972499549388885 1067s
+    [C_l0 s42] step 1000/1416 ce=0.000 rew=0.1965000033378601 1123s
+    [C_l0 s42] step 1050/1416 ce=0.000 rew=0.2516250014305115 1177s
+    [C_l0 s42] step 1100/1416 ce=0.000 rew=0.04569999873638153 1232s
+    [C_l0 s42] step 1150/1416 ce=0.000 rew=0.25102499127388 1288s
+    [C_l0 s42] step 1200/1416 ce=0.000 rew=0.0012499999720603228 1342s
+    [C_l0 s42] step 1250/1416 ce=0.000 rew=0.240775004029274 1395s
+    [C_l0 s42] step 1300/1416 ce=0.000 rew=0.2885499894618988 1449s
+    [C_l0 s42] step 1350/1416 ce=0.000 rew=0.006049999967217445 1504s
+    [C_l0 s42] step 1400/1416 ce=0.000 rew=0.24969999492168427 1559s
+    [C_l0 s42] step 1416/1416 ce=0.000 rew=0.0017000000225380063 1575s
+  DONE qwen3/malay/C_l0/seed42: faith=0.292 f1=0.625 em=0.563 words=4.2
+  skip qwen3/malay/C_shuf/seed42 (done)

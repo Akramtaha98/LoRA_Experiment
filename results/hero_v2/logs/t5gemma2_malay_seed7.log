@@ -1,0 +1,22 @@
+[1mDebertaV2ForSequenceClassification LOAD REPORT[0m from: MoritzLaurer/mDeBERTa-v3-base-mnli-xnli
+Key                             | Status     |  | 
+--------------------------------+------------+--+-
+deberta.embeddings.position_ids | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+[1mXLMRobertaForSequenceClassification LOAD REPORT[0m from: joeddav/xlm-roberta-large-xnli
+Key                             | Status     |  | 
+--------------------------------+------------+--+-
+roberta.pooler.dense.bias       | UNEXPECTED |  | 
+roberta.embeddings.position_ids | UNEXPECTED |  | 
+roberta.pooler.dense.weight     | UNEXPECTED |  | 
+
+Notes:
+- UNEXPECTED:	can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+
+=== t5gemma2 / malay: train=470 eval=430 overlap_eval=0
+  skip t5gemma2/malay/B/seed7 (done)
+  skip t5gemma2/malay/C/seed7 (done)
+  skip t5gemma2/malay/C_l0/seed7 (done)
+  skip t5gemma2/malay/C_shuf/seed7 (done)

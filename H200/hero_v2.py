@@ -266,7 +266,14 @@ class Backbone:
             v = getattr(cfg, "decoder_start_token_id", None)
             if v is not None:
                 return v
-        return self.pad
+        # No start id in any config (T5Gemma 2): ask generate() what it actually emits first,
+        # so training and decoding use the SAME decoder start token.
+        if getattr(self, "_start", None) is None:
+            with torch.no_grad():
+                probe = torch.tensor([[self.eos]], device=next(base.parameters()).device)
+                out = base.generate(input_ids=probe, max_new_tokens=1, do_sample=False)
+            self._start = int(out[0, 0])
+        return self._start
 
     # ---- generation (eval mode is the caller's responsibility and is asserted) ----
     @torch.no_grad()

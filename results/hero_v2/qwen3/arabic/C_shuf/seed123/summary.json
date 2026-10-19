@@ -1,0 +1,55 @@
+{
+  "model": "qwen3",
+  "lang": "arabic",
+  "cond": "C_shuf",
+  "seed": 123,
+  "n_eval": 720,
+  "faith": 0.15124069444444446,
+  "faith_2nd": 0.17544652777777778,
+  "em": 0.4388888888888889,
+  "f1": 0.6089280555555555,
+  "option_acc": null,
+  "mean_words": 3.073611111111111,
+  "empty_rate": 0.0,
+  "train_seconds": 2831.1,
+  "n_steps": 1416,
+  "total_seconds": 2882.7,
+  "config": {
+    "models": [
+      "qwen3"
+    ],
+    "langs": [
+      "arabic"
+    ],
+    "conds": [
+      "B",
+      "C",
+      "C_l0",
+      "C_shuf"
+    ],
+    "seeds": [
+      123
+    ],
+    "out": "results_train",
+    "epochs": 12,
+    "bs": 4,
+    "k": 4,
+    "lam": 0.3,
+    "lr": 0.0002,
+    "eval_bs": 32,
+    "train_size": 470,
+    "log_every": 50,
+    "ckpt_control": false,
+    "no_second": false,
+    "max_steps": 0,
+    "eval_limit": 0,
+    "smoke": false,
+    "hf_model": "Qwen/Qwen3-0.6B-Base",
+    "nli_reward": "MoritzLaurer/mDeBERTa-v3-base-mnli-xnli",
+    "nli_second": "joeddav/xlm-roberta-large-xnli",
+    "dtype": "torch.bfloat16",
+    "torch": "2.12.1+cu130",
+    "git": "5d3cfd2",
+    "gradient_checkpointing": false
+  }
+}

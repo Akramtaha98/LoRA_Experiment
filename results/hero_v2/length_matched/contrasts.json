@@ -1,0 +1,662 @@
+{
+  "qwen3/arabic/C-B/faith": {
+    "mean_diff": 0.011049055555555557,
+    "ci95": [
+      0.004658258333333334,
+      0.017568668055555556
+    ],
+    "n_examples": 720,
+    "seeds_positive": 5,
+    "n_seeds": 5
+  },
+  "qwen3/arabic/C-B/faith_2nd": {
+    "mean_diff": 0.0023499722222222216,
+    "ci95": [
+      -0.003946070138888888,
+      0.008858064583333334
+    ],
+    "n_examples": 720,
+    "seeds_positive": 3,
+    "n_seeds": 5
+  },
+  "qwen3/arabic/C-B/f1": {
+    "mean_diff": 0.011466805555555558,
+    "ci95": [
+      0.0008884013888888937,
+      0.021467618750000004
+    ],
+    "n_examples": 720,
+    "seeds_positive": 3,
+    "n_seeds": 5
+  },
+  "qwen3/arabic/C-B/em": {
+    "mean_diff": 0.009166666666666667,
+    "ci95": [
+      -0.00361111111111111,
+      0.0225
+    ],
+    "n_examples": 720,
+    "seeds_positive": 3,
+    "n_seeds": 5
+  },
+  "qwen3/arabic/C-B/n_words": {
+    "mean_diff": 0.21722222222222223,
+    "ci95": [
+      0.1327777777777778,
+      0.31027777777777776
+    ],
+    "n_examples": 720,
+    "seeds_positive": 5,
+    "n_seeds": 5
+  },
+  "qwen3/arabic/C-C_l0/faith": {
+    "mean_diff": 0.011608555555555556,
+    "ci95": [
+      0.005479342361111114,
+      0.01801943541666667
+    ],
+    "n_examples": 720,
+    "seeds_positive": 5,
+    "n_seeds": 5
+  },
+  "qwen3/arabic/C-C_l0/faith_2nd": {
+    "mean_diff": -0.0003426666666666658,
+    "ci95": [
+      -0.007233172916666664,
+      0.007022033333333334
+    ],
+    "n_examples": 720,
+    "seeds_positive": 3,
+    "n_seeds": 5
+  },
+  "qwen3/arabic/C-C_l0/f1": {
+    "mean_diff": 0.012795694444444446,
+    "ci95": [
+      0.0023332798611111153,
+      0.02324134722222223
+    ],
+    "n_examples": 720,
+    "seeds_positive": 3,
+    "n_seeds": 5
+  },
+  "qwen3/arabic/C-C_l0/em": {
+    "mean_diff": 0.006666666666666668,
+    "ci95": [
+      -0.005833333333333334,
+      0.019444444444444448
+    ],
+    "n_examples": 720,
+    "seeds_positive": 2,
+    "n_seeds": 5
+  },
+  "qwen3/arabic/C-C_l0/n_words": {
+    "mean_diff": 0.22527777777777777,
+    "ci95": [
+      0.14027083333333334,
+      0.3164027777777778
+    ],
+    "n_examples": 720,
+    "seeds_positive": 5,
+    "n_seeds": 5
+  },
+  "qwen3/arabic/C-C_shuf/faith": {
+    "mean_diff": 0.008421,
+    "ci95": [
+      0.0020052250000000007,
+      0.015213007638888889
+    ],
+    "n_examples": 720,
+    "seeds_positive": 5,
+    "n_seeds": 5
+  },
+  "qwen3/arabic/C-C_shuf/faith_2nd": {
+    "mean_diff": 0.0014233333333333335,
+    "ci95": [
+      -0.00498136111111111,
+      0.008201261805555563
+    ],
+    "n_examples": 720,
+    "seeds_positive": 3,
+    "n_seeds": 5
+  },
+  "qwen3/arabic/C-C_shuf/f1": {
+    "mean_diff": 0.004121222222222224,
+    "ci95": [
+      -0.006349231249999999,
+      0.014645507638888897
+    ],
+    "n_examples": 720,
+    "seeds_positive": 2,
+    "n_seeds": 5
+  },
+  "qwen3/arabic/C-C_shuf/em": {
+    "mean_diff": -0.003333333333333335,
+    "ci95": [
+      -0.015555555555555555,
+      0.009166666666666667
+    ],
+    "n_examples": 720,
+    "seeds_positive": 2,
+    "n_seeds": 5
+  },
+  "qwen3/arabic/C-C_shuf/n_words": {
+    "mean_diff": 0.2316666666666667,
+    "ci95": [
+      0.15555555555555556,
+      0.30833333333333335
+    ],
+    "n_examples": 720,
+    "seeds_positive": 5,
+    "n_seeds": 5
+  },
+  "qwen3/malay/C-B/faith": {
+    "mean_diff": 0.00941572093023256,
+    "ci95": [
+      -0.003068019767441859,
+      0.022286388372093024
+    ],
+    "n_examples": 430,
+    "seeds_positive": 4,
+    "n_seeds": 5
+  },
+  "qwen3/malay/C-B/faith_2nd": {
+    "mean_diff": 0.0077204186046511605,
+    "ci95": [
+      -0.004434562790697678,
+      0.020150490697674422
+    ],
+    "n_examples": 430,
+    "seeds_positive": 5,
+    "n_seeds": 5
+  },
+  "qwen3/malay/C-B/f1": {
+    "mean_diff": -0.020639860465116275,
+    "ci95": [
+      -0.039560051162790696,
+      -0.0025647848837209207
+    ],
+    "n_examples": 430,
+    "seeds_positive": 1,
+    "n_seeds": 5
+  },
+  "qwen3/malay/C-B/em": {
+    "mean_diff": -0.020930232558139535,
+    "ci95": [
+      -0.0427906976744186,
+      2.581914010765571e-20
+    ],
+    "n_examples": 430,
+    "seeds_positive": 1,
+    "n_seeds": 5
+  },
+  "qwen3/malay/C-B/option_correct": {
+    "mean_diff": -0.019534883720930228,
+    "ci95": [
+      -0.04093023255813954,
+      0.001395348837209301
+    ],
+    "n_examples": 430,
+    "seeds_positive": 1,
+    "n_seeds": 5
+  },
+  "qwen3/malay/C-B/n_words": {
+    "mean_diff": -0.031627906976744176,
+    "ci95": [
+      -0.08883720930232555,
+      0.02418604651162792
+    ],
+    "n_examples": 430,
+    "seeds_positive": 2,
+    "n_seeds": 5
+  },
+  "qwen3/malay/C-C_l0/faith": {
+    "mean_diff": 0.007837953488372093,
+    "ci95": [
+      -0.004887124418604651,
+      0.021022902325581405
+    ],
+    "n_examples": 430,
+    "seeds_positive": 3,
+    "n_seeds": 5
+  },
+  "qwen3/malay/C-C_l0/faith_2nd": {
+    "mean_diff": 0.007303767441860463,
+    "ci95": [
+      -0.004246398837209305,
+      0.01973403139534884
+    ],
+    "n_examples": 430,
+    "seeds_positive": 4,
+    "n_seeds": 5
+  },
+  "qwen3/malay/C-C_l0/f1": {
+    "mean_diff": -0.015898325581395346,
+    "ci95": [
+      -0.03424463488372093,
+      0.002002540697674419
+    ],
+    "n_examples": 430,
+    "seeds_positive": 1,
+    "n_seeds": 5
+  },
+  "qwen3/malay/C-C_l0/em": {
+    "mean_diff": -0.015348837209302323,
+    "ci95": [
+      -0.037209302325581395,
+      0.005581395348837211
+    ],
+    "n_examples": 430,
+    "seeds_positive": 1,
+    "n_seeds": 5
+  },
+  "qwen3/malay/C-C_l0/option_correct": {
+    "mean_diff": -0.01395348837209302,
+    "ci95": [
+      -0.035348837209302326,
+      0.006976744186046513
+    ],
+    "n_examples": 430,
+    "seeds_positive": 1,
+    "n_seeds": 5
+  },
+  "qwen3/malay/C-C_l0/n_words": {
+    "mean_diff": 0.012558139534883734,
+    "ci95": [
+      -0.0469767441860465,
+      0.07350000000000007
+    ],
+    "n_examples": 430,
+    "seeds_positive": 3,
+    "n_seeds": 5
+  },
+  "qwen3/malay/C-C_shuf/faith": {
+    "mean_diff": 0.0037712558139534878,
+    "ci95": [
+      -0.010221401162790703,
+      0.017247162790697677
+    ],
+    "n_examples": 430,
+    "seeds_positive": 3,
+    "n_seeds": 5
+  },
+  "qwen3/malay/C-C_shuf/faith_2nd": {
+    "mean_diff": 0.0034057674418604637,
+    "ci95": [
+      -0.00885628372093023,
+      0.016008617441860464
+    ],
+    "n_examples": 430,
+    "seeds_positive": 3,
+    "n_seeds": 5
+  },
+  "qwen3/malay/C-C_shuf/f1": {
+    "mean_diff": -0.01888093023255814,
+    "ci95": [
+      -0.038631395348837215,
+      0.00030815465116279474
+    ],
+    "n_examples": 430,
+    "seeds_positive": 1,
+    "n_seeds": 5
+  },
+  "qwen3/malay/C-C_shuf/em": {
+    "mean_diff": -0.0213953488372093,
+    "ci95": [
+      -0.04325581395348837,
+      2.581914010765571e-20
+    ],
+    "n_examples": 430,
+    "seeds_positive": 1,
+    "n_seeds": 5
+  },
+  "qwen3/malay/C-C_shuf/option_correct": {
+    "mean_diff": -0.020465116279069766,
+    "ci95": [
+      -0.04232558139534884,
+      0.0009302325581395347
+    ],
+    "n_examples": 430,
+    "seeds_positive": 1,
+    "n_seeds": 5
+  },
+  "qwen3/malay/C-C_shuf/n_words": {
+    "mean_diff": 0.034883720930232565,
+    "ci95": [
+      -0.022790697674418603,
+      0.09069767441860466
+    ],
+    "n_examples": 430,
+    "seeds_positive": 5,
+    "n_seeds": 5
+  },
+  "t5gemma2/arabic/C-B/faith": {
+    "mean_diff": -0.0014066111111111135,
+    "ci95": [
+      -0.008365547222222222,
+      0.005432585416666666
+    ],
+    "n_examples": 720,
+    "seeds_positive": 2,
+    "n_seeds": 5
+  },
+  "t5gemma2/arabic/C-B/faith_2nd": {
+    "mean_diff": -0.006092666666666666,
+    "ci95": [
+      -0.013292777777777775,
+      0.001025425
+    ],
+    "n_examples": 720,
+    "seeds_positive": 2,
+    "n_seeds": 5
+  },
+  "t5gemma2/arabic/C-B/f1": {
+    "mean_diff": 0.003638222222222221,
+    "ci95": [
+      -0.008602061111111113,
+      0.015968707638888892
+    ],
+    "n_examples": 720,
+    "seeds_positive": 2,
+    "n_seeds": 5
+  },
+  "t5gemma2/arabic/C-B/em": {
+    "mean_diff": -0.003611111111111113,
+    "ci95": [
+      -0.01667361111111111,
+      0.009444444444444443
+    ],
+    "n_examples": 720,
+    "seeds_positive": 2,
+    "n_seeds": 5
+  },
+  "t5gemma2/arabic/C-B/n_words": {
+    "mean_diff": -0.03833333333333331,
+    "ci95": [
+      -0.10555555555555554,
+      0.02889583333333337
+    ],
+    "n_examples": 720,
+    "seeds_positive": 2,
+    "n_seeds": 5
+  },
+  "t5gemma2/arabic/C-C_l0/faith": {
+    "mean_diff": 0.0004091111111111101,
+    "ci95": [
+      -0.0059656777777777805,
+      0.006953122916666671
+    ],
+    "n_examples": 720,
+    "seeds_positive": 2,
+    "n_seeds": 5
+  },
+  "t5gemma2/arabic/C-C_l0/faith_2nd": {
+    "mean_diff": -0.0056840000000000016,
+    "ci95": [
+      -0.013110540277777779,
+      0.0015064020833333313
+    ],
+    "n_examples": 720,
+    "seeds_positive": 2,
+    "n_seeds": 5
+  },
+  "t5gemma2/arabic/C-C_l0/f1": {
+    "mean_diff": -0.0061345555555555546,
+    "ci95": [
+      -0.017694842361111112,
+      0.005370950694444444
+    ],
+    "n_examples": 720,
+    "seeds_positive": 2,
+    "n_seeds": 5
+  },
+  "t5gemma2/arabic/C-C_l0/em": {
+    "mean_diff": -0.0058333333333333345,
+    "ci95": [
+      -0.01888888888888889,
+      0.007499999999999998
+    ],
+    "n_examples": 720,
+    "seeds_positive": 1,
+    "n_seeds": 5
+  },
+  "t5gemma2/arabic/C-C_l0/n_words": {
+    "mean_diff": 0.005277777777777775,
+    "ci95": [
+      -0.06417361111111111,
+      0.07499999999999998
+    ],
+    "n_examples": 720,
+    "seeds_positive": 3,
+    "n_seeds": 5
+  },
+  "t5gemma2/arabic/C-C_shuf/faith": {
+    "mean_diff": -0.005078305555555556,
+    "ci95": [
+      -0.01103141875,
+      0.0005576243055555594
+    ],
+    "n_examples": 720,
+    "seeds_positive": 2,
+    "n_seeds": 5
+  },
+  "t5gemma2/arabic/C-C_shuf/faith_2nd": {
+    "mean_diff": -0.011240527777777778,
+    "ci95": [
+      -0.019013178472222222,
+      -0.0037872659722222196
+    ],
+    "n_examples": 720,
+    "seeds_positive": 2,
+    "n_seeds": 5
+  },
+  "t5gemma2/arabic/C-C_shuf/f1": {
+    "mean_diff": -0.00556527777777778,
+    "ci95": [
+      -0.017364061111111113,
+      0.006630384027777779
+    ],
+    "n_examples": 720,
+    "seeds_positive": 2,
+    "n_seeds": 5
+  },
+  "t5gemma2/arabic/C-C_shuf/em": {
+    "mean_diff": -0.003055555555555557,
+    "ci95": [
+      -0.015833333333333335,
+      0.009999999999999998
+    ],
+    "n_examples": 720,
+    "seeds_positive": 1,
+    "n_seeds": 5
+  },
+  "t5gemma2/arabic/C-C_shuf/n_words": {
+    "mean_diff": -0.16611111111111113,
+    "ci95": [
+      -0.23695138888888892,
+      -0.09360416666666664
+    ],
+    "n_examples": 720,
+    "seeds_positive": 3,
+    "n_seeds": 5
+  },
+  "t5gemma2/malay/C-B/faith": {
+    "mean_diff": 0.006178883720930229,
+    "ci95": [
+      -0.007994166279069771,
+      0.0210980476744186
+    ],
+    "n_examples": 430,
+    "seeds_positive": 2,
+    "n_seeds": 5
+  },
+  "t5gemma2/malay/C-B/faith_2nd": {
+    "mean_diff": 0.006024232558139537,
+    "ci95": [
+      -0.00618117325581395,
+      0.018703268604651168
+    ],
+    "n_examples": 430,
+    "seeds_positive": 3,
+    "n_seeds": 5
+  },
+  "t5gemma2/malay/C-B/f1": {
+    "mean_diff": -0.0001830697674418556,
+    "ci95": [
+      -0.017295059302325576,
+      0.017156043023255824
+    ],
+    "n_examples": 430,
+    "seeds_positive": 3,
+    "n_seeds": 5
+  },
+  "t5gemma2/malay/C-B/em": {
+    "mean_diff": 0.001395348837209304,
+    "ci95": [
+      -0.018604651162790697,
+      0.0213953488372093
+    ],
+    "n_examples": 430,
+    "seeds_positive": 3,
+    "n_seeds": 5
+  },
+  "t5gemma2/malay/C-B/option_correct": {
+    "mean_diff": -0.0013953488372093015,
+    "ci95": [
+      -0.020930232558139535,
+      0.018139534883720932
+    ],
+    "n_examples": 430,
+    "seeds_positive": 3,
+    "n_seeds": 5
+  },
+  "t5gemma2/malay/C-B/n_words": {
+    "mean_diff": 0.10186046511627907,
+    "ci95": [
+      0.04604651162790697,
+      0.16186046511627905
+    ],
+    "n_examples": 430,
+    "seeds_positive": 5,
+    "n_seeds": 5
+  },
+  "t5gemma2/malay/C-C_l0/faith": {
+    "mean_diff": 0.01020093023255813,
+    "ci95": [
+      -0.0025693383720930317,
+      0.023722010465116277
+    ],
+    "n_examples": 430,
+    "seeds_positive": 5,
+    "n_seeds": 5
+  },
+  "t5gemma2/malay/C-C_l0/faith_2nd": {
+    "mean_diff": 0.0007255813953488415,
+    "ci95": [
+      -0.011780120930232557,
+      0.013363022093023265
+    ],
+    "n_examples": 430,
+    "seeds_positive": 3,
+    "n_seeds": 5
+  },
+  "t5gemma2/malay/C-C_l0/f1": {
+    "mean_diff": 0.008843488372093027,
+    "ci95": [
+      -0.010339606976744178,
+      0.028096684883720954
+    ],
+    "n_examples": 430,
+    "seeds_positive": 3,
+    "n_seeds": 5
+  },
+  "t5gemma2/malay/C-C_l0/em": {
+    "mean_diff": 0.013023255813953487,
+    "ci95": [
+      -0.007906976744186046,
+      0.03395348837209303
+    ],
+    "n_examples": 430,
+    "seeds_positive": 4,
+    "n_seeds": 5
+  },
+  "t5gemma2/malay/C-C_l0/option_correct": {
+    "mean_diff": 0.007906976744186047,
+    "ci95": [
+      -0.013488372093023253,
+      0.02930232558139535
+    ],
+    "n_examples": 430,
+    "seeds_positive": 4,
+    "n_seeds": 5
+  },
+  "t5gemma2/malay/C-C_l0/n_words": {
+    "mean_diff": 0.08790697674418606,
+    "ci95": [
+      0.033953488372093034,
+      0.14605813953488378
+    ],
+    "n_examples": 430,
+    "seeds_positive": 5,
+    "n_seeds": 5
+  },
+  "t5gemma2/malay/C-C_shuf/faith": {
+    "mean_diff": 0.008202325581395341,
+    "ci95": [
+      -0.005409305813953492,
+      0.022582654651162788
+    ],
+    "n_examples": 430,
+    "seeds_positive": 5,
+    "n_seeds": 5
+  },
+  "t5gemma2/malay/C-C_shuf/faith_2nd": {
+    "mean_diff": -0.007920837209302324,
+    "ci95": [
+      -0.019897690697674414,
+      0.0045751732558139534
+    ],
+    "n_examples": 430,
+    "seeds_positive": 2,
+    "n_seeds": 5
+  },
+  "t5gemma2/malay/C-C_shuf/f1": {
+    "mean_diff": -0.01131302325581395,
+    "ci95": [
+      -0.031696479069767435,
+      0.007885846511627916
+    ],
+    "n_examples": 430,
+    "seeds_positive": 1,
+    "n_seeds": 5
+  },
+  "t5gemma2/malay/C-C_shuf/em": {
+    "mean_diff": -0.008372093023255813,
+    "ci95": [
+      -0.03116279069767442,
+      0.013953488372093021
+    ],
+    "n_examples": 430,
+    "seeds_positive": 2,
+    "n_seeds": 5
+  },
+  "t5gemma2/malay/C-C_shuf/option_correct": {
+    "mean_diff": -0.011627906976744188,
+    "ci95": [
+      -0.03395348837209303,
+      0.01069767441860465
+    ],
+    "n_examples": 430,
+    "seeds_positive": 1,
+    "n_seeds": 5
+  },
+  "t5gemma2/malay/C-C_shuf/n_words": {
+    "mean_diff": 0.07069767441860467,
+    "ci95": [
+      0.010220930232558132,
+      0.13070930232558145
+    ],
+    "n_examples": 430,
+    "seeds_positive": 4,
+    "n_seeds": 5
+  }
+}

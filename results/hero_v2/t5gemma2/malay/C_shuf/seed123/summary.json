@@ -1,0 +1,55 @@
+{
+  "model": "t5gemma2",
+  "lang": "malay",
+  "cond": "C_shuf",
+  "seed": 123,
+  "n_eval": 430,
+  "faith": 0.3005511627906977,
+  "faith_2nd": 0.36939790697674424,
+  "em": 0.3744186046511628,
+  "f1": 0.474780465116279,
+  "option_acc": 0.3813953488372093,
+  "mean_words": 4.102325581395349,
+  "empty_rate": 0.0,
+  "train_seconds": 2408.6,
+  "n_steps": 1416,
+  "total_seconds": 2440.9,
+  "config": {
+    "models": [
+      "t5gemma2"
+    ],
+    "langs": [
+      "malay"
+    ],
+    "conds": [
+      "B",
+      "C",
+      "C_l0",
+      "C_shuf"
+    ],
+    "seeds": [
+      123
+    ],
+    "out": "results_train",
+    "epochs": 12,
+    "bs": 4,
+    "k": 4,
+    "lam": 0.3,
+    "lr": 0.0002,
+    "eval_bs": 32,
+    "train_size": 470,
+    "log_every": 50,
+    "ckpt_control": false,
+    "no_second": false,
+    "max_steps": 0,
+    "eval_limit": 0,
+    "smoke": false,
+    "hf_model": "google/t5gemma-2-270m-270m",
+    "nli_reward": "MoritzLaurer/mDeBERTa-v3-base-mnli-xnli",
+    "nli_second": "joeddav/xlm-roberta-large-xnli",
+    "dtype": "torch.bfloat16",
+    "torch": "2.12.1+cu130",
+    "git": "5d3cfd2",
+    "gradient_checkpointing": false
+  }
+}
