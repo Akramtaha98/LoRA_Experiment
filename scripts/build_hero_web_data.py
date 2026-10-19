@@ -181,16 +181,13 @@ def build_examples():
                 rows = [records[(model, condition)][ex_id] for model in MODELS for condition in ("B", "C")]
                 if any(row.get("passage_in_train") for row in rows):
                     continue
-                # Prefer useful comparisons where at least one saved answer changes
-                # across models or conditions; keep the selection deterministic.
-                if len({row.get("pred", "") for row in rows}) < 2:
-                    continue
+                # First 50 shared held-out items, including unchanged answers.
                 candidates.append(ex_id)
-            if len(candidates) < 5:
+            if len(candidates) < 50:
                 raise ValueError(f"Only {len(candidates)} shared held-out examples for {language}")
 
             examples = []
-            for ex_id in candidates[:5]:
+            for ex_id in candidates[:50]:
                 qwen = records[("qwen3", "B")][ex_id]
                 t5gemma = records[("t5gemma2", "B")][ex_id]
                 for model in MODELS:

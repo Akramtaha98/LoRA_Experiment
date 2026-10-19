@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { ArrowRight, ChevronLeft, ChevronRight, Info } from "lucide-react";
+import { ArrowRight, Info } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, ErrorBar, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import type { HeroData } from "../data/hero";
+import QuestionBrowser from "../components/QuestionBrowser";
 
 type Lang = "arabic" | "malay";
 type Model = "qwen3" | "t5gemma2";
@@ -53,9 +54,9 @@ export default function HeroDashboard({ data }: { data: HeroData }) {
       </>}
       {page === "examples" && <>
         <div className="qa-heading"><h2>Read the answers</h2><p>One question. Both models. Before and after reward.</p></div>
-        <div className="qa-example-nav"><button aria-label="Previous example" disabled={exampleIndex===0} onClick={()=>setExampleIndex(i=>i-1)}><ChevronLeft size={18}/></button><label><span>Example {exampleIndex+1} of {examples.length}</span><select aria-label="Choose a question" value={exampleIndex} onChange={e=>setExampleIndex(Number(e.target.value))}>{examples.map((e,i)=><option key={e.id} value={i}>{i+1}. {e.question}</option>)}</select></label><button aria-label="Next example" disabled={exampleIndex===examples.length-1} onClick={()=>setExampleIndex(i=>i+1)}><ChevronRight size={18}/></button></div>
+        <QuestionBrowser key={lang} examples={examples} index={exampleIndex} onChange={setExampleIndex}/>
         <article className="qa-question"><span className="qa-eyebrow">QUESTION</span><h3 dir="auto">{example.question}</h3><details><summary>Read the passage</summary><p dir="auto">{example.context}</p></details></article><div className="qa-reference"><span>Reference answer</span><strong dir="auto">{example.gold}</strong></div>
-        <div className="qa-model-grid">{models.map(model=><article className="qa-answer" key={model}><h3>{names[model]}</h3>{(["B","C"] as const).map(cond=>{const answer=example.answers[model][cond];return <section key={cond}><header><b>{cond==="B"?"Standard":"With reward"}</b>{answer.em===1 && <span className="qa-badge">Exact match</span>}</header><p dir="auto">{answer.answer || "No answer"}</p><small>F1 {answer.f1?.toFixed(3)??"—"} · NLI {answer.faith?.toFixed(3)??"—"}</small></section>;})}<footer>{example.answers[model].B.answer===example.answers[model].C.answer ? "Same answer with reward." : "Reward changed this answer."}</footer></article>)}</div><details className="qa-details"><summary>About these examples</summary><p>Five fixed held-out questions per language from seed 42. Each is shared by both models; at least one answer differs across models or training conditions. Summary scores average five seeds.</p></details>
+        <div className="qa-model-grid">{models.map(model=><article className="qa-answer" key={model}><h3>{names[model]}</h3>{(["B","C"] as const).map(cond=>{const answer=example.answers[model][cond];return <section key={cond}><header><b>{cond==="B"?"Standard":"With reward"}</b>{answer.em===1 && <span className="qa-badge">Exact match</span>}</header><p dir="auto">{answer.answer || "No answer"}</p><small>F1 {answer.f1?.toFixed(3)??"—"} · NLI {answer.faith?.toFixed(3)??"—"}</small></section>;})}<footer>{example.answers[model].B.answer===example.answers[model].C.answer ? "Same answer with reward." : "Reward changed this answer."}</footer></article>)}</div><details className="qa-details"><summary>About these examples</summary><p>{examples.length} saved questions in this language from seed 42. These are the first shared held-out items in dataset order, including unchanged answers. Each question has both models and both training conditions. Summary scores average five seeds.</p></details>
       </>}
       {page === "reward" && <>
         <div className="qa-heading"><h2>Why no clear reward benefit?</h2><p>Three checks help explain the result.</p></div><Choice value={diagnosticModel} onChange={setDiagnosticModel} label="Model for reward checks" choices={models.map(id=>({id,name:names[id]}))}/>

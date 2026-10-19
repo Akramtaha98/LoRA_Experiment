@@ -11,7 +11,7 @@ The top-level **Current results** tab presents the five-seed Qwen3 and T5Gemma 2
 | Results | Choose Arabic or Malay; compare both models and read the verdict. |
 | Compare | View standard and reward training side by side, with error bars, exact values, and expandable intervals. |
 | Reward checks | Choose a model and language; inspect controls, answer length, matched-length results, and late reward activity. |
-| Answers | Browse five questions per language with Previous/Next, the reference and both models’ standard/reward answers. |
+| Answers | Browse 50 questions per language with Previous/Next and a searchable question picker, the reference and both models’ standard/reward answers. |
 
 The separate **Earlier study** tab retains the previous mT5 dashboard and labels it as a legacy baseline. The footer on Current results states the limits: models differ in size, reward contrasts are exploratory, human evaluation covers the earlier mT5 study, and the manuscript is under review.
 
